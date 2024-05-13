@@ -23,12 +23,15 @@ export class FileDetector {
     };
 
     /**
-     * Functions to help detect what kind of file is being loaded.
+     * List of files to belong to a given page type or optionally
+     * a custom function to help determine which page type it belongs to.
      */
-    static PageFn = {
-        FrontPage: FileDetector.#isFrontPage,
-        Category: FileDetector.#isCategoryPage,
-        ItemDetail: FileDetector.#isItemDetailPage
+    static #PageFn = {
+        FrontPage: [ 'Default.aspx', 'swwest_copy.html', ''],
+        // TODO: this may need to be a custom function so we can
+        // determine if it's a category page or a search result
+        Category: [ 'ItemSearch.aspx' ],
+        ItemDetail: [ 'ItemDetail.aspx']
     };
 
     /**
@@ -37,10 +40,12 @@ export class FileDetector {
      */
     static getPageType() {
         let filename = FileDetector.#getCurrentFilename();
-        for (let key in FileDetector.PageFn) {
-            if (FileDetector.PageFn[key](filename)) {
-                return FileDetector.Pages[key];
+        for (let key in FileDetector.#PageFn) {
+            let fn = FileDetector.#PageFn[key];
+            if (typeof fn === 'function') {
+                if (fn(filename)) return key;
             }
+            else if (FileDetector.#matchFilename(filename, fn)) return key;
         }
         return FileDetector.Pages.Unknown;
     }
@@ -56,37 +61,15 @@ export class FileDetector {
     }
 
     /**
-     * Returns true if the given file is an HTML file
+     * Returns true if the filename is in the list
      * @param {string} filename
+     * @param list {string[]}
      * @returns {boolean}
      */
-    static #isFrontPage(filename) {
-        const matches = [
-            'Default.aspx',
-            'swwest_copy.html',
-            ''
-        ];
-        for (let i = 0; i < matches.length; i++) {
-            if (filename === matches[i]) return true;
+    static #matchFilename(filename, list) {
+        for (let i = 0; i < list.length; i++) {
+            if (filename === list[i]) return true;
         }
         return false;
-    }
-
-    /**
-     * Returns true if the given file is an HTML file
-     * @param {string} filename
-     * @returns {boolean}
-     */
-    static #isCategoryPage(filename) {
-        return filename === "ItemSearch.aspx";
-    }
-
-    /**
-     * Returns true if the given file is an HTML file
-     * @param {string} filename
-     * @returns {boolean}
-     */
-    static #isItemDetailPage(filename) {
-        return filename === "ItemDetail.aspx";
     }
 }
