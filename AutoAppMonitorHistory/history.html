@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AutoAppMonitor History</title>
+    <style>
+        h1 {
+            font: 3em bold Optima;
+            margin: 0;
+        }
+        h2 {
+            font: 1.7em bold Optima;
+            margin: 0;
+        }
+        p {
+            font: 1em Calibri;
+            margin: 0.3em;
+        }
+        p > small {
+            font: 0.8em Calibri;
+            font-style: italic;
+        }
+
+        img.report-image {
+            width: 800px;
+            height: 400px;
+        }
+
+        p.keys {
+            font: 1em Monaco;
+            border: 2px solid black;
+            background: #bbb;
+            color: black;
+            padding: 5px;
+            width: 150px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 5px;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.7);
+            transition: all 200ms;
+            text-wrap: none;
+        }
+
+        p.keys:hover {
+            background: #555;
+            color: white;
+            cursor: pointer;
+            border-color: #999;
+            box-shadow: none;
+            margin: 8px 2px 2px 8px;
+        }
+
+        select.ddl-times {
+            margin: 5px;
+            background: #bbb;
+            color: black;
+            font-size: 1.4em;
+        }
+
+        table.commands {
+            width: 800px;
+        }
+
+        table.commands td {
+            width: 20%;
+        }
+
+        .chart-legend {
+            width: 800px;
+            font-size: 2em;
+            color: #333;
+            font-style: italic;
+            text-align: center;
+        }
+        .chart-legend > small {
+            font-size: 0.5em;
+        }
+    </style>
+</head>
+<body>
+
+
+<h1>Auto App Monitor History</h1>
+<h2>Daily Charts </h2>
+
+<img alt="Daily Chart from Email" class="report-image"  src=""/>
+<div class="chart-legend"></div>
+
+<table class="commands">
+    <tr>
+        <td><p class="keys cmd-prev" id="cmdPrev">&lt;&lt; Prev Date</p>
+        <td><p class="keys cmd-next" id="cmdNext">Next Date &gt;&gt;</p>
+        <td style="text-align:right">
+            <label for="ddl-times">Chart:</label>
+        </td>
+        <td>
+            <select id="ddl-times" class="ddl-times">
+                <option>Timestamp goes here</option>
+            </select>
+        </td>
+    </tr>
+</table>
+
+<p>
+    Use the left/right arrow keys to navigate between date.
+</p>
+<p>
+    Use the up/down arrow keys on dates with more than one chart.
+</p>
+<p>
+    <small><i>this happens when the monitor is run extra times on one day for debugging.</i></small>
+</p>
+
+
+
+<script type="text/javascript">
+
+    /**
+     * Strips out the time from a date object
+     * @returns {Date}
+     */
+    Date.prototype.withoutTime = function () {
+        let d = new Date(this);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }
+
+    /**
+     * Performs an insert and keeps the array sorted.
+     * @param element
+     * @returns {Array}
+     */
+    Array.prototype.insertSorted = function(element) {
+        this.push(element);
+        this.sort(function(a, b) {
+            return a - b;
+        });
+        return this;
+    }
+
+    /**
+     * These parses a Date object from a filename.
+     * @param filename {String}
+     * @returns {Date|null}
+     */
+    function parseDateFromFilename(filename) {
+
+        // grab first set of numbers in the string
+        let match = filename.match(/\d+/);
+        if (!match) return null;
+
+        // parse it as a timestamp
+        let str = match[0];
+        let str2 = '';
+        if (str.length >= 8) {
+            str2 = str.substring(0, 4) + '/'
+                + str.substring(4, 6) + '/'
+                + str.substring(6, 8) + ' '
+        }
+        if (str.length >= 12) {
+            str2 += str.substring(8, 10) + ':'
+                + str.substring(10, 12);
+        }
+        return new Date(str2);
+    }
+
+    /**
+     * Gets a nicely formatted time string from a date.
+     * @param date {Date|string}
+     */
+    function getNiceTimeString(date) {
+
+        let dt = parseDateFromFilename(date);
+
+        let hours = dt.getHours();
+        let minutes = dt.getMinutes();
+        let ext = hours >= 12 ? 'pm' : 'am';
+
+        if (hours === 0) hours = 12;
+        else if (hours > 12) hours -= 12;
+
+        minutes = minutes.toString().padStart(2, '0');
+
+        return hours + ':' + minutes + ' ' + ext;
+    }
+
+    /**
+     * Converts a date string to yyyy/MM/dd
+     * @param date
+     * @returns {string}
+     */
+    function toShortDateString(date) {
+        let dt = new Date(date).withoutTime();
+        return dt.getFullYear() + '/'
+            + (dt.getMonth() + 1).toString().padStart(2, '0') + '/'
+            + (dt.getDate()).toString().padStart(2, '0');
+    }
+
+    /**
+     * Returns an array of all the unique keys in a hash as
+     * a sorted list.
+     */
+    function getSortedKeys(hash) {
+        let unique = {};
+        let array = [];
+        for (let key in hash) {
+            if (!unique.hasOwnProperty(key)) {
+                unique[key] = 1;
+                array.push(key);
+            }
+        }
+        array.sort();
+        return array;
+    }
+
+    /**
+     * Creates two objects keyed by date:
+     *  all - is a sorted array of all files on a date
+     *  oldest - is only the oldest file on each date
+     *  dates - sorted array of date keys for all/oldest
+     *
+     * @param filenames {string[]} all files available on server
+     * @returns {{all: {}, min: string|null, oldest: {}, max: string|null, dates: []}}
+     */
+    function getChartsByDate(filenames) {
+
+        let chartsByDate = {};
+        let oldestChartByDate = {};
+
+        // populate hashes
+        for (let i = 0; i < filenames.length; i++) {
+
+            // filename will be used as lookup value
+            const filename = filenames[i];
+
+            // convert file into appropriate keys
+            let timestamp = parseDateFromFilename(filename);
+            if (!timestamp) {
+                console.warn('skipping file without timestamp: ' + filename);
+                continue;
+            }
+            let datestamp = toShortDateString(timestamp);
+
+            // repeat occurrence of a date
+            if (chartsByDate.hasOwnProperty(datestamp)) {
+                chartsByDate[datestamp].insertSorted(filename);
+                if (filename < oldestChartByDate[datestamp]) {
+                    oldestChartByDate[datestamp] = filename;
+                }
+            }
+            // first occurrence of date
+            else {
+                chartsByDate[datestamp] = [filename];
+                oldestChartByDate[datestamp] = filename;
+            }
+        }
+
+        // get range
+        let maxDate = null;
+        let minDate = null;
+        for (let key in chartsByDate) {
+            if (minDate === null || key < minDate) {
+                minDate = key;
+            }
+            if (maxDate === null || key > maxDate) {
+                maxDate = key;
+            }
+        }
+
+        // return combined object
+        return {
+            all: chartsByDate,
+            oldest: oldestChartByDate,
+            max: maxDate,
+            min: minDate,
+            dates: getSortedKeys(chartsByDate)
+        };
+    }
+
+    /**
+     * This is the list of files available on the server.
+     * @type {string[]}
+     */
+    const files = [
+        'chart-20240409101803.png',
+        'chart-20240409101911.png',
+        'chart-20240409101935.png',
+        'chart-20240409102043.png',
+        'chart-20240409152331.png',
+        'chart-20240409153616.png',
+        'chart-20240409154028.png',
+        'chart-20240409154115.png',
+        'chart-20240409154149.png',
+        'chart-20240409154254.png',
+        'chart-20240409154359.png',
+        'chart-20240409154445.png',
+        'chart-20240409154712.png',
+        'chart-20240409155259.png',
+        'chart-20240409155957.png',
+        'chart-20240410074037.png',
+        'chart-20240410140924.png',
+        'chart-20240411074036.png',
+        'chart-20240412074036.png',
+        'chart-20240412171708.png',
+        'chart-20240412171905.png',
+        'chart-20240412172711.png',
+        'chart-20240412172916.png',
+        'chart-20240413074037.png',
+        'chart-20240414074037.png',
+        'chart-20240415074037.png',
+        'chart-20240415112141.png',
+        'chart-20240416074037.png',
+        'chart-20240417074037.png',
+        'chart-20240418074037.png',
+        'chart-20240419074038.png',
+        'chart-20240419145342.png',
+        'chart-20240419155918.png',
+        'chart-20240419170612.png',
+        'chart-20240420074102.png',
+        'chart-20240421074042.png',
+        'chart-20240422074042.png',
+        'chart-20240423074043.png',
+        'chart-20240423104349.png'
+    ];
+
+    // control selected image with arrow keys
+    const $img = document.querySelector('img.report-image');
+    const $select = document.querySelector('select.ddl-times');
+    const $legend = document.querySelector('.chart-legend');
+    const $cmdPrev = document.querySelector('#cmdPrev');
+    const $cmdNext = document.querySelector('#cmdNext');
+
+    /**
+     * Updates the visible chart
+     * @param chartDate
+     * @param dailyIndex
+     */
+    function displayChart(chartDate, dailyIndex) {
+
+        // show image
+        //$img.src = charts.oldest[chartDate];
+        if (!dailyIndex) dailyIndex = 0;
+        $img.src = charts.all[chartDate][dailyIndex];
+
+        // clear select
+        while ($select.options.length > 0) {
+            $select.options.remove(0);
+        }
+
+        // populate select
+        let dailyTimes = charts.all[chartDate];
+        for (let i = 0; i < dailyTimes.length; i++) {
+            let opt = document.createElement('option');
+            opt.value = dailyTimes[i];
+            opt.innerHTML = getNiceTimeString(opt.value)
+            opt.selected = i === dailyIndex;
+            $select.appendChild(opt);
+        }
+
+        // set legend
+        $legend.innerHTML = new Date(chartDate).toDateString()
+            + ' <small>(' + dailyTimes[0] + ') '
+            + ' <b>Chart ' + (dailyIndex + 1)
+            + ' of ' + dailyTimes.length + '</b></small>';
+
+    }
+
+
+
+    // creates hashes and arrays of different ways to access the data
+    let charts = getChartsByDate(files);
+
+    // get selected date from url
+    let currentDate = charts.max;
+    let url = document.location.hash;
+    if (url && url.indexOf('#') > -1) {
+        url = url.substring(url.indexOf('#') + 1);
+        url = url.replace(/-/g, '');
+        currentDate = parseDateFromFilename(url);
+        if (!currentDate) {
+            currentDate = charts.max;
+        }
+        currentDate = toShortDateString(currentDate);
+    }
+    charts.currentDate = currentDate;
+    console.log(charts);
+
+    // get the index into date range for that selection
+    let currentDateIndex = -1;
+    for (let i = 0; i < charts.dates.length; i++) {
+        if (charts.dates[i] === currentDate) {
+            currentDateIndex = i;
+            break;
+        }
+    }
+    if (currentDateIndex === -1) {
+        currentDateIndex = charts.dates.length - 1;
+    }
+
+    // show default chart
+    let currentIndex = 0;
+    displayChart(charts.dates[currentDateIndex], currentIndex);
+
+    $cmdPrev.addEventListener('click', function() {
+        userInput('left');
+    });
+    $cmdNext.addEventListener('click', function() {
+        userInput('right');
+    });
+    $select.addEventListener('change', function() {
+        userInput('select', $select.selectedIndex);
+    });
+
+    window.addEventListener('keydown', function(e) {
+        switch (e.key) {
+            case 'ArrowUp':
+                e.preventDefault();
+                userInput('up');
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                userInput('down');
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                userInput('left');
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                userInput('right');
+                break;
+        }
+    });
+
+
+    function userInput(cmd, arg) {
+        //alert(cmd + ',' + arg);
+
+        // functions to make user input logic more english readable
+        function atStartOfAllDates() {
+            return currentDateIndex <= 0;
+        }
+        function atEndOfAllDates() {
+            return currentDateIndex + 1 >= charts.dates.length
+        }
+        function atStartOfSingleDay() {
+            return currentIndex <= 0;
+        }
+        function atEndOfSingleDay() {
+            let date = charts.dates[currentDateIndex];
+            return currentIndex + 1 >= charts.all[date].length;
+        }
+
+        // convert time string (e.g. 8:30 am, 11:04pm, etc) to a
+        // value that is easily comparable, the floating point
+        // number of hours from the start of the day.
+        //
+        // For example 6:30 is 6.5 and 3:45pm is 15.75
+        function toTimeInHours(time) {
+            if (time.endsWith('.png')) {
+                time = getNiceTimeString(time);
+            }
+            let originalArg = time;
+
+            let isPM = false, isAM = false;
+            time = time.toLowerCase().trim();
+            if (time.endsWith('am')) {
+                time = time.substring(0, time.length - 2);
+                isAM = true;
+            }
+            else if (time.endsWith('pm')) {
+                time = time.substring(0, time.length - 2);
+                isPM = true;
+            }
+            time = time.trim();
+
+            let parts = time.split(':');
+            if (parts.length !== 2) {
+                console.error('Time "' + originalArg + '" is invalid.');
+                return 0;
+            }
+            let hour = parseInt(parts[0]);
+            let minute = parseInt(parts[1]);
+            if (isPM) {
+                if (hour > 12) {
+                    hour += 12;
+                }
+            }
+            else if (isAM) {
+                if (hour === 12) {
+                    hour = 0;
+                }
+            }
+
+            return hour + minute / 60.0;
+        }
+
+        // find the closest time of day on a different day when switching days
+        function getClosestTimeIndex(newDateIndex, fromDateIndex, fromIndex) {
+
+            //console.log({getClosestTimeIndex:[newDateIndex, fromDateIndex, fromIndex]});
+
+            let allDates = Object.keys(charts.all);
+
+            if (newDateIndex < 0) newDateIndex = 0;
+            if (newDateIndex >= allDates.length) newDateIndex = allDates.length - 1;
+            if (fromDateIndex < 0) fromDateIndex = 0;
+            if (fromDateIndex >= allDates.length) fromDateIndex = allDates.length - 1;
+
+            let date1 = charts.dates[fromDateIndex];
+            let fromDate = charts.all[date1];
+            let date2 = charts.dates[newDateIndex];
+            let toDate = charts.all[date2];
+
+            if (fromIndex < 0) fromIndex = 0;
+            if (fromIndex >= fromDate.length) fromIndex = fromDate.length - 1;
+
+            let searchTime = toTimeInHours(fromDate[fromIndex]);
+
+            //console.log({
+            //    newDateIndex: newDateIndex,
+            //    fromDateIndex: fromDateIndex,
+            //    fromIndex: fromIndex,
+            //    fromDate: fromDate,
+            //    toDate: toDate,
+            //    searchTime: searchTime
+            //});
+
+            let closestIndex = 0;
+            let closestDistance = 999;
+            for (let i = 0; i < toDate.length; i++) {
+                let newTime = toTimeInHours(toDate[i]);
+                let distance = Math.abs(searchTime - newTime);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestIndex = i;
+                }
+            }
+            return closestIndex;
+        }
+
+
+        // perform user input
+        let oldDateIndex = currentDateIndex;
+        let oldIndex = currentIndex;
+        switch (cmd) {
+            case 'left':
+                if (!atStartOfAllDates()) {
+                    currentDateIndex--;
+                    currentIndex = getClosestTimeIndex(currentDateIndex, oldDateIndex, oldIndex);
+                }
+                break;
+            case 'right':
+                if (!atEndOfAllDates()) {
+                    currentDateIndex++;
+                    currentIndex = getClosestTimeIndex(currentDateIndex, oldDateIndex, oldIndex);
+                }
+                break;
+            case 'up':
+                if (!atStartOfSingleDay()) {
+                    currentIndex--;
+                }
+                else if (!atStartOfAllDates()) {
+                    currentDateIndex--;
+                    let date = charts.dates[currentDateIndex];
+                    currentIndex = charts.all[date].length - 1;
+                }
+                break;
+            case 'down':
+                if (!atEndOfSingleDay()) {
+                    currentIndex++;
+                }
+                else if (!atEndOfAllDates()) {
+                    currentDateIndex++;
+                    currentIndex = 0;
+                }
+                break;
+            case 'select':
+                currentIndex = arg;
+                break;
+            default:
+                // ignore others
+                return;
+        }
+
+        // update chart to new selection
+        displayChart(charts.dates[currentDateIndex], currentIndex);
+    }
+
+
+</script>
+
+</body>
+</html>
