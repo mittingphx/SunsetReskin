@@ -61,9 +61,14 @@ export class FileDetector {
      * @returns {boolean}
      */
     static #isFrontPage(filename) {
-        if (filename === "Default.aspx") return true;
-        if (filename === "swwest_copy.html") return true;
-        if (filename === "") return true;
+        const matches = [
+            'Default.aspx',
+            'swwest_copy.html',
+            ''
+        ];
+        for (let i = 0; i < matches.length; i++) {
+            if (filename === matches[i]) return true;
+        }
         return false;
     }
 
