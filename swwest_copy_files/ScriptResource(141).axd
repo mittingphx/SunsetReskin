@@ -413,7 +413,6 @@ Sys.Extended.UI.RatingBehavior.prototype = {
         /// <value type="Number" integer="true">
         /// RatingDirection - Orientation of the stars (LeftToRightTopToBottom or RightToLeftBottomToTop)
         /// </value>
-        /// TODO: We should create an enum for this
         return this._ratingDirection;
     },
     set_RatingDirection : function(value) {

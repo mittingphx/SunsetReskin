@@ -42,10 +42,16 @@ export class SunsetSkin {
     #menuRead = false;
 
     /**
+     * True iff apply() has been called at least once.
+     * @type {boolean}
+     */
+    #applied = false;
+
+    /**
      * Constructor
      */
     constructor() {
-        // TODO: add event handler to detect the end of page load
+
     }
 
     /**
@@ -107,12 +113,10 @@ export class SunsetSkin {
      */
     async loadNewSkinPage() {
 
-        const response = await fetch('NewSkin.html');
+        const response = await fetch('newskin/html/NewSkin.html');
         const html = await response.text();
 
-        //alert(html);
-        //console.log(html);
-
+        alert('loading new skin page: ' + html);
 
         let parser = new DOMParser();
         let doc = parser.parseFromString(html, 'text/html');
@@ -155,18 +159,6 @@ export class SunsetSkin {
         //alert('hiding load');
         this.finishedLoaded = true;
 
-        /*
-
-
-                // hide this loaded page's preloader
-                // THIS COULD SHOULD BE REENABLED IF WE BRING BACK THE PRELOADER
-                // FROM THE ShopGrid TEMPLATE
-                setTimeout(function () {
-                    let $preloader = document.querySelector('.preloader');
-                    if ($preloader) $preloader.remove();
-                }, 50);
-        */
-
 
         // the html for the menu should already be created by now so display oit
 
@@ -188,9 +180,7 @@ export class SunsetSkin {
         const $newSkinLabel = $newSkinPanel.querySelector('b');
         let newSkinEnabled = true;
 
-        // TESTING: making copy of toggle
-        //oldBody.appendChild($newSkinPanel);
-
+        // toggle new skin
         $newSkinPanel.addEventListener('click', function() {
             if (newSkinEnabled) {
                 newSkinEnabled = false;
@@ -198,10 +188,8 @@ export class SunsetSkin {
                 $newSkinIcon.classList.add('fa-toggle-off');
                 $newSkinLabel.innerText = 'Classic Look';
 
-
                 document.head.innerHTML = oldHead.innerHTML;
                 document.body.innerHTML = oldBody.innerHTML;//+ document.body.innerHTML;
-
             }
             else {
                 newSkinEnabled = true;
@@ -209,14 +197,10 @@ export class SunsetSkin {
                 $newSkinIcon.classList.add('fa-toggle-on');
                 $newSkinLabel.innerText = 'New Skin Enabled';
 
-
                 document.head.innerHTML = loadedHead.innerHTML;
                 document.body.innerHTML = loadedBody.innerHTML;//+ document.body.innerHTML;
-
             }
         });
-
-
     }
 
     /**
@@ -297,17 +281,6 @@ export class SunsetSkin {
         return $ul;
     }
 
-
-    /**
-     * Resets all flags so the page data can be loaded again.
-     */
-    /*
-    clearFlags() {
-        this.#menuRead = false;
-        this.#styleAdded = false;
-    }
-    */
-
     /**
      * See swwest_menu.html for a copy of the structure from the old website.
      */
@@ -318,6 +291,9 @@ export class SunsetSkin {
         this.#menuRead = true;
 
         console.log('readMenu()');
+
+
+
 
         this.log = [];
 
@@ -397,6 +373,32 @@ export class SunsetSkin {
                             // TODO: continue recursively
                             // BUG: this only handles a certain hard-coded depth and if
                             // the menu goes deeper it'll be ignored
+
+
+                            /*
+                            // START CODEIUM SUGGESTION
+
+                            const parseMenuItem = ($menuElement) => {
+                                // Parse the current menu item
+                                // Your existing parsing logic here
+
+                                // Check if the current menu item has nested submenus
+                                const $subMenus = $menuElement.querySelectorAll('.submenu');
+                                if ($subMenus.length > 0) {
+                                    // Recursively parse each nested submenu
+                                    $subMenus.forEach($submenu => {
+                                        parseMenuItem($submenu);
+                                    });
+                                }
+                            };
+
+                            // Call the parsing logic for each top-level menu item
+                            $topLevelMenus.forEach($menu => {
+                                parseMenuItem($menu);
+                            });
+
+                            // END CODEIUM SUGGESTION
+                             */
                         }
                     }
                 }
@@ -413,244 +415,5 @@ export class SunsetSkin {
             this.menu.push(topMenuItem);
         }
 
-
-        // read the menus within each section
-        //this.#printStats();
     }
-
-    /**
-     * Draws the panel in the top right that display debugging
-     * information.
-     */
-    /*
-    #printStats() {
-        //console.log(this.menu);
-
-        function toggleDiv($div) {
-            if ($div.style.display === 'none') {
-                $div.style.display = 'block';
-            }
-            else {
-                $div.style.display = 'none';
-            }
-        }
-
-        this.#addStyles();
-
-        // grab where to shove content
-        const $body = document.querySelector('body');
-
-        // create debug container
-        const $debug = document.createElement('div');
-        $debug.classList.add('debugNote');
-        $body.appendChild($debug);
-
-        // add close button in a toolbar
-        const $toolbar = document.createElement('div');
-        $toolbar.classList.add('debugToolbar');
-        $debug.appendChild($toolbar)
-
-        let me = this;
-
-        const $link2 = document.createElement('a');
-        $link2.innerText = 'Menu Log'
-        $link2.addEventListener('click', function(_) {
-            toggleDiv(me.$menuLog);
-        });
-        $toolbar.appendChild($link2);
-
-        const $link3 = document.createElement('a');
-        $link3.innerText = 'Menu List'
-        $link3.addEventListener('click', function(_) {
-            toggleDiv(me.$menuListData);
-        });
-        $toolbar.appendChild($link3);
-
-
-        const $btnClose = document.createElement('button');
-        $btnClose.classList.add('debugButton', 'closeButton');
-        $btnClose.innerText = 'x';
-        $btnClose.onclick = (_) => {
-          $debug.style.display = 'none';
-        };
-        $toolbar.appendChild($btnClose);
-
-        const $txtTitle = document.createElement('p');
-        $txtTitle.innerText = 'New Skin Log';
-        $toolbar.appendChild($txtTitle);
-
-        const $divClear = document.createElement('div')
-        $divClear.classList.add('clear');
-        $toolbar.appendChild($divClear);
-
-        const $code2 = document.createElement('pre');
-        $debug.appendChild($code2);
-        $code2.innerHTML = this.toMenuList(this.menu);
-        this.$menuListData = $code2;
-
-        // separator
-        $debug.appendChild(document.createElement('hr'));
-
-        // print out debug log
-        const $log = document.createElement('div');
-        $debug.appendChild($log);
-        $log.innerHTML = this.log.join();
-        this.$menuLog = $log;
-    }
-    */
-
-
-    /**
-     * Prints out the menu in hunan readable format.
-     * @param menu
-     */
-    /*
-    toMenuList(menu) {
-
-
-         // Returns a new string with a repeating character.
-         // @param char {string} character to repeat
-         // @param count {number} how many times to repeat char
-         // @returns {string} the new string
-        function repeat(char, count) {
-            let ret = '';
-            for (let i = 0; i < count; i++) {
-                ret += char;
-            }
-            return ret;
-        }
-
-
-         // Outputs the contents of the menu, looking at the text and
-         // link fields, and then recursively lists the children
-         // property.
-         // @param menuArray the array data to show
-         // @param depth how many tabs to show before each line
-         // @returns {string} a multi-line string showing the array's data
-
-        function recurseMenu(menuArray, depth) {
-            if (depth === null) depth = 0;
-            let tabs = repeat('\t', depth);
-            let ret = '';
-            for (let i = 0; i < menuArray.length; i++) {
-                let item = menuArray[i];
-                ret += `${tabs}${item.text} [${item.link}]\n`;
-                if (item.children.length > 0) {
-                    ret += recurseMenu(item.children, depth + 1);
-                }
-            }
-            return ret;
-        }
-
-        let ret = 'menu:\n';
-        ret += recurseMenu(menu, 1);
-        ret = ret.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
-        ret = ret.replace(/\n/g, '<br>\n');
-        return ret;
-    }
-*/
-
-    /**
-     * Adds CSS classes used by this object to the head.
-     */
-    /*
-    #addStyles() {
-
-        // allow this to be called once
-        if (this.#styleAdded) return;
-        this.#styleAdded = true;
-
-        // create the CSS classes
-        let style = document.createElement('style');
-        style.innerHTML = `
-            .debugNote {
-                background: #ffcc44;
-                color: black;
-                border: 2px solid #886622;
-                border-bottom-style: none;
-                position: fixed;
-                right: 25px; bottom: 0;
-                width: 35%; height: 25%;
-                max-width: 1000px; max-height: 800px;
-                overflow: auto;
-                z-index: 1000;
-            }
-
-            .debugButton {
-                background: black;
-                border: 1px solid white;
-                margin: 3px;
-                color: white;
-                padding: 5px;
-                border-radius: 5px;
-            }
-
-            .closeButton {
-                float: right;
-            }
-
-            .debugButton:hover {
-                background: white;
-                border: 1px solid black;
-                margin: 3px;
-                color: black;
-                padding: 3px;
-            }
-
-            .debugToolbar {
-                background: rgba(50,50,50, 45%);
-                color: white;
-                padding 5px;
-            }
-
-            .debugToolbar p {
-                padding: 3px;
-                font-size: 15pt;
-                font-weight: bold;
-                font-family: arial;
-                margin: 0;
-                padding-left: 10px;
-            }
-
-            .debugToolbar a {
-                color: black;
-                margin: 5px;
-                font-weight: bold;
-
-                cursor: pointer;
-            }
-
-            .debugToolbar a:hover {
-                background-color: yellow;
-            }
-
-            .clear {
-                clear:both;
-            }
-
-
-            .loading-screen {
-                position: fixed;
-                left: 0; top: 0;
-                width: 100%; height: 100%;
-                color: black;
-                background: rgba(0,0,0,0.5);
-                z-index: 500;
-            }
-
-            .loading-screen p {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                font-size: 75pt;
-                font-family: serif;
-                color: white;
-                text-shadow: rgb(0,0,255,0.8) 2px 2px 5px;
-            }
-        `;
-        document.getElementsByTagName('head')[0].appendChild(style);
-    }
-
-     */
 }
