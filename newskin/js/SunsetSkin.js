@@ -9,8 +9,9 @@
  */
 
 import {SunsetMenuItem} from "./SunsetMenuItem.js";
-import {SunsetMenuParser} from "./SunsetMenuParser.js";
+import {SunsetMenuParser} from "./parsers/SunsetMenuParser.js";
 import {SunsetPreload} from "./SunsetPreload.js";
+import {FileDetector} from "./FileDetector.js";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
@@ -42,16 +43,11 @@ export class SunsetSkin {
     #menuRead = false;
 
     /**
-     * True iff apply() has been called at least once.
-     * @type {boolean}
-     */
-    #applied = false;
-
-    /**
      * Constructor
      */
     constructor() {
-
+        let fileType = FileDetector.getPageType();
+        alert('fileType=' + fileType);
     }
 
     /**
@@ -116,14 +112,10 @@ export class SunsetSkin {
         const response = await fetch('newskin/html/NewSkin.html');
         const html = await response.text();
 
-        alert('loading new skin page: ' + html);
-
         let parser = new DOMParser();
         let doc = parser.parseFromString(html, 'text/html');
-
         let loadedBody = doc.querySelector('body');
         let loadedHead = doc.querySelector('head');
-
 
         let oldBody = document.createElement('div');
         oldBody.innerHTML = document.body.innerHTML;
