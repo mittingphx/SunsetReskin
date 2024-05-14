@@ -4,7 +4,7 @@
  * Author:  Scott Mitting
  * Date:    2024-05-13
  * Abstract:
- *  P 3arsing the items displayed as specials on the bottom of the front
+ *  Parsing the items displayed as specials on the bottom of the front
  *  page of the website.
  */
 
@@ -68,6 +68,31 @@ export class SpecialProductItem {
      * @type {string}
      */
     casePrice = '';
+
+    /**
+     * Price per unit for this product.
+     * @type {string}
+     */
+    unitPrice = '';
+
+    /**
+     * Price before discount is applied.
+     * @type {string}
+     */
+    preDiscountPrice = '';
+
+    /**
+     * Sale percent to show for this product.
+     * @type {string}
+     */
+    salePercent = '';
+
+    /**
+     * True when we should show a new product badge.
+     * @type {boolean}
+     */
+    isNew = false;
+
 }
 
 /**
@@ -172,6 +197,12 @@ class ParseHelper {
 export class FrontPageSpecialsParser {
 
     /**
+     * The current product section of the front page being parsed.
+     * @type {SpecialSectionItem|null}
+     */
+    currentSection = null;
+
+    /**
      * Creates a new FrontPageSpecialsParser
      */
     constructor() {
@@ -186,7 +217,7 @@ export class FrontPageSpecialsParser {
     readNodesFromTable($table) {
         let sections = [];
 
-        let currentSection = null;
+        this.currentSection = null;
         let $nodes = $table.querySelectorAll('td');
 
         for (let i = 0; i < $nodes.length; i++) {
@@ -196,25 +227,25 @@ export class FrontPageSpecialsParser {
 
             if (nodeType === 'header') {
                 // keep track of which section we're in
-                currentSection = this.readFromHeaderNode($node);
-                sections.push(currentSection)
-                continue;
+                this.currentSection = this.readFromHeaderNode($node);
+                sections.push(this.currentSection)
+                //continue;
             }
             else if (nodeType === 'arrow') {
                 // TODO: get link to request paging through specials
                 /*
                 <td class="arrow" rowspan="2"><input type="image" name="ctl00$MainContent$imgPrevItemsonSpecial" id="MainContent_imgPrevItemsonSpecial" disabled="disabled" class="aspNetDisabled" src="Images/previousArrowDisabled.png"></td>
                  */
-                continue;
+                //continue;
             }
             else if (nodeType === 'product') {
-                if (currentSection == null) {
+                if (this.currentSection == null) {
                     console.warn('Found product node without header: ' + $node.outerHTML);
                     continue;
                 }
 
                 let product = this.readFromDataNode($node);
-                currentSection.products.push(product);
+                this.currentSection.products.push(product);
             }
             else if (nodeType === 'qty') {
                 // TODO: tie this to the product by item number
@@ -268,6 +299,9 @@ export class FrontPageSpecialsParser {
             return null;
         }
 
+        // product is new if it's in the new products section
+        if (this.currentSection && this.currentSection.name === 'New Products') ret.isNew = true;
+
         // map text labels to object properties
         let propMap = {
             'Item No': 'itemNo',
@@ -298,6 +332,14 @@ export class FrontPageSpecialsParser {
         }
         if (!ret.link) {
             console.warn('No link for special: ' + $node.outerHTML);
+        }
+
+        // parse out certain hybrid fields further
+        if (ret.casePrice && ret.casePrice.indexOf('per unit') !== -1) {
+            let start = ret.casePrice.indexOf('[') + 1;
+            let end = ret.casePrice.indexOf(']');
+            ret.unitPrice = ret.casePrice.substring(start, end);
+            ret.casePrice = ret.casePrice.substring(0, start - 1);
         }
 
         return ret;
