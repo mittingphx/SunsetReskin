@@ -12,6 +12,7 @@ import {SunsetMenuItem} from "./SunsetMenuItem.js";
 import {SunsetMenuParser} from "./parsers/SunsetMenuParser.js";
 import {SunsetPreload} from "./SunsetPreload.js";
 import {FileDetector} from "./FileDetector.js";
+import {FrontPageSpecialsParser} from "./parsers/FrontPageSpecialsParser";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
@@ -28,6 +29,12 @@ export class SunsetSkin {
      * @type {SunsetMenuItem[]}
      */
     menu = [];
+
+    /*
+     * The special product sections to display on the front page.
+     * @type {SpecialSectionItem[]}
+     */
+    sections = [];
 
     /**
      * Gets set to true once the CSS styles used for this object
@@ -46,8 +53,7 @@ export class SunsetSkin {
      * Constructor
      */
     constructor() {
-        let fileType = FileDetector.getPageType();
-        alert('fileType=' + fileType);
+        this.fileType = FileDetector.getPageType();
     }
 
     /**
@@ -94,6 +100,14 @@ export class SunsetSkin {
     onWebPageLoaded() {
         this.readMenu();
         this.buildMenuHtml();
+
+        if (this.fileType === 'FrontPage') {
+            this.sections = this.readFrontPageProducts()
+        }
+        else {
+            alert('unknown page type: ' + this.fileType);
+        }
+
         this.loadNewSkinPage().then(_ => {
             console.log('load webpage completed');
             sunsetPreloader.ready();
@@ -152,8 +166,10 @@ export class SunsetSkin {
         this.finishedLoaded = true;
 
 
-        // the html for the menu should already be created by now so display oit
-
+        // ----------------------------------------------------------
+        // the html for the menu should already be created by now,
+        // so display it
+        // ----------------------------------------------------------
 
         // insert new menu data into menu html
         let $megaMenu = document.querySelector('.mega-category-menu');
@@ -164,6 +180,8 @@ export class SunsetSkin {
             $megaMenu.append(this.$menuHtml);
         }
 
+        // insert products into the html
+        this.buildFrontPageProducts(this.sections);
 
         // show toggle so we can switch back and forth between
         // the new skin and the old skin
@@ -216,7 +234,7 @@ export class SunsetSkin {
      */
     buildMenuHtml() {
         console.log('buildMenuHtml()');
-        this.$menuHtml = this.#buildMenuNode(this.menu);
+        this.$menuHtml = this.#buildMenuNode(this.menu, 0);
     }
 
     /**
@@ -226,11 +244,6 @@ export class SunsetSkin {
      * @returns {HTMLUListElement}
      */
     #buildMenuNode(itemList, childDepth) {
-
-        // TODO: this needs to have multiple-levels of
-        // depth so the menus popup at each depth
-
-        //console.log({ itemList: itemList, isChild: isChild, depth: depth});
 
         // default depth is zero
         if (!childDepth) {
@@ -252,7 +265,6 @@ export class SunsetSkin {
         }
         //console.log('depth=' + depth + ' class=' + this._depthClasses[depth]);
         let cssClass = this._depthClasses[childDepth];
-
 
 
         let $ul = document.createElement('ul');
@@ -406,6 +418,189 @@ export class SunsetSkin {
 
             this.menu.push(topMenuItem);
         }
+
+    }
+
+    /**
+     * Reads the specials from the front page of the website.
+     */
+    readFrontPageProducts() {
+        console.log('readFrontPageProducts()');
+
+        let $table = document.querySelector('.ItemSpecials');
+
+        let parser = new FrontPageSpecialsParser();
+        let specials = parser.readNodesFromTable($table);
+
+        console.log({specials:specials});
+        //alert(JSON.stringify(specials))
+
+        return specials;
+
+    }
+
+    buildFrontPageProducts(sections) {
+
+        // find where we're going to insert the sections
+        let $insertionPoint = document.querySelector('.trending-product');
+
+        if (!$insertionPoint) {
+            console.error('Could not find insertion point!');
+        }
+
+
+        // create a <section> for each section data
+        for (let i = 0; i < sections.length; i++) {
+
+            let section = sections[i];
+
+            console.log('section: ' + section.name);
+
+            // top level section tag
+            let $section = document.createElement('section');
+            {
+                $section.classList.add('trending-product');
+                $section.classList.add('section');
+
+                // create the container for this section
+                let $container = document.createElement('div');
+                {
+                    $container.classList.add('container');
+                    $section.appendChild($container);
+
+                    // create the title row
+                    let $titleRow = document.createElement('div');
+                    {
+                        $titleRow.classList.add('row');
+                        $container.appendChild($titleRow);
+
+                        let $titleCol = document.createElement('div');
+                        {
+                            $titleCol.classList.add('col-12');
+                            $titleRow.appendChild($titleCol);
+
+                            let $title = document.createElement('div');
+                            {
+                                $title.classList.add('section-title');
+                                $titleCol.appendChild($title);
+
+                                let $titleH2 = document.createElement('h2');
+                                $titleH2.innerHTML = section.name;
+                                $title.appendChild($titleH2);
+
+                                let $titleP = document.createElement('p');
+                                $titleP.innerHTML = 'There are many variations of passages of Lorem Ipsum available, but the majority have suffered '
+                                    + 'alteration in some form.  <a href="' + section.link + '">View All</a>';
+                                $title.appendChild($titleP);
+                            }
+                        }
+                    }
+
+                    // create the product row(s)
+                    let $productRow = document.createElement('div');
+                    {
+                        $productRow.classList.add('row');
+                        $container.appendChild($productRow);
+
+                        // loop through the products in this section
+                        for (let j = 0; j < section.products.length; j++) {
+                            let product = section.products[j];
+                            let $productCol = document.createElement('div');
+                            {
+                                $productCol.classList.add('col-lg-3', 'col-md-6', 'col-12');
+                                $productRow.appendChild($productCol);
+
+                                let $product = document.createElement('div');
+                                {
+                                    $product.classList.add('single-product');
+                                    $productCol.appendChild($product);
+
+                                    // product image area
+                                    let $productImage = document.createElement('div');
+                                    {
+                                        $productImage.classList.add('product-image');
+                                        $product.appendChild($productImage);
+
+                                        let $productImageImg = document.createElement('img');
+                                        {
+                                            // hack to make images work on localhost
+                                            if (product.image.startsWith('/')) {
+                                                product.image = product.image.substring(1);
+                                            }
+                                            // hack to use full size image instead of thumbnail
+                                            product.image = product.image.replace('0thn', '0');
+
+                                            $productImageImg.src = product.image;
+                                            $productImageImg.alt = product.text;
+                                            $productImage.appendChild($productImageImg);
+                                        }
+
+                                        let $productImageButton = document.createElement('div');
+                                        {
+                                            $productImageButton.classList.add('button');
+                                            $productImage.appendChild($productImageButton);
+
+                                            let $productImageLink = document.createElement('a');
+                                            {
+                                                $productImageLink.href = product.link;
+                                                $productImageButton.appendChild($productImageLink);
+                                            }
+                                        }
+                                    } // end .product-image
+
+                                    // product info area
+                                    let $productInfo = document.createElement('div');
+                                    {
+                                        $productInfo.classList.add('product-info');
+                                        $product.appendChild($productInfo);
+
+                                        // clickable title
+                                        let $productInfoH4   = document.createElement('h4');
+                                        {
+                                            $productInfoH4.classList.add('title');
+                                            $productInfo.appendChild($productInfoH4);
+                                            let $productInfoH4Link = document.createElement('a');
+                                            {
+                                                $productInfoH4Link.href = product.link;
+                                                $productInfoH4Link.innerHTML = product.text;
+                                                $productInfoH4.appendChild($productInfoH4Link);
+                                            }
+                                        }
+
+                                        // TODO: review could go here
+                                        let $review = document.createElement('ul');
+                                        {
+                                            $review.classList.add('review');
+                                            $review.innerHTML = '<li><i class="lni lni-star-filled"></i></li>\n' +
+                                                '                            <li><i class="lni lni-star-filled"></i></li>\n' +
+                                                '                            <li><i class="lni lni-star-filled"></i></li>\n' +
+                                                '                            <li><i class="lni lni-star-filled"></i></li>\n' +
+                                                '                            <li><i class="lni lni-star"></i></li>\n' +
+                                                '                            <li><span>4.0 Review(s)</span></li>';
+                                            $productInfo.appendChild($review);
+                                        }
+
+                                        // price
+                                        let $price = document.createElement('div');
+                                        {
+                                            $price.classList.add('price');
+                                            $price.innerHTML = '<span>$' + product.casePrice + '</span> ';
+                                            $productInfo.appendChild($price);
+                                        }
+                                    } // end .product-info
+                                } // end .single-product
+                            }
+                        } // next j
+                    }
+                }
+            } // end section
+
+            // place the section within the webpage.
+            console.log($section);
+            $insertionPoint.after($section)
+
+        } // next i
+
 
     }
 }
