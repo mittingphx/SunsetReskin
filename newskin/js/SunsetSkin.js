@@ -15,6 +15,8 @@ import {FrontPageSpecialsParser} from "./parsers/FrontPageSpecialsParser.js";
 import {SunsetMenuParser} from "./parsers/SunsetMenuParser.js";
 import {FrontPageSpecialsBuilder} from "./builders/FrontPageSpecialsBuilder.js";
 import {SunsetMenuBuilder} from "./builders/SunsetMenuBuilder.js";
+import {ProductDetailParser} from "./parsers/ProductDetailParser.js";
+import {ProductDetailBuilder} from "./builders/ProductDetailBuilder.js";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
@@ -175,44 +177,57 @@ export class SunsetSkin {
      */
     async loadNewSkinPage() {
 
-        const response = await fetch('newskin/html/NewSkin.html');
-        const html = await response.text();
-
-        let parser = new DOMParser();
-        let doc = parser.parseFromString(html, 'text/html');
-
-        // replace old document with new, keeping preloader active
-        this.html = new SunsetSkinHtml()
-        this.html.replaceDocument(doc);
-        sunsetPreloader.transfer(this.html.newHtmlBody);
-
-        // remove any loading messages from old webpage
-        this.html.removeElementsFromOld('#divSunsetPreloader');
-        this.html.removeElementsFromOld('.preloader');
-        this.finishedLoaded = true;
-
-        // insert new menu data into menu html
-        let $megaMenu = document.querySelector('.mega-category-menu');
-        if (!$megaMenu) {
-            console.error('Could not load .mega-category-menu to fill menu data');
+        // determine settings by file type
+        let newSkinUrl = null;
+        let hasMenu = false;
+        if (this.fileType === 'FrontPage') {
+            newSkinUrl = 'newskin/html/FrontPage.html';
+            hasMenu = true;
+        }
+        else if (this.fileType === 'ItemDetail') {
+            newSkinUrl = 'newskin/html/ItemDetails.html';
+            hasMenu = true;
         }
         else {
-            //$megaMenu.append(this.$menuHtml);
-            $megaMenu.append(this.buildMenuHtml());
+            alert('unknown page type: ' + this.fileType);
+            console.error('unknown page type: ' + this.fileType);
+        }
+
+        // load new page html from server if needed
+        this.html = new SunsetSkinHtml()
+        if (newSkinUrl) {
+            const response = await fetch(newSkinUrl);
+            const html = await response.text();
+
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(html, 'text/html');
+
+            // replace old document with new, keeping preloader active
+            this.html.replaceDocument(doc);
+            sunsetPreloader.transfer(this.html.newHtmlBody);
+
+            // remove any loading messages from old webpage
+            this.html.removeElementsFromOld('#divSunsetPreloader');
+            this.html.removeElementsFromOld('.preloader');
+            this.finishedLoaded = true;
+
+            // show toggle so we can switch back and forth between
+            // the new skin and the old skin
+            this.setupNewSkinToggle();
+        }
+
+        // insert new menu data into menu html
+        if (hasMenu) {
+            this.buildMenuHtml();
         }
 
         // insert products into the html
         if (this.fileType === 'FrontPage') {
             this.buildProductsHtml();
         }
-        else {
-            // TODO: detect other page types, like search results and product details
-            console.error('unknown page type: ' + this.fileType);
+        else if (this.fileType === 'ItemDetail') {
+            this.buildProductDetailsHtml();
         }
-
-        // show toggle so we can switch back and forth between
-        // the new skin and the old skin
-        this.setupNewSkinToggle();
     }
 
     /**
@@ -222,6 +237,10 @@ export class SunsetSkin {
 
         // grab new skin toggle
         const $newSkinPanel = document.querySelector('.newskin-toggle');
+        if (!$newSkinPanel) {
+            console.error('.newskin-toggle not found');
+            return;
+        }
         const $newSkinIcon = $newSkinPanel.querySelector('i');
         const $newSkinLabel = $newSkinPanel.querySelector('b');
 
@@ -265,16 +284,26 @@ export class SunsetSkin {
      * Builds the HTML menu from the menu data loaded from the old
      * webpage html.
      *
-     * @returns {HTMLUListElement}
+     * @returns {void}
      */
     buildMenuHtml() {
         console.log('buildMenuHtml()');
 
+        // find insertion point
+        let $megaMenu = document.querySelector('.mega-category-menu');
+        if (!$megaMenu) {
+            console.error('Could not load .mega-category-menu to fill menu data');
+            return;
+        }
+
+        // parse the menu from the old website
         let parser = new SunsetMenuParser(this.html.oldHtmlBody);
         parser.readMenu();
 
+        // build the menu into the new website
         let builder = new SunsetMenuBuilder();
-        return builder.buildMenuNode(parser.menu, 0);
+        let $html = builder.buildMenuNode(parser.menu, 0);
+        $megaMenu.append($html);
     }
 
     /**
@@ -305,5 +334,28 @@ export class SunsetSkin {
 
         let builder = new FrontPageSpecialsBuilder();
         builder.buildFrontPageProducts(specials, $insertionPoint);
+    }
+
+    /**
+     *  Builds the HTML for the product details on the front page using
+     *  the product data loaded from the old page.
+     */
+    buildProductDetailsHtml() {
+        console.log('buildProductDetailsHtml()');
+
+        // find where we're going to insert the product details
+        let $insertionPoint = document.querySelector('.insert-product-details');
+        if (!$insertionPoint) {
+            console.error('Could not find insertion point!');
+            return;
+        }
+
+        // parse from the old to build the new specials
+        let parser = new ProductDetailParser(this.html.oldHtmlBody);
+        let productItem = parser.readProductDetail();
+        console.log({productItem:productItem});
+
+        let builder = new ProductDetailBuilder();
+        builder.buildProductDetailItem(productItem, $insertionPoint);
     }
 }

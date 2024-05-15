@@ -16,6 +16,7 @@ export class FrontPageSpecialsBuilder {
      * Builds the HTML for the special offers on the front page using
      * the section data loaded from the old page.
      * @param sections {SpecialSectionItem[]}
+     * @param $insertionPoint {HTMLElement}
      */
     buildFrontPageProducts(sections, $insertionPoint) {
 
