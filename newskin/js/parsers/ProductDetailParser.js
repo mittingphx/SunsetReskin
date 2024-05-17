@@ -1,4 +1,16 @@
 /**
+ * Project: Sunset Wholesale West Website
+ * File:    ProductDetailParser.js
+ * Author:  Scott Mitting
+ * Date:    2024-05-14
+ * Abstract:
+ *  Classes for reading product detail data from the old website.
+ */
+
+import {UrlHelper} from "../UrlHelper.js";
+import {CommonParser} from "./CommonParser";
+
+/**
  * Model class for parsed product detail data.
  */
 export class ProductDetailItem {
@@ -28,11 +40,18 @@ export class ProductDetailItem {
     images = [];
 
     /**
-     * Category this product belongs to.
-     * TODO: collect this info from old page
-     * @type {string}
+     * The list of thumbnail images for this product, at the same
+     * index as the full-sized picture in this.images[]
+     * @type {[string]}
      */
-    category = '';
+    thumbs = [];
+
+    /**
+     * Category this product belongs to.  The breadcrumbs can be
+     * recreated by walking up the parent categories.
+     * @type {ProductCategoryBreadcrumb|null}
+     */
+    category = null;
 
     /**
      * Features of this product (not currently used).
@@ -97,11 +116,11 @@ export class ProductDetailItem {
 
 }
 
+
 /**
  * Parses product details from the product detail page.
  */
 export class ProductDetailParser {
-
 
     /**
      * The HTML document to load the product data from.
@@ -144,6 +163,33 @@ export class ProductDetailParser {
             // TODO: use a placeholder image here
         }
 
+        // grab alternate thumbnails
+        let $tableThumbnails = $table.querySelector('#MainContent_TableImages');
+        if ($tableThumbnails) {
+            let $thumbs = $tableThumbnails.querySelectorAll('input[type="image"]');
+            if ($thumbs.length > 0) {
+                ret.images = [ ret.image ];
+            }
+
+            for (let i = 0; i < $thumbs.length; i++) {
+                let src = $thumbs[i].getAttribute('src');
+                if (!src) continue;
+
+                // convert to full size image filename
+                // example: Images/SunsetItems/397/1thn.jpg
+                src = UrlHelper.toFullSize(src)
+                ret.images.push(src);
+            }
+
+            // convert to thumb filenames
+            ret.thumbs = [];
+            for (let i = 0; i < ret.images.length; i++) {
+                ret.thumbs.push(UrlHelper.toThumbNail(ret.images[i]));
+            }
+
+            console.log({image:ret.image, images:ret.images, thumbs:ret.thumbs});
+        }
+
         // grab the detail properties
         let $detail = $table.querySelector('#MainContent_PanelQty');
         if (!$detail) {
@@ -179,7 +225,24 @@ export class ProductDetailParser {
             }
         }
 
+        // grab the category breadcrumbs
+        ret.category = CommonParser.getCategoryBreadcrumbs(this.sourceDocument);
+        /*
+        let $categories = this.sourceDocument.querySelectorAll('.Categories > a');
+        if ($categories.length > 0) {
+            ret.category = new ProductCategory();
+            ret.category.name = $categories[0].textContent;
+            ret.category.link = $categories[0].getAttribute('href');
 
+            for (let i = 1; i < $categories.length; i++) {
+                let cat = new ProductCategory();
+                cat.name = $categories[i].textContent;
+                cat.link = $categories[i].getAttribute('href');
+                cat.parent = ret.category;
+                ret.category = cat;
+            }
+        }
+*/
 
         return ret;
 

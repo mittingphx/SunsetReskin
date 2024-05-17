@@ -1,18 +1,145 @@
+/**
+ * Project: Sunset Wholesale West Website
+ * File:    ProductDetailBuilder.js
+ * Author:  Scott Mitting
+ * Date:    2024-05-14
+ * Abstract:
+ *  Internal helper methods for dealing with URL conversions.
+ */
 
-export class ProductDetailBuilder {
+import {UrlHelper} from "../UrlHelper.js";
 
+/**
+ * Builds the breadcrumb area above the product details.
+ */
+export class ProductBreadcrumbBuilder {
 
     /**
-     * Builds the HTML for a product detail item after the insertion point.
-     * @param productItem {ProductDetailItem}
-     * @param $insertionPoint {HTMLElement}
+     * Builds the HTML for a page breadcrumbs.
+     * @param title {string} text to display for this page
+     * @param breadcrumbs {ProductCategoryBreadcrumb} text and links for the breadcrumbs to display
+     * @returns {HTMLElement}
      */
-    buildProductDetailItem(productItem, $insertionPoint) {
+    build(title, breadcrumbs) {
+
+        let $div = document.createElement('div');
+        $div.classList.add('breadcrumbs');
+        {
+            let $container = document.createElement('div');
+            {
+                $container.classList.add('container');
+                $div.appendChild($container);
+
+                let $row = document.createElement('div');
+                {
+                    $row.classList.add('row', 'align-items-center');
+                    $container.appendChild($row);
+
+                    // product title
+                    let $titleCell = document.createElement('div');
+                    {
+                        $titleCell.classList.add('col-lg-6', 'col-md-6', 'col-12');
+                        $row.appendChild($titleCell);
+
+                        let $content = document.createElement('div');
+                        {
+                            $content.classList.add('breadcrumbs-content');
+                            $titleCell.appendChild($content);
+
+                            let $h1 = document.createElement('h1');
+                            {
+                                $h1.classList.add('page-title');
+                                $h1.innerHTML = title;
+                                $content.appendChild($h1);
+                            }
+                        }
+                    }
+
+                    // product category breadcrumbs
+                    let $breadcrumbCell = document.createElement('div');
+                    {
+                        $breadcrumbCell.classList.add('col-lg-6', 'col-md-6', 'col-12');
+                        $row.appendChild($breadcrumbCell);
+
+                        let $breadcrumbUL = document.createElement('ul');
+                        {
+                            $breadcrumbUL.classList.add('breadcrumb-nav');
+                            $breadcrumbCell.appendChild($breadcrumbUL);
+
+                            let liList = this.#getBreadcrumbList(breadcrumbs);
+                            for (let i = 0; i < liList.length; i++) {
+                                $breadcrumbUL.appendChild(liList[i]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $div;
+    }
+
+    /**
+     * Returns the array of <li> tags to use as breadcrumbs
+     * @param cat {ProductCategoryBreadcrumb}
+     * @returns {HTMLLIElement[]}
+     */
+    #getBreadcrumbList(cat) {
+
+        let liList = [];
+
+        // walk the product's category tree
+        if (cat != null) {
+
+            // product name has no link
+            let $li = document.createElement('li');
+            {
+                $li.innerHTML = cat.name;
+                liList.push($li);
+            }
+
+            // walk up the tree
+            cat = cat.parent;
+            while (cat != null) {
+                $li = document.createElement('li');
+                {
+                    // the last link has a home icon, others do not
+                    let $a = document.createElement('a');
+                    $a.href = cat.link;
+                    $a.innerHTML = cat.name;
+                    if (cat.parent == null) {
+                        $a.innerHTML = '<i class="lni lni-home"></i> ' + $a.innerHTML;
+                    }
+                    $li.appendChild($a);
+                }
+                liList.push($li);
+                cat = cat.parent;
+            }
+        }
+
+        // list is backwards at this point
+        liList = liList.reverse()
+        return liList
+    }
+
+}
+
+/**
+ * Builds the main product description and image gallery for
+ * the product details page.
+ */
+export class ProductDetailBuilder {
+
+    /**
+     * Builds the HTML for a product detail item to be placed after the
+     * insertion point in the template.
+     * @param productItem {ProductDetailItem}
+     * @returns {HTMLElement}
+     */
+    build(productItem) {
 
         // create the product row
-        let $productRow = this.buildItemDetailsSection(productItem);
-        $insertionPoint.append($productRow);
-
+        return this.#buildItemDetailsSection(productItem);
     }
 
     /**
@@ -20,7 +147,7 @@ export class ProductDetailBuilder {
      * @param productItem {ProductDetailItem}
      * @returns {HTMLElement}
      */
-    buildItemDetailsSection(productItem) {
+    #buildItemDetailsSection(productItem) {
 
         let $section = document.createElement('section');
         $section.classList.add('item-details', 'section');
@@ -30,13 +157,13 @@ export class ProductDetailBuilder {
             $container.classList.add('container');
             $section.appendChild($container);
 
-            // image area
-            let $topArea = this.buildProductDetailsTopArea(productItem)
+            // image, details, and price area
+            let $topArea = this.#buildProductDetailsTopArea(productItem)
             $container.appendChild($topArea);
 
-            // details area
-            let $productDetailsInfo = this.buildProductDetailsInfoTable(productItem)
-            $container.appendChild($productDetailsInfo);
+            // details grid area
+            //let $productDetailsInfo = this.#buildProductDetailsInfoTable(productItem)
+            //$container.appendChild($productDetailsInfo);
         }
 
         return $section;
@@ -48,34 +175,32 @@ export class ProductDetailBuilder {
      * @param productItem {ProductDetailItem}
      * @returns {HTMLDivElement}
      */
-    buildProductDetailsTopArea(productItem) {
+    #buildProductDetailsTopArea(productItem) {
         let $topArea = document.createElement('div');
         {
             $topArea.classList.add('top-area');
-
             let $row = document.createElement('div');
             {
-                $row.classList.add('row', 'align-items-center');
-                $topArea.appendChild($row);
+                $row.classList.add('row');//, 'align-items-center');
 
                 // left side has images
                 let $cellLeft = document.createElement('div');
                 {
                     $cellLeft.classList.add('col-lg-6', 'col-md-12', 'col-12');
-                    $row.appendChild($cellLeft);
-
-                    $cellLeft.appendChild(this.buildProductImageGallery(productItem))
+                    $cellLeft.appendChild(this.#buildProductImageGallery(productItem))
                 }
+                $row.appendChild($cellLeft);
 
                 // right side has main details
                 let $cellRight = document.createElement('div');
                 {
                     $cellRight.classList.add('col-lg-6', 'col-md-12', 'col-12');
-                    $row.appendChild($cellRight);
-
-                    $cellRight.appendChild(this.buildProductInfo(productItem))
+                    $cellRight.appendChild(this.#buildProductInfo(productItem));
+                    $cellRight.appendChild(this.#buildProductInfoDetails(productItem));
                 }
+                $row.appendChild($cellRight);
             }
+            $topArea.appendChild($row);
         }
 
         return $topArea;
@@ -87,7 +212,7 @@ export class ProductDetailBuilder {
      * @param productItem {ProductDetailItem}
      * @returns {HTMLDivElement}
      */
-    buildProductImageGallery(productItem) {
+    #buildProductImageGallery(productItem) {
 
         let $productImageGallery = document.createElement('div');
         {
@@ -98,6 +223,7 @@ export class ProductDetailBuilder {
                 $productImageGallery.appendChild($main);
 
                 // main image view
+                let $mainImage;
                 let $mainImg = document.createElement('div');
                 {
                     $mainImg.classList.add('main-img');
@@ -110,6 +236,8 @@ export class ProductDetailBuilder {
                         $img.alt = productItem.text;
                         $mainImg.appendChild($img);
                     }
+
+                    $mainImage = $img;
                 }
 
                 // thumbnails of alternate images
@@ -118,17 +246,24 @@ export class ProductDetailBuilder {
                     $images.classList.add('images');
                     $main.appendChild($images);
 
-                    // TODO: check server for multiple images
-                    // for now just use the first multiple times to test
-                    productItem.images = [productItem.image, productItem.image, productItem.image];
+                    if (productItem.images.length > 1) {
+                        for (let i = 0; i < productItem.images.length; i++) {
+                            let $img = document.createElement('img');
+                            {
+                                $img.classList.add('thumb');
 
-                    for (let i = 0; i < productItem.images.length; i++) {
-                        let $img = document.createElement('img');
-                        {
-                            $img.setAttribute('style', 'cursor: pointer; width: 75px;');
-                            $img.src = productItem.images[i];
-                            $img.alt = productItem.text;
-                            $images.appendChild($img);
+                                // prefer thumbnail images when available
+                                let hasThumb = productItem.thumbs.length > i;
+                                $img.src = hasThumb ? productItem.thumbs[i] : productItem.images[i];
+                                $img.alt = productItem.text;
+                                $images.appendChild($img);
+
+                                // onclick = change main image
+                                $img.addEventListener('click', (e) => {
+                                    $mainImage.src = UrlHelper.toFullSize(e.target.src);
+                                    $mainImage.alt = e.target.text;
+                                })
+                            }
                         }
                     }
                 }
@@ -143,7 +278,7 @@ export class ProductDetailBuilder {
      * @param productItem {ProductDetailItem}
      * @returns {HTMLDivElement}
      */
-    buildProductInfo(productItem) {
+    #buildProductInfo(productItem) {
 
         let $productInfo = document.createElement('div');
         {
@@ -157,18 +292,21 @@ export class ProductDetailBuilder {
                 $productInfo.appendChild($productInfoH2);
             }
 
-            // TODO: read category from server
-            productItem.category = 'todo_get_category';
-
             // category
-            let $productInfoP = document.createElement('p');
-            {
-                $productInfoP.innerHTML = productItem.category;
-                $productInfo.appendChild($productInfoP);
-
-                $productInfoP.innerHTML = '<i class="lni lni-tag"></i> ' + productItem.category;
-                $productInfoP.innerHTML += 'Drones: ';
-                $productInfoP.innerHTML += '<a href="javascript:void(0)">Action cameras</a>';
+            if (productItem.category) {
+                let $productInfoP = document.createElement('p');
+                {
+                    $productInfo.appendChild($productInfoP);
+                    if (productItem.category.parent) {
+                        $productInfoP.innerHTML
+                            = '<i class="lni lni-tag"></i> '
+                            + productItem.category.parent.name;
+                    }
+                    $productInfoP.innerHTML
+                        += ': <a href="' + productItem.category.link + '">'
+                        + productItem.category.name
+                        + '</a>';
+                }
             }
 
             // price
@@ -201,13 +339,30 @@ export class ProductDetailBuilder {
             }
 
             // bottom buttons
-            let $bottom = this.buildProductInfoBottom(productItem);
+            let $bottom = this.#buildProductInfoBottom(productItem);
             if ($bottom) {
                 $productInfo.appendChild($bottom);
             }
         }
 
         return $productInfo
+    }
+
+    /**
+     * Builds specifications area directly below price and description.
+     * @param productItem
+     */
+    #buildProductInfoDetails(productItem) {
+
+        let $infoBody = document.createElement('div');
+        {
+            $infoBody.classList.add('info-body');
+            $infoBody.innerHTML = '<h4>Specifications</h4>';
+
+            $infoBody.appendChild(this.#buildSpecList(productItem))
+        }
+
+        return $infoBody;
     }
 
     /**
@@ -282,7 +437,7 @@ export class ProductDetailBuilder {
      * @param productItem {ProductDetailItem}
      * @returns {HTMLDivElement}
      */
-    buildProductInfoBottom(productItem) {
+    #buildProductInfoBottom(productItem) {
 
         let $bottom = document.createElement('div');
         {
@@ -359,13 +514,12 @@ export class ProductDetailBuilder {
         return $bottom;
     }
 
-
     /**
      * Builds the deeper details for the product.
      * @param productItem {ProductDetailItem}
      * @returns {HTMLDivElement}
      */
-    buildProductDetailsInfoTable(productItem) {
+    #buildProductDetailsInfoTable(productItem) {
         let $productDetailsInfo = document.createElement('div');
         {
             $productDetailsInfo.classList.add('product-details-info');
@@ -444,28 +598,7 @@ export class ProductDetailBuilder {
                                 $specH4.innerHTML = 'Specifications';
                                 $infoBody.appendChild($specH4);
                             }
-
-                            let specData = [];
-                            specData.push({key: 'Item No', value: productItem.itemNo});
-                            specData.push({key: 'Size', value: productItem.size});
-                            specData.push({key: 'Pack', value: productItem.pack});
-                            specData.push({key: 'Pallet', value: productItem.pallet});
-                            specData.push({key: 'Case Price', value: productItem.casePrice})
-
-                            let $specUL = document.createElement('ul');
-                            {
-                                $specUL.classList.add('normal-list');
-                                $infoBody.appendChild($specUL);
-
-                                for (let i = 0; i < specData.length; i++) {
-                                    let spec = specData[i];
-                                    let $li = document.createElement('li');
-                                    {
-                                        $li.innerHTML = '<span>' + spec.key + ':</span> ' + spec.value;
-                                        $specUL.appendChild($li);
-                                    }
-                                }
-                            }
+                            $infoBody.appendChild(this.#buildSpecList(productItem));
 
                             // shipping
                             // TODO: more details can go here (it's shipping options in template)
@@ -497,5 +630,38 @@ export class ProductDetailBuilder {
             }
         }
         return $productDetailsInfo;
+    }
+
+    /**
+     * Builds <ul> for product specifications.
+     * @param productItem {ProductDetailItem}
+     * @returns {HTMLUListElement}
+     */
+    #buildSpecList(productItem) {
+
+        let specData = [];
+        specData.push({key: 'Item No', value: productItem.itemNo});
+        specData.push({key: 'Size', value: productItem.size});
+        specData.push({key: 'Pack', value: productItem.pack});
+        specData.push({key: 'Pallet', value: productItem.pallet});
+        specData.push({key: 'Case Price', value: productItem.casePrice})
+
+        let $specUL = document.createElement('ul');
+        {
+            $specUL.classList.add('normal-list');
+
+            for (let i = 0; i < specData.length; i++) {
+                let spec = specData[i];
+                if (spec.value === '') continue;
+
+                let $li = document.createElement('li');
+                {
+                    $li.innerHTML = '<span>' + spec.key + ':</span> ' + spec.value;
+                    $specUL.appendChild($li);
+                }
+            }
+        }
+
+        return $specUL;
     }
 }

@@ -9,13 +9,13 @@
  */
 
 
-import {CommonParser} from "./CommonParser";
+import {CommonParser, IProductBase} from "./CommonParser.js";
 
 /**
  * Record class for all data about one product displayed in the specials
  * section on the front page of the website.
  */
-export class SpecialProductItem {
+export class SpecialProductItem extends IProductBase {
 
     /**
      * The display text for this product item.
@@ -217,21 +217,19 @@ export class FrontPageSpecialsParser {
         }
 
         // parse link and image
-        let $a = $node.querySelector('a');
-        if ($a) {
-            ret.text = CommonParser.stripWhitespace($a.textContent);
-            ret.link = $a.getAttribute('href');
-            ret.image = CommonParser.getImageFromStyle($a.querySelector('.divImage'));
-        }
-        else {
+        if (!CommonParser.getProductImageAndLinkFromNode($node, ret))
+        {
             console.warn('No <a> found for special: ' + $node.outerHTML);
             return null;
         }
 
+
         // product is new if it's in the new products section
         if (this.currentSection && this.currentSection.name === 'New Products') ret.isNew = true;
 
-        // map text labels to object properties
+
+        // parse text labels below image and link using this map
+        // from text label to object properties
         let propMap = {
             'Item No': 'itemNo',
             'Price': 'price',
@@ -240,20 +238,10 @@ export class FrontPageSpecialsParser {
             'Size': 'size',
             'Pack': 'pack'
         }
+        CommonParser.applySpanProductData($node, ret, propMap);
 
-        // parse text below link and image
-        let spans = CommonParser.getSpanProductData($node);
-        for (let key in spans) {
-            let readKey = key;
-            let writeKey = key;
-            if (readKey in propMap) writeKey = propMap[readKey];
-
-            if (ret.hasOwnProperty(writeKey) === false) {
-                console.warn('Unexpected key in special: ' + writeKey);
-                continue;
-            }
-            ret[writeKey] = spans[readKey];
-        }
+        // parse out certain hybrid fields further
+        CommonParser.splitUnitPriceFromCasePrice(ret);
 
         // make sure we have certain fields
         if (!ret.itemNo) {
@@ -261,14 +249,6 @@ export class FrontPageSpecialsParser {
         }
         if (!ret.link) {
             console.warn('No link for special: ' + $node.outerHTML);
-        }
-
-        // parse out certain hybrid fields further
-        if (ret.casePrice && ret.casePrice.indexOf('per unit') !== -1) {
-            let start = ret.casePrice.indexOf('[') + 1;
-            let end = ret.casePrice.indexOf(']');
-            ret.unitPrice = ret.casePrice.substring(start, end);
-            ret.casePrice = ret.casePrice.substring(0, start - 1);
         }
 
         return ret;

@@ -16,7 +16,9 @@ import {SunsetMenuParser} from "./parsers/SunsetMenuParser.js";
 import {FrontPageSpecialsBuilder} from "./builders/FrontPageSpecialsBuilder.js";
 import {SunsetMenuBuilder} from "./builders/SunsetMenuBuilder.js";
 import {ProductDetailParser} from "./parsers/ProductDetailParser.js";
-import {ProductDetailBuilder} from "./builders/ProductDetailBuilder.js";
+import {ProductBreadcrumbBuilder, ProductDetailBuilder} from "./builders/ProductDetailBuilder.js";
+import {CategoryParser} from "./parsers/CategoryParser";
+import {CategoryBuilder} from "./builders/CategoryBuilder";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
@@ -188,6 +190,10 @@ export class SunsetSkin {
             newSkinUrl = 'newskin/html/ItemDetails.html';
             hasMenu = true;
         }
+        else if (this.fileType === 'Category') {
+            newSkinUrl = 'newskin/html/Category.html';
+            hasMenu = true;
+        }
         else {
             alert('unknown page type: ' + this.fileType);
             console.error('unknown page type: ' + this.fileType);
@@ -227,6 +233,9 @@ export class SunsetSkin {
         }
         else if (this.fileType === 'ItemDetail') {
             this.buildProductDetailsHtml();
+        }
+        else if (this.fileType === 'Category') {
+            this.buildCategoryHtml();
         }
     }
 
@@ -334,6 +343,51 @@ export class SunsetSkin {
 
         let builder = new FrontPageSpecialsBuilder();
         builder.buildFrontPageProducts(specials, $insertionPoint);
+
+        // set the window title
+        document.title = `Sunset Wholesale West`;
+    }
+
+    /**
+     * Builds the category and search pages.
+     */
+    buildCategoryHtml() {
+        console.log('buildCategoryHtml()');
+
+        // find the table containing product data
+        let $table = this.html.oldHtmlBody.querySelector('.Items');
+        if (!$table) {
+            console.error('Could not find table with class "Items"');
+            return;
+        }
+
+        // find where we're going to insert the category
+        let $insertionPoint = document.querySelector('.insert-category');
+
+        if (!$insertionPoint) {
+            console.error('Could not find insertion point!');
+            return;
+        }
+
+        // parse from the old to build the category grid
+        let parser = new CategoryParser(this.html.oldHtmlBody);
+        let category = parser.readNodesFromTable($table);
+        console.log({category:category});
+
+        let builder = new CategoryBuilder();
+        builder.buildCategoryProducts(category, $insertionPoint);
+
+        // build the breadcrumbs in the header
+        let breadcrumbBuilder = new ProductBreadcrumbBuilder();
+        let $breadcrumbs = breadcrumbBuilder.build(category.name, category.breadcrumbs);
+        document.querySelector('.breadcrumbs').replaceWith($breadcrumbs);
+
+        // set the window title
+        document.title = `${category.name} - Sunset Wholesale West`;
+
+        // show item count
+        let itemCount = '1 - ' + category.items.length + ' items';
+        document.querySelector('.total-show-product span').innerText = itemCount;
     }
 
     /**
@@ -350,12 +404,21 @@ export class SunsetSkin {
             return;
         }
 
-        // parse from the old to build the new specials
+        // parse product details from the old webpage
         let parser = new ProductDetailParser(this.html.oldHtmlBody);
         let productItem = parser.readProductDetail();
         console.log({productItem:productItem});
 
+        // build the main product details area
         let builder = new ProductDetailBuilder();
-        builder.buildProductDetailItem(productItem, $insertionPoint);
+        $insertionPoint.after(builder.build(productItem));
+
+        // build the breadcrumbs in the header
+        let breadcrumbBuilder = new ProductBreadcrumbBuilder();
+        let $breadcrumbs = breadcrumbBuilder.build(productItem);
+        document.querySelector('.breadcrumbs').replaceWith($breadcrumbs);
+
+        // set the window title
+        document.title = `${productItem.text} - Sunset Wholesale West`;
     }
 }
