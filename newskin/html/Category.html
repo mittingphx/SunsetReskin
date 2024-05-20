@@ -3,6 +3,7 @@
 <html class="no-js" lang="zxx">
 
 <head>
+    <base href="/">
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>Shop Grid - ShopGrids Bootstrap 5 eCommerce HTML Template.</title>
@@ -485,11 +486,11 @@
                                 <div class="product-sorting">
                                     <label for="sorting">Sort by:</label>
                                     <select class="form-control" id="sorting">
-                                        <option>A - Z Order</option>
-                                        <option>Z - A Order</option>
-                                        <option>Item Number</option>
-                                        <option>Low - High Price</option>
-                                        <option>High - Low Price</option>
+                                        <option value="name-asc">A - Z Order</option>
+                                        <option value="name-desc">Z - A Order</option>
+                                        <option value="item-no">Item Number</option>
+                                        <option value="price-asc">Low - High Price</option>
+                                        <option value="price-desc">High - Low Price</option>
                                     </select>
                                     <h3 class="total-show-product">Showing: <span>1 - 12 items</span></h3>
                                 </div>
@@ -678,6 +679,9 @@
 <script src="assets/js/tiny-slider.js"></script>
 <script src="assets/js/glightbox.min.js"></script>
 <script src="assets/js/main.js"></script>
+
+<div class="page-bottom"></div>
+
 </body>
 
 </html>

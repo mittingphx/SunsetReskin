@@ -8,7 +8,7 @@
  */
 
 import {UrlHelper} from "../UrlHelper.js";
-import {CommonParser} from "./CommonParser";
+import {CommonParser} from "./CommonParser.js";
 
 /**
  * Model class for parsed product detail data.

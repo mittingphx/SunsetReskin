@@ -9,102 +9,21 @@
  */
 
 import {SunsetPreload} from "./SunsetPreload.js";
+import {SunsetSkinHtml} from "./SunsetSkinHtml.js";
 import {FileDetector} from "./FileDetector.js";
 
 import {FrontPageSpecialsParser} from "./parsers/FrontPageSpecialsParser.js";
 import {SunsetMenuParser} from "./parsers/SunsetMenuParser.js";
+import {ProductDetailParser} from "./parsers/ProductDetailParser.js";
+import {CategoryParser} from "./parsers/CategoryParser.js";
+
 import {FrontPageSpecialsBuilder} from "./builders/FrontPageSpecialsBuilder.js";
 import {SunsetMenuBuilder} from "./builders/SunsetMenuBuilder.js";
-import {ProductDetailParser} from "./parsers/ProductDetailParser.js";
 import {ProductBreadcrumbBuilder, ProductDetailBuilder} from "./builders/ProductDetailBuilder.js";
-import {CategoryParser} from "./parsers/CategoryParser";
-import {CategoryBuilder} from "./builders/CategoryBuilder";
+import {CategoryBuilder} from "./builders/CategoryBuilder.js";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
-
-/**
- * Stores the old and new HTML sections of the website.
- */
-class SunsetSkinHtml {
-
-    /**
-     * The <head> section before skin changes.
-     * @type {HTMLDivElement | null}
-     */
-    oldHtmlHead = null;
-
-    /**
-     * The <body> section before skin changes.
-     * @type {HTMLDivElement | null}
-     */
-    oldHtmlBody = null;
-
-    /**
-     * The <head> section after skin changes.
-     * @type {HTMLHeadElement|null}
-     */
-    newHtmlHead = null;
-
-    /**
-     * The <body> section after skin changes.
-     * @type {HTMLBodyElement|null}
-     */
-    newHtmlBody = null;
-
-    /**
-     * Constructor saves copy of current webpage.
-     */
-    constructor() {
-        this.oldHtmlBody = document.createElement('div');
-        this.oldHtmlHead = document.createElement('div');
-        this.oldHtmlBody.innerHTML = document.body.innerHTML;
-        this.oldHtmlHead.innerHTML = document.head.innerHTML;
-    }
-
-    /**
-     * Toggles between the old and new HTML.
-     * @param set {string} either 'new' or 'old'
-     */
-    toggle(set) {
-        if (set === 'new') {
-            document.head.innerHTML = this.newHtmlHead.innerHTML;
-            document.body.innerHTML = this.newHtmlBody.innerHTML;
-        }
-        else if (set === 'old') {
-            document.head.innerHTML = this.oldHtmlHead.innerHTML;
-            document.body.innerHTML = this.oldHtmlBody.innerHTML;
-        }
-        else {
-            console.error('unknown set: ' + set);
-        }
-    }
-
-    /**
-     * Replaces the head and body of the current document with a new one.
-     * @param doc {Document}
-     */
-    replaceDocument(doc) {
-
-        // grab head and body from loaded document
-        this.newHtmlBody = doc.querySelector('body');
-        this.newHtmlHead = doc.querySelector('head');
-
-        // replace old document with new
-        this.toggle('new');
-    }
-
-    /**
-     * Removes HTML elements from the old document.
-     * @param selector {any}
-     */
-    removeElementsFromOld(selector) {
-        let results = this.oldHtmlBody.querySelectorAll(selector);
-        for (let i = 0; i < results.length; i++) {
-            results[i].remove();
-        }
-    }
-}
 
 /**
  * Analyzes the original HTML to figure out the contents of the menu
@@ -179,6 +98,8 @@ export class SunsetSkin {
      */
     async loadNewSkinPage() {
 
+        console.log('loadNewSkinPage()');
+
         // determine settings by file type
         let newSkinUrl = null;
         let hasMenu = false;
@@ -201,15 +122,9 @@ export class SunsetSkin {
 
         // load new page html from server if needed
         this.html = new SunsetSkinHtml()
+
         if (newSkinUrl) {
-            const response = await fetch(newSkinUrl);
-            const html = await response.text();
-
-            let parser = new DOMParser();
-            let doc = parser.parseFromString(html, 'text/html');
-
-            // replace old document with new, keeping preloader active
-            this.html.replaceDocument(doc);
+            await this.html.load(newSkinUrl);
             sunsetPreloader.transfer(this.html.newHtmlBody);
 
             // remove any loading messages from old webpage
@@ -220,6 +135,9 @@ export class SunsetSkin {
             // show toggle so we can switch back and forth between
             // the new skin and the old skin
             this.setupNewSkinToggle();
+        }
+        else {
+            console.error('No url to load new skin from');
         }
 
         // insert new menu data into menu html
@@ -237,6 +155,58 @@ export class SunsetSkin {
         else if (this.fileType === 'Category') {
             this.buildCategoryHtml();
         }
+
+        // resize window so there isn't a bunch of white space at the bottom
+
+        // TODO: fix this
+        // I was getting weird height calculations for hte page like 15403 etc
+        /*
+        let $footer = document.querySelector('.page-bottom');
+        if ($footer) {
+
+
+            let rect = $footer.getBoundingClientRect();
+            console.log({pageBottom:rect});
+
+            let newHeight = 2570;// rect.bottom;
+
+            let timeoutHandle = 0;
+            let lastSetTime = 0;
+            window.addEventListener('scroll', (e) => {
+                if (window.scrollY + window.outerHeight >= newHeight) {
+                    window.scrollY = newHeight - window.outerHeight;
+                    console.log('limiting scroll to ' + window.scrollY);
+
+                    let now = new Date().getTime();
+                    if (now - lastSetTime > 300) {
+                        lastSetTime = now;
+                        window.scrollTo({
+                            top: window.scrollY,
+                            left: 0,
+                            behavior: 'smooth'
+                        });
+                    }
+                    else {
+                        // call scrollTo again in 300ms
+                        if (timeoutHandle === 0) {
+                            timeoutHandle = setTimeout(() => {
+                                window.scrollTo({
+                                    top: window.scrollY,
+                                    left: 0,
+                                    behavior: 'smooth'
+                                });
+                                clearTimeout(timeoutHandle);
+                                timeoutHandle = 0;
+                            }, 300);
+                        }
+                    }
+                }
+                else {
+                    console.log('scroll is okay: ' + window.scrollY)
+                }
+            });
+
+        }*/
     }
 
     /**
@@ -386,8 +356,31 @@ export class SunsetSkin {
         document.title = `${category.name} - Sunset Wholesale West`;
 
         // show item count
-        let itemCount = '1 - ' + category.items.length + ' items';
-        document.querySelector('.total-show-product span').innerText = itemCount;
+        document.querySelector('.total-show-product span').innerText
+            = '1 - ' + category.items.length + ' items';
+
+        // implement sorting dropdown
+        let $ddlSort = document.querySelector('#sorting');
+        $ddlSort.addEventListener('change', function() {
+            let sortOrder = $ddlSort.value;
+            if (sortOrder === 'name-asc') {
+                category.items.sort(function(a, b) { return a.text.localeCompare(b.text); });
+            }
+            else if (sortOrder === 'name-desc') {
+                category.items.sort(function(a, b) { return b.text.localeCompare(a.text); });
+            }
+            else if (sortOrder === 'price-asc') {
+                category.items.sort(function(a, b) { return a.casePrice.localeCompare(b.casePrice); });
+            }
+            else if (sortOrder === 'price-desc') {
+                category.items.sort(function(a, b) { return b.casePrice.localeCompare(a.casePrice); });
+            }
+            else if (sortOrder === 'item-no') {
+                category.items.sort(function(a, b) { return a.itemNo.localeCompare(b.itemNo); });
+            }
+            builder.buildCategoryProducts(category, $insertionPoint);
+        });
+
     }
 
     /**

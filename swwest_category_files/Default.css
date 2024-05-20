@@ -1,0 +1,1574 @@
+﻿/*
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.com/yui/license.html
+version: 2.8.1
+*/
+html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var,optgroup{font-style:inherit;font-weight:inherit;}del,ins{text-decoration:none;}li{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;font-variant:normal;}sup{vertical-align:baseline;}sub{vertical-align:baseline;}legend{color:#000;}input,button,textarea,select,optgroup,option{font-family:inherit;font-size:inherit;font-style:inherit;font-weight:inherit;}input,button,textarea,select{font-size:100%;}
+p{margin-bottom: 15px;}
+/* EDITOR PROPERTIES - PLEASE DON'T DELETE THIS LINE TO AVOID DUPLICATE PROPERTIES */
+
+
+/*
+fonts.css from the YUI Library: developer.yahoo.com/yui/
+          Please refer to developer.yahoo.com/yui/fonts/ for font sizing percentages
+
+There are three custom edits:
+ * remove Verdana, helvetica from explicit font stack
+ * make the line-height relative and unit-less
+ * remove the pre, code styles
+*/
+body { font:13px sans-serif; *font-size:small; *font:x-small; line-height:1.22; }
+
+table { font-size:inherit; font:100%; }
+
+select, input, textarea { font:99% sans-serif; }
+
+
+/* normalize monospace sizing 
+ * en.wikipedia.org/wiki/MediaWiki_talk:Common.css/Archive_11#Teletype_style_fix_for_Chrome
+ */
+pre, code, kbd, samp { font-family: monospace, sans-serif; }
+ 
+
+
+/* 
+ * minimal base styles 
+ */
+
+
+/* #444 looks better than black: twitter.com/H_FJ/statuses/11800719859 */ 
+body, select, input, textarea { color:#444; }
+
+/* Headers (h1,h2,etc) have no default font-size or margin,
+   you'll want to define those yourself. */ 
+ 
+/* www.aestheticallyloyal.com/public/optimize-legibility/ */ 
+h1,h2,h3,h4,h5,h6 { text-rendering: optimizeLegibility; }
+
+/* maxvoltar.com/archive/-webkit-font-smoothing */
+html { -webkit-font-smoothing: antialiased; }
+
+ 
+/* Accessible focus treatment: people.opera.com/patrickl/experiments/keyboard/test */
+a:hover, a:active { outline: none; }
+
+a, a:active, a:visited { color:#3688AF; }
+a:hover { color:#036; }
+
+
+/*ul { margin-left:30px; }
+ol { margin-left:30px; list-style-type: decimal; }*/
+
+small { font-size:85%; }
+strong, th { font-weight: bold; }
+em { font-style: italic; }
+
+td, td img { vertical-align:top; } 
+
+sub { vertical-align: sub; font-size: smaller; }
+sup { vertical-align: super; font-size: smaller; }
+
+pre { 
+  padding: 15px; 
+  
+  /* www.pathf.com/blogs/2008/05/formatting-quoted-code-in-blog-posts-css21-white-space-pre-wrap/ */
+  white-space: pre; /* CSS2 */
+  white-space: pre-wrap; /* CSS 2.1 */
+  white-space: pre-line; /* CSS 3 (and 2.1 as well, actually) */
+  word-wrap: break-word; /* IE */
+}
+
+/* align checkboxes, radios, text inputs with their label
+   by: Thierry Koblentz tjkdesign.com/ez-css/css/base.css  */
+input[type="radio"] { vertical-align: text-bottom; }
+input[type="checkbox"] { vertical-align: bottom; *vertical-align: baseline; }
+.ie6 input { vertical-align: text-bottom; }
+
+/* hand cursor on clickable input elements */
+label, input[type=button], input[type=submit], button { cursor: pointer; }
+
+
+/* These selection declarations have to be separate.
+   No text-shadow: twitter.com/miketaylr/status/12228805301 
+   Also: hot pink. */
+/*::-moz-selection{ background: #3688AF; color:#fff; text-shadow: none; }
+::selection { background:#3688AF; color:#fff; text-shadow: none; }*/ 
+
+/*  j.mp/webkit-tap-highlight-color */
+a:link { -webkit-tap-highlight-color: #3688AF; } 
+
+
+/* always force a scrollbar in non-IE */
+html { overflow-y: scroll; }
+
+/* make buttons play nice in IE:    
+   www.viget.com/inspire/styling-the-button-element-in-internet-explorer/ */
+button {  width: auto; overflow: visible; }
+ 
+/* bicubic resizing for non-native sized IMG: 
+   code.flickr.com/blog/2008/11/12/on-ui-quality-the-little-things-client-side-image-resizing/ */
+.ie7 img { -ms-interpolation-mode: bicubic; }
+
+
+/* 
+ * Non-semantic helper classes 
+ */
+
+/* for image replacement */
+.ir { display:block; text-indent:-999em; overflow:hidden; background-repeat: no-repeat; }
+
+/* Hide for both screenreaders and browsers
+   css-discuss.incutio.com/wiki/Screenreader_Visibility */
+.hidden { display:none; visibility:hidden; } 
+
+/* Hide only visually, but have it available for screenreaders 
+   www.webaim.org/techniques/css/invisiblecontent/ 
+   Solution from: j.mp/visuallyhidden - Thanks Jonathan Neal! */
+.visuallyhidden { position:absolute !important;    
+  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px); }
+
+/* Hide visually and from screenreaders, but maintain layout */
+.invisible { visibility: hidden; }
+
+/* >> The Magnificent CLEARFIX << */
+.clearfix:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+.clearfix { display: inline-block; }
+* html .clearfix { height: 1%; } /* Hides from IE-mac \*/
+.clearfix { display: block; }
+
+
+/* 
+ * print styles
+ * inlined to avoid required HTTP connection www.phpied.com/delay-loading-your-print-css/ 
+ */
+@media print {
+  * { background: transparent !important; color: #444 !important; text-shadow: none; }
+
+  a, a:visited { color: #444 !important; text-decoration: underline; }
+
+  a:after { content: " (" attr(href) ")"; } 
+
+  abbr:after { content: " (" attr(title) ")"; }
+  
+  .ir a:after { content: ""; }  /* Don't show links for images */
+  
+  pre, blockquote { border: 1px solid #999; page-break-inside: avoid; }
+  
+  img { page-break-inside: avoid; }
+
+  @page { margin: 0.5cm; }
+
+  p, h2, h3 { orphans: 3; widows: 3; }
+
+  h2, h3{ page-break-after: avoid; }
+}
+
+
+
+/*
+ * Media queries for responsive design
+ */
+
+@media all and (orientation:portrait) { 
+  /* Style adjustments for portrait mode goes here */
+  
+}
+
+@media all and (orientation:landscape) { 
+  /* Style adjustments for landscape mode goes here */
+  
+}
+
+/* Grade-A Mobile Browsers (Opera Mobile, iPhone Safari, Android Chrome)  
+   Consider this: www.cloudfour.com/css-media-query-for-mobile-is-fools-gold/ */
+@media screen and (max-device-width: 480px) {
+  
+  
+  /* Prevent iOS, WinMobile from adjusting font size */
+  html { -webkit-text-size-adjust:none; -ms-text-size-adjust:none; } 
+}
+
+
+
+
+/* EDITOR PROPERTIES - PLEASE DON'T DELETE THIS LINE TO AVOID DUPLICATE PROPERTIES */
+
+body   
+{
+    background-color:white;
+    /*font-size: .80em;*/
+    font-family: Verdana, Helvetica, Verdana, sans-serif;
+    margin: 0px;
+    padding: 0px;
+    /*color: #f9f9f9;*/
+
+    /*/* IE10 Consumer Preview */ 
+    /*background-image: -ms-linear-gradient(left, #00245B 0%, #004BBF 100%);*/
+
+    /* Mozilla Firefox */ 
+    /*background-image: -moz-linear-gradient(left, #00245B 0%, #004BBF 100%);*/
+
+    /* Opera */ 
+    /*background-image: -o-linear-gradient(left, #00245B 0%, #004BBF 100%);*/
+
+    /* Webkit (Safari/Chrome 10) */ 
+    /*background-image: -webkit-gradient(linear, left top, right top, color-stop(0, #00245B), color-stop(1, #004BBF));*/
+
+    /* Webkit (Chrome 11+) */ 
+    /*background-image: -webkit-linear-gradient(left, #00245B 0%, #004BBF 100%);*/
+
+    /* W3C Markup, IE10 Release Preview */ 
+    /*background-image: linear-gradient(to right, #00245B 0%, #004BBF 100%);*/
+ 
+}
+
+a:link, a:visited
+{
+    color: #034af3;
+    text-decoration: none;
+}
+
+a:hover
+{
+    color: #1d60ff;
+    text-decoration: none;
+}
+
+a:active
+{
+    color: #034af3;
+    text-decoration: none;
+}
+
+/* HEADINGS   
+----------------------------------------------------------*/
+
+h1, h2, h3, h4, h5, h6
+{
+    font-size: 1.5em;
+    font-variant: small-caps;
+    text-transform: none;
+    font-weight: 200;
+    margin-bottom: 0px;
+}
+
+h1
+{
+    font-size: 1.6em;
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+}
+
+h2
+{
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+h3
+{
+    font-size: 1.2em;
+}
+
+h4
+{
+    font-size: 1.1em;
+}
+
+h5, h6
+{
+    font-size: 1em;
+}
+
+
+.subHeader {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: #000096;
+}
+
+/* PRIMARY LAYOUT ELEMENTS   
+----------------------------------------------------------*/
+.leftTopFiller {
+    float: left;
+    height: 19px;
+    background-color: #000096;
+}
+
+.leftHeaderFiller {
+    float: left;
+    height: 74px;
+    /*background-image: url('Images/hdrFiller.png');*/
+    /*background-repeat:repeat-x;*/
+    background-color: #000096;
+    margin-top: 48px;
+    position: absolute;
+}
+
+.rightTopFiller {
+    height: 19px;
+    background-color: #000096;
+    position: absolute;
+    top: 0px;
+}
+
+.rightHeaderFiller {
+    height: 74px;
+    /*background-image: url('Images/hdrFiller.png');
+    background-repeat:repeat-x;*/
+    position: absolute;
+    top: 48px;
+    background-color: #000096;
+}
+
+
+.leftBottomFiller {
+    float: left;
+    height: 19px;
+    background-color: #000096;
+    margin-top: -19px;
+}
+
+.leftFooterFiller {
+    float: left;
+    height: 108px;
+    /*background-image: url('/Images/ftrFiller.png');
+    background-repeat:repeat-x;*/
+    margin-top: -151px;
+    background-color: #000096;
+}
+
+.rightFooterFiller {
+    height: 108px;
+    /*background-image: url('/Images/ftrFiller.png');
+    background-repeat:repeat-x;*/
+    background-color: #000096;
+    position: absolute;
+    margin-top: -151px;
+}
+
+
+.rightBottomFiller {
+    height: 19px;
+    background-color: #000096;
+    position: absolute;
+    margin-top: -19px;
+}
+.page
+{
+    width: 1338px;
+    background-color: #fff;
+    margin: 0px auto 0px auto;    
+    color:black;
+}
+
+.topBar {
+    /*background-image: url('Images/fullLine.png');
+    background-repeat:no-repeat;*/
+    width: 100%;
+    height: 19px;
+    background-color: #000096;
+}
+
+.topMenu
+{
+    padding-top:5px;
+    padding-right:180px;
+    text-align:right;
+}
+
+.topMenuMobile
+{
+    padding-top:5px;
+}
+
+.bottomMenu
+{
+    padding-top:-5px;
+    padding-bottom:5px;
+    vertical-align:top;
+    padding-right:180px;
+    text-align:right;
+}
+
+.header {
+    position: relative;
+    width: 981px;
+    /*background-image: url('Images/hdrCenter.png');
+    background-repeat:repeat-y;*/
+    height: 74px; /* was 48 */
+    background-color: #000096;
+    /* for non-css3 browsers */
+    /*background: #fff;*/
+    /* IE10 Consumer Preview */
+    /*background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #CCCCCC 100%);*/
+    /* Mozilla Firefox */
+    /*background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #CCCCCC 100%);*/
+    /* Opera */
+    /*background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #CCCCCC 100%);*/
+    /* Webkit (Safari/Chrome 10) */
+    /*background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #FFFFFF), color-stop(1, #CCCCCC));*/
+    /* Webkit (Chrome 11+) */
+    /*background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #CCCCCC 100%);*/
+    /* W3C Markup, IE10 Release Preview */
+    /*background-image: linear-gradient(to top, #FFFFFF 0%, #CCCCCC 100%);*/
+}
+
+.leftSide {
+    width: 179px;
+    height: 74px;
+    /*background-image:url('Images/hdrLeft.png');
+    background-repeat:no-repeat;
+    background-position-y:top;*/
+    float: left;
+    /*min-height: 500px;*/
+    z-index: 10;
+    position: relative;
+    background-color: #000096;
+    margin-top: 4px;
+}
+
+.middle
+{
+    /*padding-left:180px;*/
+    margin:-1px 0px 0px 0px;
+    padding-left:0px;
+    padding-right:0px;
+    padding-top:0px;
+    float:left;
+    width:980px;
+}
+
+.rightSide {
+    height: 74px;
+    width: 179px;
+    background-color: #000096;
+    margin-top: 4px;
+    /*background-image:url('Images/hdrRight.png');
+    background-repeat:no-repeat;
+    background-position-y:top;*/
+    float: right;
+    /*min-height: 500px;*/
+    margin-top: 4px;
+    z-index: 10;
+    position: relative;
+}
+
+.leftSideFooter {
+    width: 178px;
+    background-color: #000096;
+    /*background-image:url('/Images/FtrLeft.png');
+    background-repeat:no-repeat;
+    background-position-y:top;*/
+    float: left;
+    height: 108px;
+    z-index: 10;
+    position: relative;
+}
+
+.middlefooter
+{
+    /*padding-left:180px;*/
+    margin:0px 0px 0px 0px;
+    padding-left:0px;
+    padding-right:0px;
+    padding-top:0px;
+    float:left;
+    width:980px; 
+}
+.footer {
+    /*padding-left:180px;*/
+    margin: 0px 0px 0px 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 0px;
+    float: left;
+    position: relative;
+    width: 982px;
+    /*background-image: url('Images/hdrCenter.png');
+    background-repeat:repeat-y;*/
+    background-color: #000096;
+    height: 100px;
+}
+
+.rightSideFooter
+{
+    width:178px;    
+    background-color:#000096;
+    /*background-image:url('/Images/FtrRight.png');
+    background-repeat:no-repeat;
+    background-position-y:top;*/
+    float:right;
+    height:108px;
+    z-index:10;
+    position:relative;
+
+}
+.header h1
+{
+    font-weight: 700;
+    margin: 0px;
+    padding: 0px 0px 0px 20px;
+    color: #c2ae52;
+    border: none;
+    line-height: 2em;
+    font-size: 2em;
+    
+}
+
+.main
+{
+    padding: 0px 0px;
+    margin-left:210px;
+    width:760px;
+}
+
+.leftCol
+{
+    padding: 0px 0px;
+    margin: 0px 0px 0px 0px;
+    width: 200px;
+    min-height: 500px;
+    float:left;
+}
+
+.footer
+{
+    color: #4e5766;
+    padding: 8px 0px 0px 0px;
+    margin: 0px auto;
+    text-align: center;
+    line-height: normal;
+}
+
+/* TAB MENU   
+----------------------------------------------------------*/
+
+div.hideSkiplink
+{
+    background-color:#3a4f63;
+    width:100%;
+}
+
+div.menu
+{
+    margin-left:10px;
+    width:100px;
+    
+    float:left;
+}
+
+/* FORM ELEMENTS   
+----------------------------------------------------------*/
+
+fieldset
+{
+    margin: 1em 0px;
+    padding: 1em;
+    border: 1px solid #ccc;
+}
+
+fieldset p 
+{
+    margin: 2px 12px 10px 10px;
+}
+
+fieldset.login label, fieldset.register label, fieldset.changePassword label
+{
+    display: block;
+}
+
+fieldset label.inline 
+{
+    display: inline;
+}
+
+legend 
+{
+    font-size: 1.1em;
+    font-weight: 600;
+    padding: 2px 4px 8px 4px;
+}
+
+input.textEntry 
+{
+    width: 320px;
+    border: 1px solid #ccc;
+}
+
+input.passwordEntry 
+{
+    width: 320px;
+    border: 1px solid #ccc;
+}
+
+div.accountInfo
+{
+    width: 42%;
+}
+
+/* MISC  
+----------------------------------------------------------*/
+
+.clear
+{
+    clear: both;
+}
+
+.title
+{
+ 
+    text-align: left;
+    font-weight: 700;
+    margin: 0px;
+    padding: 0px 0px 0px 0px;
+    color: #c2ae52;
+    border: none;
+    line-height: 2em;
+    font-size: 2em;
+    float:left;
+}
+
+.title:hover
+{
+    cursor:pointer;
+}
+
+.title Image    
+{
+    
+}
+
+.slogan
+{
+ 
+    text-align: left;
+    font-weight: 700;
+    margin: 0px;
+    padding: 0px 0px 0px 0px;
+    color: blue;
+    border: none;
+    line-height: 1em;
+    font-size: .7em;
+    float:left;
+}
+
+
+.footerHours
+{
+    color:#FFFFFF;
+    text-align:left;
+    font-size:.5em;
+    width:300px;
+    float:left;
+    line-height:10px;
+
+}
+
+span.bottomBorder
+{
+    display:block;
+    border-bottom: solid 2px #0066CC;
+    width:100%;
+}
+
+.bottomBox
+{
+    display:block;
+    border: solid 2px #0066CC;
+    text-align:center;
+    width:100%;
+}
+
+.footerMessage
+{
+    color:black;
+    text-align:left;
+    font-size:10pt;
+    width:180px;
+    float:left;
+    padding-left:25px;
+    display: none;
+}
+
+.footerMessage input
+{
+}
+
+.footerMessage table td
+{
+    padding-right:10px;
+}
+
+.tableFooter
+{
+    margin-left:20px;
+    margin-top:-20px;
+}
+
+.tableFooter td
+{
+    text-align:left;
+    vertical-align:middle;
+    padding:1px;
+}
+
+.headerSearch {
+    width: auto;
+    margin: 5px 0px 0px 50px;
+    padding-top: 25px;
+    padding-left: 320px;
+    /*padding-left:230px;*/
+    padding-right: 0px;
+    padding-bottom: 0px;
+    color: #00B7EF;
+    border: none;
+    font-size: 14px;
+}
+
+.loginDisplay
+{ 
+    text-align: left;
+    width: auto;
+    margin: 0px;
+    padding-left:375px;
+    margin-top:-25px;
+    color: white;
+    border: none;  
+}
+
+.loginDisplay a:link
+{
+    font-size:14px;
+    color:white;
+}
+
+.loginDisplay a:visited
+{
+    font-size:14px;
+    color:white;
+}
+
+.loginDisplay a:hover
+{
+    font-size:14px;
+    color:white;
+}
+
+.failureNotification
+{
+    font-size: 1.2em;
+    color: Red;
+}
+
+.bold
+{
+    font-weight: bold;
+}
+
+.submitButton
+{
+    text-align: right;
+    padding-right: 10px;
+}
+
+.GridAlternate
+{
+    background-color: #F5F5FA;
+}
+
+.Grid td,th
+{
+    padding:2px;
+}
+
+.date
+{
+    
+}
+
+.divImage {
+    width: 100%;
+    height: 100px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    vertical-align: top;
+    background-size: contain;
+    /*-moz-box-shadow:    2px 2px 2px 2px #ccc;
+      -webkit-box-shadow: 2px 2px 2px 2px #ccc;
+      box-shadow:         2px 2px 2px 2px #ccc;*/
+}
+
+.itemDetailClearance {
+    background-image: url('/Images/endOfLineFlag.png');
+    background-repeat: no-repeat;
+    background-position-x: left;
+    background-position-y: top;
+    float: left;
+}
+
+.itemClearance {
+    background-image: url('/Images/endOfLineFlag.png');
+    background-repeat: no-repeat;
+    background-position-x: left;
+    background-position-y: top;
+    width: 50px;
+    height: 50px;
+    margin-left: -4px;
+    margin-top: -4px;
+    position: absolute;
+}
+.itemSpecial
+{
+    background-image: url('/Images/specialFlag.png');
+    background-repeat: no-repeat;
+    background-position-x:left;
+    background-position-y:top;    
+    width:50px;
+    height:50px;
+
+    margin-left:-4px;
+    margin-top:-4px;
+
+    position:absolute;
+}
+.itemNew {
+    background-image: url('/Images/newFlag.png');
+    background-repeat: no-repeat;
+    background-position-x: left;
+    background-position-y: top;
+    width: 50px;
+    height: 50px;
+    margin-left: -4px;
+    margin-top: -4px;
+    position: absolute;
+}
+.itemImage
+{
+
+    border:none;  
+    border-image-width:0px;
+}
+
+
+.MaskedEditError
+{
+    background-color:Red;
+}
+
+.TextError
+{
+    color:Red;
+}
+
+.TextSearch
+{
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    height:16px;    
+    padding:0px 0px 0px 5px;
+    Width:160px;
+    margin:-5px 0px 0px 0px;
+}
+
+.ButtonSearch
+{
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;   
+    height:22px;
+    width:24px;
+    background-image: url('/Images/BtnSearch.png');
+    background-repeat:no-repeat;
+    border:none;
+    margin:0px 0px 0px -5px;
+    padding:0px 0px 0px 0px;
+
+}
+
+.ButtonSearch:hover
+{
+cursor:pointer;
+}
+
+.Cart
+{   
+    border:none;
+    color:white;
+    background-image:url('/Images/Cart.png');    
+    margin-top:-60px;
+    margin-left:518px;
+    padding-left:0px;
+    height:81px;
+    background-repeat:no-repeat;
+    background-position-x:right;
+    width:82px;
+
+}
+
+.CartChild
+{
+        text-align:center;
+        padding-top:6px;
+}
+
+.Cart:hover
+{
+    cursor:pointer;
+}
+
+Table.Items
+{
+    width:100%;
+}
+
+    Table.Items td {
+        width: 100px;
+        height: 50px;
+        text-align: center;
+        vertical-align: top;
+        padding-top: 6px;
+        padding-left: 6px;
+        padding-right: 6px;
+        max-width: 100px;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+/*
+        Table.Items td.Item {
+            border-top: 1px solid black;
+            border-right: 1px solid black;
+            border-left: 1px solid black;
+        }
+
+        Table.Items td.Qty {
+            border-bottom: 1px solid black;
+            border-right: 1px solid black;
+            border-left: 1px solid black;
+        }
+        */
+.ItemDetail
+{
+    font-size: 18px;
+    color: #00245b;
+}
+
+.ImgItemDetail
+{
+    max-width:300px;
+    max-height:300px;
+    background-position:center center;
+    background-repeat:no-repeat;    
+}
+
+.TextColor
+{
+    color:#00245b;
+}
+
+.TextColorRed
+{
+    color:red;
+}
+
+Table.ViewCart
+{
+    width:100%;
+    border-collapse:collapse;
+    border-spacing:0px;
+}
+
+Table.ViewCart td
+{
+    border:1px solid #e0e0e0;
+    padding:2px;
+}
+
+Table.ViewCart td.Center
+{
+    border:1px solid #e0e0e0;
+    text-align:center;
+}
+
+Table.ViewCart td.Right
+{
+    border:1px solid #e0e0e0;
+    text-align:right;
+}
+
+Table.ViewCart td.Header
+{
+    text-align:center;
+    background-color:#e0e0e0;
+    color:#00245b;
+}
+
+Table.ViewCart td.Footer
+{
+    text-align:right;
+    background-color:#e0e0e0;
+    color:#00245b;
+}
+
+Table.ItemSpecials
+{
+    border-collapse:collapse;
+    border-spacing:0px;
+    width:100%;
+}
+
+Table.ItemSpecials td
+{
+    width: 100px;
+    height: 50px;
+    text-align:center;
+    vertical-align:top;
+    padding-left:6px;
+    padding-right:6px;
+}
+
+Table.ItemSpecials td.Center
+{
+    text-align:center;
+}
+
+Table.ItemSpecials td.CenterQty
+{
+    text-align:center;
+    padding-bottom:15px;
+}
+
+Table.ItemSpecials td.Right
+{
+    text-align:right;
+}
+
+    Table.ItemSpecials td.Header {
+        color: white;
+        font-size: large;
+        font-weight: 600;
+        /* background-color:#d0f2fb;
+        border-bottom:solid 1px #0066CC;
+    border-top:solid 1px #0066CC;*/
+        vertical-align: middle;
+        padding-bottom: 0px;
+        /*background-image: url('/Images/specialBackground.png');
+    background-repeat:repeat-y;*/
+        background-color: #000096;
+        height: 37px;
+    }
+
+Table.ItemSpecials td.Header a
+{
+    color:white;
+    font-size:large;
+    font-weight:600;
+}
+
+    Table.ItemSpecials td.Header a.NewProducts {
+        color: #00B7EF;
+        font-size: large;
+        font-weight: 600;
+    }
+
+    Table.ItemSpecials td.Header a.NewProductsClickHere {
+        color: #F99500;
+        font-size: large;
+        font-weight: 600;
+    }
+    Table.ItemSpecials td.Header a.ItemsonSpecial {
+        color: #F99500;
+        font-size: large;
+        font-weight: 600;
+    }
+
+    Table.ItemSpecials td.Header a.ItemsonSpecialClickHere {
+        color: #00B7EF;
+        font-size: large;
+        font-weight: 600;
+    }
+    Table.ItemSpecials td.Header a.UnColoredArrows {
+        color: white;
+        font-size: medium;
+        font-weight: 600;
+    }
+    Table.ItemSpecials td.Header a.ColoredArrows {
+        color: #00B7EF;
+        font-size: medium;
+        font-weight: 600;
+    }
+
+Table.ItemSpecials td.Footer {
+    text-align: right;
+    background-color: #e0e0e0;
+    color: #00245b;
+}
+
+Table.ItemSpecials td.arrow
+{
+    text-align:center;
+    vertical-align:middle;
+    width:10px;
+}
+
+.ButtonDisabled
+{
+    background-color: #FF0000;
+    background-image: url('/Images/btnDisabled.png');
+    background-repeat:repeat-x;
+    color: white;
+    height: 24px;
+    width: 110px;
+    font-weight: 300;
+    font-size: 10pt;
+    border: none;
+}
+
+.Button
+{
+    background-color: #FF0000;
+    background-image: url('/Images/btnActive.png');
+    background-repeat:repeat-x;
+    color: white;
+    height: 24px;
+    width: 110px;
+    font-weight: 300;
+    font-size: 10pt;
+    border: none;
+}
+
+
+.Button:hover
+{    
+    background-color:#FF0000;
+    background-image:url('/Images/btnHover.png');
+    background-repeat:repeat-x;
+    color:white;
+    height:24px;    
+    width:110px;
+    font-weight:300;
+    font-size: 10pt;
+    border:none;
+    cursor: pointer;
+}
+
+.Button:active
+{    
+    background-color:#FF0000;
+    background-image:url('/Images/btnPress.png');
+    background-repeat:repeat-x;
+    color:white;
+    height:24px;    
+    width:110px;
+    font-weight:300;
+    font-size: 10pt;
+    border:none;
+    cursor: pointer;
+}
+
+.ButtonNoBlockUI
+{
+    background-color: #FF0000;
+    background-image: url('/Images/btnActive.png');
+    background-repeat:repeat-x;
+    color: white;
+    height: 24px;
+    width: 110px;
+    font-weight: 300;
+    font-size: 10pt;
+    border: none;
+}
+
+.ButtonNoBlockUI:hover
+{    
+    background-color:#FF0000;
+    background-image:url('/Images/btnHover.png');
+    background-repeat:repeat-x;
+    color:white;
+    height:24px;    
+    width:110px;
+    font-weight:300;
+    font-size: 10pt;
+    border:none;
+    cursor: pointer;
+}
+
+.ButtonNoBlockUI:active
+{    
+    background-color:#FF0000;
+    background-image:url('/Images/btnPress.png');
+    background-repeat:repeat-x;
+    color:white;
+    height:24px;    
+    width:110px;
+    font-weight:300;
+    font-size: 10pt;
+    border:none;
+    cursor: pointer;
+}
+
+
+.ButtonSmall
+{
+    background-color: #FF0000;
+    background-image: url('/Images/btnActive.png');
+    background-repeat:repeat-x;
+    color: white;
+    height: 20px;
+    width: 80px;
+    font-weight: 300;
+    font-size: 10pt;
+    border: none;
+}
+
+
+.ButtonSmall:hover
+{    
+    background-color:#FF0000;
+    background-image:url('/Images/btnHover.png');
+    background-repeat:repeat-x;
+    color:white;
+    height: 20px;
+    width: 80px;
+    font-weight:300;
+    font-size: 10pt;
+    border:none;
+    cursor: pointer;
+}
+
+.ButtonSmall:active
+{    
+    background-color:#FF0000;
+    background-image:url('/Images/btnPress.png');
+    background-repeat:repeat-x;
+    color:white;
+    height: 20px;
+    width: 80px;
+    font-weight:300;
+    font-size: 10pt;
+    border:none;
+    cursor: pointer;
+}
+
+.ButtonBuy
+{    
+    margin-left:10px;
+    padding-left:5px;
+    background-color:#FF0000;
+    background-image:url('/Images/btnActive.png');
+    background-repeat:repeat-x;
+    color:white;
+    height:24px;    
+    width:40px;
+    font-weight:300;
+    font-size: 10pt;
+    border:none;
+}
+
+.ButtonBuy:hover
+{    
+    margin-left:10px;
+    padding-left:5px;
+    background-color:#FF0000;
+    background-image:url('/Images/btnHover.png');
+    background-repeat:repeat-x;
+    color:white;
+    height:24px;    
+    width:40px;
+    font-weight:300;
+    font-size: 10pt;
+    border:none;
+    cursor: pointer;
+}
+
+.ButtonBuy:active
+{    
+    margin-left:10px;
+    padding-left:5px;
+    background-color:#FF0000;
+    background-image:url('/Images/btnPress.png');
+    background-repeat:repeat-x;
+    color:white;
+    height:24px;    
+    width:40px;
+    font-weight:300;
+    font-size: 10pt;
+    border:none;
+    cursor: pointer;
+}
+
+.ButtonGray
+{
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color:#650000;
+    color: #00245b;
+    height:25px;    
+    width:110px;
+    font-weight:300;
+    font-size: 10pt;
+
+    background: #fff; /* for non-css3 browsers */
+    /* IE10 Consumer Preview */ 
+    background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #CCCCCC 100%);
+    /* Mozilla Firefox */ 
+    background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #CCCCCC 100%);
+    /* Opera */ 
+    background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #CCCCCC 100%);
+    /* Webkit (Safari/Chrome 10) */ 
+    background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #FFFFFF), color-stop(1, #CCCCCC));
+    /* Webkit (Chrome 11+) */ 
+    background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #CCCCCC 100%);
+    /* W3C Markup, IE10 Release Preview */ 
+    background-image: linear-gradient(to top, #FFFFFF 0%, #CCCCCC 100%);
+ 
+}
+
+.TextRight
+{
+    text-align:right;
+}
+
+.ModalPopup {
+    border-width: 3px;
+    border-style: solid;
+    border-color: gray;
+    height: 200px;
+    width: 450px;
+    padding: 3px;
+    background-color: white;
+    text-align: center;
+    color: #000096;
+}
+
+.TableModal
+{
+    width:100%;
+    height:100%;
+}
+
+.TableModal td
+{
+    text-align:left;
+    color:blue;
+    padding:1px;
+}
+
+.TopAlign
+{
+    vertical-align:top;
+}
+
+
+
+
+.TextMediumBlue a, a:link, a:hover, a:visited, a:active {
+    color: #000096;
+    font-size: 9pt;
+}
+
+.TextSmallDark
+{
+    color:#003333;
+    font-size:8pt;
+}
+
+.imageArrow
+{
+    border:none;
+    width:10px;
+}
+
+.verticalMiddle
+{
+    vertical-align: middle;
+}
+
+input, textarea
+{
+    padding: 2px;
+}
+
+.watermarked
+{
+    color:gray;   
+}
+
+.divSlideShow
+{
+
+}
+
+.slide
+{
+    padding:3px;
+}
+
+.Table td
+{
+    padding:2px;
+}
+
+.Categories a
+{
+    font-size:16px;
+}
+
+.PageButtons
+{
+    float:right;
+}
+
+.TablePadded td
+{
+    padding:2px;
+}
+
+.TableExtraPadded td
+{
+    padding:6px;
+}
+
+TableContactUs
+{
+    width:100%;
+}
+.TableContactUs td
+{
+    padding-left:15px;
+    padding-right:15px;
+}
+
+.LoginLeftCell
+{
+    width: 120px;
+}
+
+.TableCategory
+{
+    width:350px;
+}
+
+.topMenu a
+{
+    font-size: 16px;
+}
+.topMenuMobile a
+{
+    font-size: 20px;
+}
+.bottomMenu a
+{
+    font-size: 16px;
+}
+
+
+.accordion
+{
+
+}
+.accordionHeader {      
+    border-top: 1px solid #b3c6cb;  
+    color: black;  
+    background-color: #f4f9fa;  
+    font-family: Verdana, Sans-Serif;  
+    font-weight: bold;  
+    padding: 5px;  
+
+    cursor: pointer;  
+}
+
+.accordionHeaderSelected {  
+    border-bottom:1px solid #2F4F4F;  
+    border-top: 1px solid #2F4F4F;  
+    color: black;  
+    background-color: #f4f9fa;  
+    font-family: Verdana, Sans-Serif;  
+    font-weight: bold;  
+    padding: 5px;  
+    cursor: pointer;  
+}
+.accordionHeader a
+{
+    font-size: 18px;  
+
+}
+  
+.accordionHeaderSelected a
+{
+    font-size: 18px;  
+}
+
+.accordionContent {
+    background-color: white;
+    font-size: 16px;
+    width: 100%;
+}
+
+.accordionContent a
+{
+    font-size: 16px;  
+}
+
+    .accordionContent table tr td:last-child {
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+        width: 100%;
+        background-color: #f0eded;
+    }
+
+
+.menuNode {
+    /* width:100%;
+    border-top: 1px solid red;
+    */
+}
+
+.footerMap {
+    float: left;
+    padding-top: 25px;
+}
+
+.footerDivide
+{
+    float:left;
+    padding-left:20px;
+    display:none;
+}
+
+.titleFooter
+{
+    text-align:left;
+    margin: 0px;
+    padding: 0px 0px 0px 0px;
+    color: #FFFFFF;
+    border: none;
+    float:left;
+    font-size:14px;
+    width:400px;
+}
+
+.titleFooter a
+{
+    font-size:14px;
+    color:white;
+}
+
+
+.DropQtyType {
+    box-sizing: content-box;
+}
+
+.cartTotalPrice
+{
+    font-size:16px;
+}
+
+.catMsg{
+    background-color:orange;
+    width:100%;
+    text-align:center;
+}

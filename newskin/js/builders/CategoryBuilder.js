@@ -128,7 +128,11 @@ export class CategoryBuilder {
             }
         }
 
-        $insertionPoint.appendChild($tabContent);
+  //      $tabContent.classList.add('insert-category');
+//        $insertionPoint.replaceWith($tabContent);
+
+        $insertionPoint.innerHTML = $tabContent.innerHTML
+        $insertionPoint.classList.add('tab-content');
     }
 
     /**
