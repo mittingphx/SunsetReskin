@@ -131,3 +131,39 @@
 
 }
 
+
+/*** Fix icons in circle centering in Social Media Links and Shopping Links ***/
+
+.header .nav-social ul li a {
+    padding-top: 9px;
+}
+.footer .footer-bottom .socila li a {
+     padding-top: 9px;
+ }
+.header .navbar-cart .cart-items .main-btn {
+    padding-top: 9px;
+}
+.header .navbar-cart .wishlist a {
+    padding-top: 9px;
+}
+
+/*** Shopping Cart Preview ***/
+.header .navbar-cart .cart-items .shopping-item {
+    top: 50px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.537);
+}
+
+/*** Testing fixing bottom whitespace ***/
+#below-footer {
+    width: 10px;
+    height: 10px;
+    border: 3px solid red;
+    position: absolute;
+}
+
+/*** Subcategory list ***/
+.active-category {
+    color: black;
+    font-weight: bold;
+    font-style: italic;
+}

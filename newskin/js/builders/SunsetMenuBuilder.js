@@ -7,11 +7,50 @@
  *  HTML building methods for the menu on the swwest website.
  */
 
+import {SunsetMenu,SunsetMenuItem} from "../SunsetMenuItem.js";
+
 /**
  * Builds the HTML for the menu on the swwest website.
  */
 export class SunsetMenuBuilder {
 
+    /**
+     * The menu being built.
+     * @type {SunsetMenu}
+     */
+    menu = null;
+
+    /**
+     * Class names for each depth level
+     * @type {string[]}
+     * @private
+     */
+    #depthClasses = [
+        'sub-category',
+        'inner-sub-category',
+        'inner-sub-2-category',
+        'inner-sub-3-category',
+        'inner-sub-4-category'
+    ];
+
+    /**
+     * Constructor optionally takes the menu to be built.
+     * @param menu {SunsetMenu|null}
+     */
+    constructor(menu) {
+        this.menu = menu;
+    }
+
+    /**
+     * Builds the HTML for the category dropdown menu.
+     * @returns {HTMLUListElement|null}
+     */
+    build() {
+        if (!this.menu) {
+            return null;
+        }
+        return this.buildMenuNode(this.menu.items, 0);
+    }
 
     /**
      * Recursively builds the HTML for the menu.
@@ -21,35 +60,12 @@ export class SunsetMenuBuilder {
      */
     buildMenuNode(itemList, childDepth) {
 
-        // default depth is zero
-        if (!childDepth) {
-            childDepth = 0;
-        }
+        // keep child depth within bounds
+        childDepth = this.#clampChildDepth(childDepth);
 
-        // determine class to use at this depth
-        if (!this._depthClasses) {
-            this._depthClasses = [
-                'sub-category',
-                'inner-sub-category',
-                'inner-sub-2-category',
-                'inner-sub-3-category',
-                'inner-sub-4-category'
-            ];
-        }
-        if (childDepth >= this._depthClasses.length) {
-            childDepth = this._depthClasses.length - 1;
-        }
-        //console.log('depth=' + depth + ' class=' + this._depthClasses[depth]);
-        if (childDepth >= this._depthClasses.length) {
-            console.error('invalid menu depth: ' + childDepth);
-            return document.createElement('ul');
-        }
-        let cssClass = this._depthClasses[childDepth];
-
-
+        // build the menu
         let $ul = document.createElement('ul');
-        //$ul.classList.add(isChild ? 'inner-sub-category' : 'sub-category');
-        $ul.classList.add(cssClass);
+        $ul.classList.add(this.#depthClasses[childDepth]);
         for (let i = 0; i < itemList.length; i++) {
             let $li = document.createElement('li');
             if (itemList[i].children.length <= 0) {
@@ -64,5 +80,21 @@ export class SunsetMenuBuilder {
         }
         return $ul;
     }
+
+    /**
+     * Clamps a number between min and max
+     * @param num {number}
+     * @param min {number}
+     * @param max {number}
+     * @returns {number}
+     */
+    #clamp = (num, min, max) => Math.min(Math.max(num || 0, min), max);
+
+    /**
+     * Clamps a child depth to be within the bounds of the depth classes
+     * @param childDepth
+     * @returns {number}
+     */
+    #clampChildDepth = (childDepth) => this.#clamp(childDepth, 0, this.#depthClasses.length - 1);
 
 }

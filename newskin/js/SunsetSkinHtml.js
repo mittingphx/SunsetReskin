@@ -8,6 +8,9 @@
  *
  */
 
+import {TimedMemoizer} from "./util/TimedMemoizer.js";
+import {UrlHelper} from "./UrlHelper.js";
+
 /**
  * Stores the old and new HTML sections of the website.
  */
@@ -51,6 +54,12 @@ export class SunsetSkinHtml {
     header = null;
 
     /**
+     * Footer shared across all pages just like the header.
+     * @type {HTMLElement|null}
+     */
+    footer = null;
+
+    /**
      * Constructor saves copy of current webpage.
      */
     constructor() {
@@ -68,6 +77,7 @@ export class SunsetSkinHtml {
     async load(newSkinUrl) {
 
         let headerIndex = -1;
+        let footerIndex = -1;
         let templateIndex = -1;
 
         // load all needed files in parallel
@@ -75,6 +85,10 @@ export class SunsetSkinHtml {
         if (!this.header) {
             urls.push('newskin/html/header.html');
             headerIndex = urls.length - 1;
+        }
+        if (!this.footer) {
+            urls.push('newskin/html/footer.html');
+            footerIndex = urls.length - 1;
         }
         if (!this.newHtmlDocument || !this.newHtmlBody || !this.newHtmlHead) {
             urls.push(newSkinUrl);
@@ -89,6 +103,11 @@ export class SunsetSkinHtml {
             this.header = documents[headerIndex].querySelector('header');
         }
 
+        // load footer if needed
+        if (footerIndex >= 0) {
+            this.footer = documents[footerIndex].querySelector('footer');
+        }
+
         // load template if needed
         if (templateIndex >= 0) {
             this.newHtmlDocument = documents[templateIndex];
@@ -96,26 +115,9 @@ export class SunsetSkinHtml {
 
         // use new template with header inserted
         this.newHtmlDocument.querySelector('header').replaceWith(this.header);
+        this.newHtmlDocument.querySelector('footer').replaceWith(this.footer);
         this.replaceDocument(this.newHtmlDocument);
 
-        /*
-        // load header as needed
-        if (!this.header) {
-            let headerResponse = await fetch('newskin/html/header.html');
-            let headerHtml = await headerResponse.text();
-            let headerDocument = new DOMParser().parseFromString(headerHtml, 'text/html');
-            this.header = headerDocument.querySelector('header');
-        }
-
-        // TODO: load both files in parallel
-
-        // load new skin
-        let response = await fetch(newSkinUrl);
-        let newHtml = await response.text();
-        let newDocument = new DOMParser().parseFromString(newHtml, 'text/html');
-
-
-*/
     };
 
     /**
@@ -169,6 +171,42 @@ export class SunsetSkinHtml {
 
         // replace old document with new
         this.toggle('new');
+
+        // hack to block white space at bottom of page from being visible
+        this.addScrollListener()
+    }
+
+    /**
+     * Adds scroll listener to prevent over-scrolling.
+     */
+    addScrollListener() {
+
+        // last element of the page
+        const $footer = document.querySelector('footer');
+        if (!$footer) {
+            console.error('Could not find footer to add scroll listener to');
+            return;
+        }
+
+        // how far down to scroll, automatically updated when the
+        // window's dimensions or body's content changes
+        let maxScroll = new TimedMemoizer(() => {
+            const windowHeight = window.innerHeight;
+            const bodyHeight = $footer.offsetTop + $footer.offsetHeight
+            return bodyHeight - windowHeight;
+        }, 100);
+
+        // scrolling event handler
+        window.addEventListener('scroll', function() {
+
+            // prevent over-scrolling by scrolling back to the max allowed value
+            if (window.scrollY > maxScroll.get()) {
+                window.scrollTo({
+                    top: maxScroll.get(),
+                    behavior: 'instant'
+                });
+            }
+        });
     }
 
     /**

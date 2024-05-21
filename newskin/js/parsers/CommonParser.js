@@ -60,6 +60,22 @@ export class ProductCategoryBreadcrumb {
      */
     parent = null;
 
+    /**
+     * Returns each of the parents of this breadcrumb in order from
+     * the top level menus to the specific item.
+     *
+     * @returns {ProductCategoryBreadcrumb[]}
+     */
+    getParentHierarchy() {
+        let parents = [];
+        let item = this
+        while (item.parent != null) {
+            parents.push(item);
+            item = item.parent;
+        }
+        parents = parents.reverse();
+        return parents;
+    }
 }
 
 

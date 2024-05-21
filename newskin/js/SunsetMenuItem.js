@@ -7,6 +7,102 @@
  *  Model classes representing the menu in memory.
  */
 
+
+/**
+ * Top level menu for the website, containing all the categories
+ * displayed from the mega menu, organized in a form to allow it
+ * to be queried efficiently.
+ */
+export class SunsetMenu {
+
+    /**
+     * The top-level menu items in the menu.  The children form a hierarchy.
+     * @type {SunsetMenuItem[]}
+     */
+    items = [];
+
+    /**
+     * Constructor optionally takes an array of items
+     * @param items {SunsetMenuItem[]}
+     */
+    constructor(items) {
+        this.items = items || [];
+    }
+
+    /**
+     * Adds a menu item to this object.
+     * @param item {SunsetMenuItem}
+     */
+    addMenuItem(item) {
+        this.items.push(item);
+    }
+
+
+    /**
+     * Finds an item using the breadcrumbs as a guide on how to walk
+     * directly to the item instead of scanning thousands of items
+     * over a mixed-depth hierarchy.
+     * @param breadcrumbs {ProductCategoryBreadcrumb}
+     * @returns {SunsetMenuItem|null}
+     */
+    findItem(breadcrumbs) {
+
+        // get parents as array from top-level to specific children
+        let parents = breadcrumbs.getParentHierarchy();
+        if (parents.length < 1) return null;
+
+        // search the top-level items with the first breadcrumb
+        let searchScope = this.items;
+        let parentIndex = 0;
+        while (searchScope) {
+            let searchItem = parents[parentIndex];
+            if (!searchItem) return null;
+
+            let found = searchScope.find(item => item.text === searchItem.name);
+            if (found) {
+                searchScope = found.children;
+                if (++parentIndex >= parents.length) {
+                    return found;
+                }
+            }
+            else {
+                searchScope = null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Searches for a top-level item by its display text.
+     * @param text {string}
+     * @returns {SunsetMenuItem|null}
+     */
+    findItemByText(text) {
+        for (let item of this.items) {
+            if (item.text === text) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Does a recursive search for an item by display text.
+     * @param text {string}
+     * @returns {SunsetMenuItem|null}
+     */
+    findItemRecursive(text) {
+        for (let item of this.items) {
+            let found = item.findItemRecursive(text);
+            if (found) {
+                return found;
+            }
+        }
+        return null;
+    }
+}
+
 /**
  * Object representing one link on the Sunset Wholesale West website
  * menu, including its children.
@@ -26,10 +122,23 @@ export class SunsetMenuItem {
     link = '';
 
     /**
+     * The number of products within this menu item.
+     * Not used yet.
+     * @type {number}
+     */
+    count = 0;
+
+    /**
      * The child menu items under this item.
      * @type {SunsetMenuItem[]}
      */
     children = [];
+
+    /**
+     * The parent item in the menu hierarchy.
+     * @type {SunsetMenuItem|null}
+     */
+    parent = null;
 
     /**
      * True iff this item was loaded successfully.
@@ -54,6 +163,54 @@ export class SunsetMenuItem {
         if ($node) {
             this.readFromNode($node, skipLinkFromParent);
         }
+    }
+
+    /**
+     * Adds a child to this menu item.  This is recommended for adding
+     * children instead of access the array directly because it maintains
+     * the parent relationship for later querying.
+     * @param child {SunsetMenuItem}
+     */
+    addChild(child) {
+        child.parent = this;
+        this.children.push(child);
+    }
+
+    /**
+     * Searches for an item by display text in only this object and
+     * its immediate children.
+     * @param text {string}
+     * @returns {SunsetMenuItem|null}
+     */
+    findItemByText(text) {
+        if (this.text === text) {
+            return this;
+        }
+        for (let child of this.children) {
+            if (child.text === text) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Searches for a menu item by display text recursively through
+     * all the children.
+     * @param text
+     * @returns {SunsetMenuItem|null}
+     */
+    findItemRecursive(text) {
+        if (this.text === text) {
+            return this;
+        }
+        for (let child of this.children) {
+            let found = child.findItemRecursive(text);
+            if (found) {
+                return found;
+            }
+        }
+        return null;
     }
 
     /**
@@ -104,4 +261,5 @@ export class SunsetMenuItem {
         this.loaded = true;
         return true;
     }
+
 }

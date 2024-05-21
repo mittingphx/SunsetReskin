@@ -1,8 +1,92 @@
-
+/**
+ * Builds the HTML for the category page.
+ */
 export class CategoryBuilder {
 
+    build() {
+        // TODO: make this the function the main code calls.
+    }
+
     /**
-     *
+     * Builds the immediate subcategories for this page's category.
+     * @param categoryData {ProductCategoryItem}
+     * @param menu {SunsetMenu}
+     * @returns {HTMLDivElement|null}
+     */
+    buildSubcategoryList(categoryData, menu) {
+
+        console.log({categoryData: categoryData, menu: menu});
+        if (!menu || !categoryData || !categoryData.breadcrumbs) {
+            return null;
+        }
+
+        // get the current item from the menu
+        let item = menu.findItem(categoryData.breadcrumbs);
+        if (!item) {
+            return null;
+        }
+        let selectedItem = item;
+
+        // if the item has no children, list the siblings in the subcategory list
+        if (item.children.length === 0) {
+            item = item.parent;
+            if (!item) {
+                return null;
+            }
+        }
+
+        // list the immediate children in the subcategory list
+        let $widgetDiv = document.createElement('div');
+        {
+            $widgetDiv.classList.add('single-widget');
+
+            // title of the list
+            let $h3 = document.createElement('h3');
+            $h3.innerHTML = item.text; // TODO: may need to change to "All Categories" on top-level menus
+            $widgetDiv.appendChild($h3);
+
+            // links
+            let $ul = document.createElement('ul');
+            {
+                $ul.classList.add('list');
+                for (let i = 0; i < item.children.length; i++) {
+                    let child = item.children[i];
+                    let $li = document.createElement('li');
+                    {
+                        if (child === selectedItem) {
+                            $li.classList.add('active-category');
+                            $li.innerHTML = child.text;
+                        }
+                        else {
+                            let $a = document.createElement('a');
+                            {
+                                $a.href = child.link;
+                                if (item.count) {
+                                    $a.innerHTML = child.text + ' <span>' + item.count + '</span>';
+                                } else {
+                                    $a.innerHTML = child.text;
+                                }
+                                $li.appendChild($a);
+                            }
+                        }
+                        $ul.appendChild($li);
+                    }
+                }
+                $widgetDiv.appendChild($ul);
+            }
+
+            for (let i = 0; i < item.children.length; i++) {
+
+                let child = item.children[i];
+                console.log({child: child});
+            }
+        }
+        return $widgetDiv;
+    }
+
+
+    /**
+     * Builds the HTML for the products in the category grid view.
      */
     buildCategoryProducts(categoryData, $insertionPoint) {
         console.log('buildCategoryProducts()');

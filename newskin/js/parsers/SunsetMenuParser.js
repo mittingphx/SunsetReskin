@@ -7,7 +7,7 @@
  *  Menu parsing methods for the website.
  */
 
-import {SunsetMenuItem} from "../SunsetMenuItem.js";
+import {SunsetMenu,SunsetMenuItem} from "../SunsetMenuItem.js";
 
 /**
  * Helper class for parsing the menu data on the swwest website.
@@ -22,8 +22,9 @@ export class SunsetMenuParser {
 
     /**
      * Stores the loaded menu elements from the original website.
+     * @type {SunsetMenu}
      */
-    menu = [];
+    menu = null;
 
     /**
      * The HTML document to load the menu data from.
@@ -66,7 +67,7 @@ export class SunsetMenuParser {
             return;
         }
 
-        this.menu = [];
+        this.menu = new SunsetMenu(null);
 
         for (let i = 0; i < $topLevelMenus.length; i++) {
             //this.log.push('parsing menu #' + i);
@@ -91,7 +92,7 @@ export class SunsetMenuParser {
 
             for (let k = 0; k < $nodes.length; k++) {
                 let child = new SunsetMenuItem($nodes[k]);
-                topMenuItem.children.push(child);
+                topMenuItem.addChild(child);
                 if (!child.loaded) {
                     continue;
                 }
@@ -103,7 +104,7 @@ export class SunsetMenuParser {
                 child.$parentChildren = $parentChildren;
                 for (let j = 0; j < $parentChildren.length; j++) {
                     let grandChild = new SunsetMenuItem($parentChildren[j]);
-                    child.children.push(grandChild);
+                    child.addChild(grandChild);
                     if (!grandChild.loaded) {
                         continue;
                     }
@@ -114,7 +115,7 @@ export class SunsetMenuParser {
                     const $parentGrandChildren = childNodeParents.children.querySelectorAll(':scope > table');
                     for (let m = 0; m < $parentGrandChildren.length; m++) {
                         let greatGrandChild = new SunsetMenuItem($parentGrandChildren[m]);
-                        grandChild.children.push(greatGrandChild);
+                        grandChild.addChild(greatGrandChild);
                         if (!greatGrandChild.loaded) {
                             continue;
                         }
@@ -159,17 +160,7 @@ export class SunsetMenuParser {
                 }
             }
 
-            /*
-            const escapeHtml = (unsafe) => {
-                return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
-            }
-
-            this.log.push('<b>thisSubMenu</b>:<br><pre>' + escapeHtml($thisSubmenu.outerHTML) + '</pre>');
-            this.log.push('<b>nextElementSibling</b>:<br><pre>' +escapeHtml($thisSubmenu.nextElementSibling.outerHTML) + '</pre>');
-            this.log.push('<hr>');
-*/
-
-            this.menu.push(topMenuItem);
+            this.menu.addMenuItem(topMenuItem);
         }
 
     }

@@ -11,6 +11,7 @@
 import {SunsetPreload} from "./SunsetPreload.js";
 import {SunsetSkinHtml} from "./SunsetSkinHtml.js";
 import {FileDetector} from "./FileDetector.js";
+import {SunsetMenuItem} from "./SunsetMenuItem";
 
 import {FrontPageSpecialsParser} from "./parsers/FrontPageSpecialsParser.js";
 import {SunsetMenuParser} from "./parsers/SunsetMenuParser.js";
@@ -43,6 +44,12 @@ export class SunsetSkin {
      * @type {SunsetSkinHtml|null}
      */
     html = null;
+
+    /**
+     * The menu of product categories displayed as a mega menu.
+     * @type {SunsetMenu}
+     */
+    menu = null;
 
     /**
      * Constructor
@@ -155,58 +162,6 @@ export class SunsetSkin {
         else if (this.fileType === 'Category') {
             this.buildCategoryHtml();
         }
-
-        // resize window so there isn't a bunch of white space at the bottom
-
-        // TODO: fix this
-        // I was getting weird height calculations for hte page like 15403 etc
-        /*
-        let $footer = document.querySelector('.page-bottom');
-        if ($footer) {
-
-
-            let rect = $footer.getBoundingClientRect();
-            console.log({pageBottom:rect});
-
-            let newHeight = 2570;// rect.bottom;
-
-            let timeoutHandle = 0;
-            let lastSetTime = 0;
-            window.addEventListener('scroll', (e) => {
-                if (window.scrollY + window.outerHeight >= newHeight) {
-                    window.scrollY = newHeight - window.outerHeight;
-                    console.log('limiting scroll to ' + window.scrollY);
-
-                    let now = new Date().getTime();
-                    if (now - lastSetTime > 300) {
-                        lastSetTime = now;
-                        window.scrollTo({
-                            top: window.scrollY,
-                            left: 0,
-                            behavior: 'smooth'
-                        });
-                    }
-                    else {
-                        // call scrollTo again in 300ms
-                        if (timeoutHandle === 0) {
-                            timeoutHandle = setTimeout(() => {
-                                window.scrollTo({
-                                    top: window.scrollY,
-                                    left: 0,
-                                    behavior: 'smooth'
-                                });
-                                clearTimeout(timeoutHandle);
-                                timeoutHandle = 0;
-                            }, 300);
-                        }
-                    }
-                }
-                else {
-                    console.log('scroll is okay: ' + window.scrollY)
-                }
-            });
-
-        }*/
     }
 
     /**
@@ -278,11 +233,11 @@ export class SunsetSkin {
         // parse the menu from the old website
         let parser = new SunsetMenuParser(this.html.oldHtmlBody);
         parser.readMenu();
+        this.menu = parser.menu;
 
         // build the menu into the new website
-        let builder = new SunsetMenuBuilder();
-        let $html = builder.buildMenuNode(parser.menu, 0);
-        $megaMenu.append($html);
+        let builder = new SunsetMenuBuilder(this.menu);
+        $megaMenu.append(builder.build());
     }
 
     /**
@@ -346,6 +301,15 @@ export class SunsetSkin {
 
         let builder = new CategoryBuilder();
         builder.buildCategoryProducts(category, $insertionPoint);
+        let $subcategoryMenu = builder.buildSubcategoryList(category, this.menu);
+        if ($subcategoryMenu) {
+            console.log('inserting subcategory list at .sub-category-list');
+            console.log($subcategoryMenu);
+            document.querySelector('.sub-category-list').replaceWith($subcategoryMenu);
+        }
+        else {
+            console.error('Could not build $subcategoryMenu');
+        }
 
         // build the breadcrumbs in the header
         let breadcrumbBuilder = new ProductBreadcrumbBuilder();
@@ -408,7 +372,7 @@ export class SunsetSkin {
 
         // build the breadcrumbs in the header
         let breadcrumbBuilder = new ProductBreadcrumbBuilder();
-        let $breadcrumbs = breadcrumbBuilder.build(productItem);
+        let $breadcrumbs = breadcrumbBuilder.build(productItem.text, productItem.category);
         document.querySelector('.breadcrumbs').replaceWith($breadcrumbs);
 
         // set the window title
