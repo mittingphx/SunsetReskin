@@ -11,7 +11,6 @@
 import {SunsetPreload} from "./SunsetPreload.js";
 import {SunsetSkinHtml} from "./SunsetSkinHtml.js";
 import {FileDetector} from "./FileDetector.js";
-import {SunsetMenuItem} from "./SunsetMenuItem";
 
 import {FrontPageSpecialsParser} from "./parsers/FrontPageSpecialsParser.js";
 import {SunsetMenuParser} from "./parsers/SunsetMenuParser.js";

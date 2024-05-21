@@ -61,7 +61,7 @@ export class SunsetMenuParser {
         }
 
         // find each top-level menu section
-        const $topLevelMenus = $menu.querySelectorAll('.accordionHeader');
+        const $topLevelMenus = $menu.querySelectorAll('.accordionHeader,.accordionHeaderSelected');
         if ($topLevelMenus.length === 0) {
             console.error('menu contained 0 elements');
             return;

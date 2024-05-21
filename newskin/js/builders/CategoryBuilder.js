@@ -41,9 +41,7 @@ export class CategoryBuilder {
             $widgetDiv.classList.add('single-widget');
 
             // title of the list
-            let $h3 = document.createElement('h3');
-            $h3.innerHTML = item.text; // TODO: may need to change to "All Categories" on top-level menus
-            $widgetDiv.appendChild($h3);
+            $widgetDiv.appendChild(this.createSubcategoryHeader(item, categoryData.breadcrumbs));
 
             // links
             let $ul = document.createElement('ul');
@@ -359,4 +357,32 @@ export class CategoryBuilder {
         return $div;
     }
 
+    /**
+     * Creates the element to use as the subcategory header.
+     *
+     * @param item {SunsetMenuItem}
+     * @param breadcrumbs {ProductCategoryBreadcrumb}
+     * @returns {HTMLHeadingElement}
+     */
+    createSubcategoryHeader(item, breadcrumbs) {
+
+        // detect top level
+        let isTopLevel = false; // TODO: need to check if this is a top-level item
+
+        // create main list heading
+        let $h3 = document.createElement('h3');
+        $h3.innerHTML = item.text; // TODO: may need to say "All Categories" for top-level items
+
+        // create icon linking to parent if not top level
+        if (!isTopLevel) {
+            let $parentLink = document.createElement('a');
+            $parentLink.href = breadcrumbs.parent.link
+            $parentLink.innerHTML = '<i class="fa fa-level-up"></i>';
+            $parentLink.setAttribute('title', 'up one level (' + breadcrumbs.parent.name + ')');
+            $parentLink.setAttribute('style', 'float:right');
+            $h3.appendChild($parentLink);
+        }
+
+        return $h3;
+    }
 }

@@ -8,6 +8,7 @@
  */
 
 import {UrlHelper} from "../UrlHelper.js";
+import {WishList} from "../util/WishList.js";
 
 /**
  * Builds the breadcrumb area above the product details.
@@ -309,34 +310,53 @@ export class ProductDetailBuilder {
                 }
             }
 
-            // price
-            let $priceH3 = document.createElement('h3');
-            {
-                $priceH3.classList.add('price');
-                $priceH3.innerHTML = '$' + productItem.price;
-                if (productItem.preDiscountPrice) {
-                    $priceH3.innerHTML += ' <span>-$' + productItem.preDiscountPrice + '</span>';
+            // price (or login link)
+            if (productItem.price === 'Login to View') {
+                let $priceLogin = document.createElement('div');
+                {
+                    $priceLogin.innerHTML = '<i class="fa fa-sign-in"></i> ';
+                    let $a = document.createElement('a');
+                    {
+                        $a.href = 'Login/Login.aspx';
+                        $a.innerHTML = 'Login to view product price';
+                        $priceLogin.appendChild($a);
+                    }
+                    $productInfo.appendChild($priceLogin);
                 }
-                $productInfo.appendChild($priceH3);
+            }
+            else {
+                let $priceH3 = document.createElement('h3');
+                {
+                    $priceH3.classList.add('price');
+                    $priceH3.innerHTML = '$' + productItem.price;
+                    if (productItem.preDiscountPrice) {
+                        $priceH3.innerHTML += ' <span>-$' + productItem.preDiscountPrice + '</span>';
+                    }
+                    $productInfo.appendChild($priceH3);
+                }
             }
 
+/*
             // TODO: having a description would be cool
 
             // description
             if (productItem.description) {
                 let $descriptionP = document.createElement('p');
                 {
-                    p.classList.add('info-text');
+                    $descriptionP.classList.add('info-text');
                     $descriptionP.innerHTML = productItem.description;
                     $productInfo.appendChild($descriptionP);
                 }
             }
+
+
 
             // options for product (not in use yet)
             let $options = this.buildProductOptions(productItem);
             if ($options) {
                 $productInfo.appendChild($options);
             }
+*/
 
             // bottom buttons
             let $bottom = this.#buildProductInfoBottom(productItem);
@@ -472,6 +492,7 @@ export class ProductDetailBuilder {
                     }
                 }
 
+                /*
                 // compare button
                 let $cell2 = document.createElement('div');
                 {
@@ -490,6 +511,8 @@ export class ProductDetailBuilder {
                         $cell2.appendChild($compareButton);
                     }
                 }
+                */
+
 
                 // wish button
                 let $cell3 = document.createElement('div');
@@ -503,7 +526,63 @@ export class ProductDetailBuilder {
                         let $btn = document.createElement('button');
                         {
                             $btn.classList.add('btn');
-                            $btn.innerHTML = '<i class="lni lni-heart"></i> To Wishlist';
+
+                            // sets up the icon for the wish button in the upper-right
+                            function updateWishListIcon() {
+                                let wishCount = WishList.count();
+
+                                let $wishIcon = document.createElement('div');
+                                {
+                                    $wishIcon.classList.add('wishlist');
+
+                                    let $wishA = document.createElement('a');
+                                    {
+                                        $wishA.href = 'javascript:void(0)';
+                                        $wishA.addEventListener('click', () => {
+                                            alert('TODO: show wish list items here');
+                                        });
+                                        $wishA.innerHTML = '<i class="lni lni-heart"></i>';
+
+                                        let $count = document.createElement('span');
+                                        {
+                                            $count.classList.add('total-items');
+                                            $count.innerHTML = wishCount.toLocaleString();
+                                        }
+                                        $wishA.appendChild($count);
+                                    }
+                                    $wishIcon.appendChild($wishA);
+                                }
+
+                                document.querySelector('.wishlist').replaceWith($wishIcon);
+                            }
+
+                            // sets up the wish button on the product details page
+                            function setupWishListButton(on) {
+                                if (on) {
+                                    $btn.innerHTML = '<i class="lni lni-heart-filled"></i> On Wishlist';
+                                    $btn.classList.add('wishlist-on');
+                                }
+                                else {
+                                    $btn.innerHTML = '<i class="lni lni-heart"></i> To Wishlist';
+                                    $btn.classList.remove('wishlist-on');
+                                }
+                                updateWishListIcon();
+                            }
+
+                            let onWishList = WishList.has(productItem);
+                            setupWishListButton(onWishList);
+                            $btn.addEventListener('click', () => {
+                                if (onWishList) {
+                                    WishList.remove(productItem);
+                                    onWishList = false;
+                                }
+                                else {
+                                    WishList.add(productItem);
+                                    onWishList = true;
+                                }
+                                setupWishListButton(onWishList);
+                            });
+
                             $wishButton.appendChild($btn);
                         }
                         $cell3.appendChild($wishButton);
@@ -663,5 +742,35 @@ export class ProductDetailBuilder {
         }
 
         return $specUL;
+    }
+
+    /**
+     * Toggles the wish list button for the given product item.
+     * @param productItem {ProductDetailItem}
+     * @param $btn {HTMLElement}
+     */
+    onWishListClicked(productItem, $btn) {
+        if (WishList.has(productItem)) {
+            alert('adding');
+        }
+        else {
+            alert('removing')
+        }
+        WishList.toggle({
+            itemNo: productItem.itemNo,
+            text: productItem.text,
+            image: productItem.image,
+            price: productItem.casePrice,
+            timestamp: new Date().getTime()
+        });
+
+        if (WishList.has(productItem)) {
+            alert('adding');
+            $btn.innerHTML = '<i class="lni lni-heart-filled"></i> On Wishlist';
+        }
+        else {
+            alert('removing')
+            $btn.innerHTML = '<i class="lni lni-heart"></i> To Wishlist';
+        }
     }
 }
