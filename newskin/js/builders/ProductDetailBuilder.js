@@ -91,18 +91,17 @@ export class ProductBreadcrumbBuilder {
 
         // walk the product's category tree
         if (cat != null) {
-
+/*
             // product name has no link
             let $li = document.createElement('li');
             {
                 $li.innerHTML = cat.name;
                 liList.push($li);
             }
-
+*/
             // walk up the tree
-            cat = cat.parent;
             while (cat != null) {
-                $li = document.createElement('li');
+                let $li = document.createElement('li');
                 {
                     // the last link has a home icon, others do not
                     let $a = document.createElement('a');

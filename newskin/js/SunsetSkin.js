@@ -11,6 +11,7 @@
 import {SunsetPreload} from "./SunsetPreload.js";
 import {SunsetSkinHtml} from "./SunsetSkinHtml.js";
 import {FileDetector} from "./FileDetector.js";
+import {tns} from '../../assets/js/tiny-slider.js';
 
 import {FrontPageSpecialsParser} from "./parsers/FrontPageSpecialsParser.js";
 import {SunsetMenuParser} from "./parsers/SunsetMenuParser.js";
@@ -21,6 +22,8 @@ import {FrontPageSpecialsBuilder} from "./builders/FrontPageSpecialsBuilder.js";
 import {SunsetMenuBuilder} from "./builders/SunsetMenuBuilder.js";
 import {ProductBreadcrumbBuilder, ProductDetailBuilder} from "./builders/ProductDetailBuilder.js";
 import {CategoryBuilder} from "./builders/CategoryBuilder.js";
+import {SlideshowParser} from "./parsers/SlideshowParser.js";
+import {SlideshowBuilder} from "./builders/SlideshowBuilder.js";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
@@ -153,7 +156,7 @@ export class SunsetSkin {
 
         // insert products into the html
         if (this.fileType === 'FrontPage') {
-            this.buildProductsHtml();
+            this.buildFrontPageHtml();
         }
         else if (this.fileType === 'ItemDetail') {
             this.buildProductDetailsHtml();
@@ -243,8 +246,8 @@ export class SunsetSkin {
      * Builds the HTML for the special offers on the front page using
      * the section data loaded from the old page.
      */
-    buildProductsHtml() {
-        console.log('buildProductsHtml()');
+    buildFrontPageHtml() {
+        console.log('buildFrontPageHtml()');
 
         // find the table containing product data
         let $table = this.html.oldHtmlBody.querySelector('.ItemSpecials');
@@ -268,9 +271,75 @@ export class SunsetSkin {
         let builder = new FrontPageSpecialsBuilder();
         builder.buildFrontPageProducts(specials, $insertionPoint);
 
+        // set up the slide show using slides from the old page
+        let slideshowParser = new SlideshowParser();
+        let slideshow = slideshowParser.readSlidesFromDocument(this.html.oldHtmlBody);
+        let $slideshowInsertion = document.querySelector('.slider-head');
+        if (!$slideshowInsertion) {
+            console.error('Could not find slideshow insertion point');
+            return;
+        }
+
+        console.log({slideshow:slideshow});
+        let slideshowBuilder = new SlideshowBuilder(slideshow);
+        if (slideshow.length === 0) {
+            let $missingSlideshow = document.createElement('div');
+            $missingSlideshow.classList.add('slider-head');
+            $missingSlideshow.innerHTML = '<div class="hero-slider">ERROR: Slideshow contains no slides.</div>';
+            $slideshowInsertion.replaceWith($missingSlideshow);
+        }
+        else {
+            $slideshowInsertion.replaceWith(slideshowBuilder.build());
+            this.setupSlideshow();
+        }
+
+
         // set the window title
         document.title = `Sunset Wholesale West`;
     }
+
+
+    setupSlideshow() {
+
+        if (typeof tns === 'undefined') {
+            console.error('tns not found');
+            return;
+        }
+
+        //========= Hero Slider
+        tns({
+            container: '.hero-slider',
+            slideBy: 'page',
+            scrollSpeed: 600,
+            speed: 600,
+            autoplay: true,
+            autoplayButtonOutput: false,
+            mouseDrag: true,
+            gutter: 0,
+            items: 1,
+            nav: true,
+            controls: true,
+            controlsText: ['<i class="lni lni-chevron-left"></i>', '<i class="lni lni-chevron-right"></i>'],
+        });
+
+        // watch for changes in active slide and update the navigation
+        let lastSlideIndex = -1;
+        setInterval(() => {
+            let $activeSlide = document.querySelector('tns-slide-active');
+            let id = $activeSlide.getAttribute('id')
+            let slideIndex = parseInt(id.substring(id.indexOf('item') + 4));
+            if (lastSlideIndex !== slideIndex) {
+                lastSlideIndex = slideIndex;
+
+                let $nav = $('.tns-nav');
+                $nav.children().removeClass('active');
+                $nav.children().eq(slideIndex).addClass('active');
+
+                this.updateSlideshowNavigation(slideIndex);
+            }
+        }, 100);
+    }
+
 
     /**
      * Builds the category and search pages.

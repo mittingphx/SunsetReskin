@@ -9,7 +9,6 @@
  */
 
 import {TimedMemoizer} from "./util/TimedMemoizer.js";
-import {UrlHelper} from "./UrlHelper.js";
 
 /**
  * Stores the old and new HTML sections of the website.
@@ -129,19 +128,7 @@ export class SunsetSkinHtml {
             document.head.innerHTML = this.newHtmlHead.innerHTML;
             document.body.innerHTML = this.newHtmlBody.innerHTML;
 
-            // run any scripts within template code
-            // note: this hack does not allow functions to be
-            // included that can be called later, but that
-            // shouldn't be needed.
-            let scripts = this.newHtmlBody.querySelectorAll('script');
-            for (let i = 0; i < scripts.length; i++) {
-                try {
-                    eval(scripts[i].innerHTML);
-                }
-                catch {
-                    console.error('failed to run script: ' + scripts[i].innerHTML);
-                }
-            }
+            //this.runScripts(this.newHtmlBody);
         }
         else if (set === 'old') {
             document.head.innerHTML = this.oldHtmlHead.innerHTML;
@@ -150,6 +137,62 @@ export class SunsetSkinHtml {
         else {
             console.error('unknown set: ' + set);
         }
+    }
+
+    /**
+     * Executes all javascript <script> tags within the given element.
+     *
+     * In order to get this to work, we will be loading each of the
+     * <script> tags with src using fetch and then eval()ing the content.
+     * Embedded javascript content will be executed directly as well and
+     * both will be executed in the order it appears.  The source will
+     * not contain any <script> tags.
+     *
+     * @param element {HTMLElement}
+     */
+    async runScripts(element) {
+        // NOTE: this is currently disabled
+
+        // get all the javascript that needs loaded
+        let loadPlan = [];
+        let references = [];
+        let scripts = element.querySelectorAll('script');
+        for (let i = 0; i < scripts.length; i++) {
+            if (scripts[i].src) {
+                let obj = {url: scripts[i].src};
+                loadPlan.push(obj);
+                references.push(obj);
+            }
+            else {
+                loadPlan.push({content: scripts[i].innerHTML});
+            }
+        }
+
+        // fetch each of the javascript files asynchronously
+        await Promise.all(
+            references.map(script => fetch(script.url)
+                .then(response => response.text())
+                .then(text => script.content = text))
+            );
+
+        // execute the javascript in the order it appears
+        for (let i = 0; i < loadPlan.length; i++) {
+            if (loadPlan[i].content) {
+                try {
+                    if (loadPlan[i].url) {
+                        console.log('running src=' + loadPlan[i].url);
+                    }
+                    else {
+                        console.log('running inline script');
+                    }
+                    eval(loadPlan[i].content);
+                }
+                catch (ex) {
+                    console.error('failed to run script\nexception: ' + ex + '\nscript: ' + loadPlan[i].content);
+                }
+            }
+        }
+
     }
 
     /**

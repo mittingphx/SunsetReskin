@@ -113,7 +113,7 @@ export class WishList {
         WishList.load();
         let search = new WishListItem(item);
         for (let i = 0; i < WishList.wishList.length; i++) {
-            if (WishList.wishList[i].itemNo === search.itemNo) {
+            if (WishList.wishList[i].text === search.text) {
                 return i;
             }
         }

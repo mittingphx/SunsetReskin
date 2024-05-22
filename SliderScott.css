@@ -1,0 +1,70 @@
+/*** tiny slider adjustments ***/
+.tns-nav {
+    text-align: center;
+}
+
+.tns-outer [aria-controls] {
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    margin: 4px;
+    background: #666;
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.tns-outer [aria-controls]:hover {
+    border: 1px solid black;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 355, 0.3);
+    cursor: pointer;
+}
+
+.tns-nav-active {
+    background: rgba(0, 0, 0, 1.0) !important;
+    border: 1px solid black !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+/*** Reskin version of the slider content area ***/
+.single-slider .content {
+    text-align: center;
+    margin: 20px;
+    clear: both;
+}
+.single-slider .content a {
+    font: 18px arial bold !important;
+    color: #F99500;
+    background: #000096;
+    padding: 10px 50px;
+    text-decoration: none;
+    border: 2px solid #003300;
+    border-radius: 10px;
+    box-shadow: rgba(0,0,0,0.7) 2px 1px 11px;
+}
+.single-slider .content select {
+    font: 18px arial bold !important;
+    color: #F99500;
+    background: #000096;
+    padding: 10px 50px;
+    text-decoration: none;
+    border: 2px solid #003300;
+    border-radius: 10px;
+    box-shadow: rgba(0,0,0,0.7) 2px 1px 11px;
+    font-weight: bolder !important;
+}
+.slider-ddl {
+    font: 18px arial bold !important;
+    color: #F99500;
+    background: #000096;
+    padding: 10px 50px;
+    text-decoration: none;
+    border: 2px solid #003300;
+    border-radius: 10px;
+    box-shadow: rgba(0,0,0,0.7) 2px 1px 11px;
+}
+.slider-link a:hover {
+    background: #000000 !important;
+    color: white !important;
+    font-style: italic !important;
+}

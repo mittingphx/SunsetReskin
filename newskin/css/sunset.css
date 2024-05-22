@@ -1,4 +1,13 @@
 
+/*** Front Page Fixes ***/
+.section {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+.single-product .product-image .button .btn {
+    text-wrap: nowrap;
+}
 
 /*** Fixes for product images ***/
 .single-product .product-image {
@@ -170,4 +179,27 @@
 .wishlist-on {
     background: rgba(255, 0, 0, 0.7);
     color: white !important;
+}
+
+/*** Front Page Slideshow ***/
+.hero-slider {
+
+}
+.hero-slider .content {
+    padding: 0 !important;
+    margin: 25px 0 0 0 !important;
+    top: auto !important;
+    width: 100%;
+}
+
+.hero-area .hero-slider .single-slider {
+    height: 550px;
+}
+
+.hero-slider .single-slider img {
+    /*box-shadow: 0px 1px 15px rgba(0,0,0,0.4);*/
+}
+
+.tns-item {
+    text-align: center;
 }

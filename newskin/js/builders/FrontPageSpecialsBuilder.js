@@ -7,6 +7,7 @@
  *  HTML building methods for the specials section on the front page.
  */
 
+
 /**
  * Builds the HTML for the special offers on the front page.
  */
@@ -204,7 +205,7 @@ export class FrontPageSpecialsBuilder {
                 {
                     $productImageLink.classList.add('btn');
                     $productImageLink.href = product.link;
-                    $productImageLink.innerHTML = '<i class="lni lni-cart"></i> Add to Cart';
+                    $productImageLink.innerHTML = '<i class="lni lni-cart"></i> View Product';
                     $productImageButton.appendChild($productImageLink);
                 }
             }
@@ -290,4 +291,5 @@ export class FrontPageSpecialsBuilder {
 
         return $productInfo;
     }
+
 }
