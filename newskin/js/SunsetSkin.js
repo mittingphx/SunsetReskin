@@ -163,6 +163,30 @@ export class SunsetSkin {
         else if (this.fileType === 'Category') {
             this.buildCategoryHtml();
         }
+
+        // setup common page controls
+        let $searchBtn = document.querySelector('.search-btn button');
+        if ($searchBtn) {
+            $searchBtn.addEventListener('click', () => {
+                this.handleSearch();
+            });
+        }
+        else {
+            console.warn('Could not find search button on reskin page');
+        }
+
+        let $searchInput = document.querySelector('#search');
+        if ($searchInput) {
+            $searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    this.handleSearch();
+                }
+            });
+        }
+        else {
+            console.warn('Could not find search input on reskin page');
+        }
+
     }
 
     /**
@@ -407,5 +431,37 @@ export class SunsetSkin {
 
         // set the window title
         document.title = `${productItem.text} - Sunset Wholesale West`;
+    }
+
+    /**
+     * Adds a click handler that conducts a search.
+     * @param $btn {HTMLElement}
+     */
+    addSearchEvent($btn) {
+        console.log({btn:$btn})
+
+        $btn.addEventListener('click', () => {
+            this.handleSearch();
+        });
+        $btn.addEventListener('keydown', (e) => {
+            console.log(e);
+            if (e.key === 'Enter') {
+                this.handleSearch();
+            }
+        });
+    }
+
+    /**
+     * Handles forwarding to the search to the real search bar in the
+     * hidden original page.
+     */
+    handleSearch() {
+
+        let searchTerm = document.querySelector('#search').value;
+        console.log('handleSearch() searchTerm: ' + searchTerm);
+
+        // https://swwest.com/ItemSearch.aspx?Search=esko+leaf
+        let searchUrl = 'ItemSearch.aspx?Search=' + encodeURIComponent(searchTerm);
+        document.location = searchUrl;
     }
 }

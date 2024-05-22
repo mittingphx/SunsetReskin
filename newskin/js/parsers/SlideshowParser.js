@@ -41,7 +41,7 @@ export class SlideshowParser {
     /**
      * Extracts the slides from the front page.  It searches for
      * the bxslider class and then extracts each div with the
-     * class slide.  The image has the class SlideShowImg and the
+     * class slide.  The image has the class SlideShowImg and the   `````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
      * custom html has the class slider-link.
      * @param {HTMLElement} source
      * @returns {SlideshowItem[]}
@@ -72,9 +72,15 @@ export class SlideshowParser {
         }
 
         // extract custom html
-        let $div = div.querySelector('select');
+        let $div = div.querySelector('.slider-link');
         if ($div) {
             ret.html = $div.outerHTML
+        }
+        else {
+            $div = div.querySelector('select');
+            if ($div) {
+                ret.html = $div.outerHTML
+            }
         }
 
         return ret;
