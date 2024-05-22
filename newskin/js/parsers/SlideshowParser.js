@@ -72,9 +72,9 @@ export class SlideshowParser {
         }
 
         // extract custom html
-        let $div = div.querySelector('.slider-link');
+        let $div = div.querySelector('select');
         if ($div) {
-            ret.html = $div.innerHTML
+            ret.html = $div.outerHTML
         }
 
         return ret;

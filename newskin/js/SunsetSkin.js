@@ -290,7 +290,11 @@ export class SunsetSkin {
         else {
             $slideshowInsertion.replaceWith(slideshowBuilder.build());
             slideshowBuilder.setupSlideshow();
-            slideshowBuilder.addSlideshowChooseProductHandler()
+
+            // wait until page has settled down to process custom content
+            setTimeout(() => {
+                slideshowBuilder.addSlideshowChooseProductHandler()
+            }, 100);
         }
 
 
