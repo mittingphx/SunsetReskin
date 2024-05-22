@@ -5,6 +5,7 @@
  html of slide show items to a certain size, limiting how many
  product links we can place in the slideshow.
  */
+/*
 function processSlideshowMarkup() {
     console.log('Running processSlideshowMarkup()');
 
@@ -132,3 +133,5 @@ function processSlideshowMarkup() {
 setTimeout(function() {
     processSlideshowMarkup();
 },100);
+
+*/

@@ -11,7 +11,6 @@
 import {SunsetPreload} from "./SunsetPreload.js";
 import {SunsetSkinHtml} from "./SunsetSkinHtml.js";
 import {FileDetector} from "./FileDetector.js";
-import {tns} from '../../assets/js/tiny-slider.js';
 
 import {FrontPageSpecialsParser} from "./parsers/FrontPageSpecialsParser.js";
 import {SunsetMenuParser} from "./parsers/SunsetMenuParser.js";
@@ -290,54 +289,13 @@ export class SunsetSkin {
         }
         else {
             $slideshowInsertion.replaceWith(slideshowBuilder.build());
-            this.setupSlideshow();
+            slideshowBuilder.setupSlideshow();
+            slideshowBuilder.addSlideshowChooseProductHandler()
         }
 
 
         // set the window title
         document.title = `Sunset Wholesale West`;
-    }
-
-
-    setupSlideshow() {
-
-        if (typeof tns === 'undefined') {
-            console.error('tns not found');
-            return;
-        }
-
-        //========= Hero Slider
-        tns({
-            container: '.hero-slider',
-            slideBy: 'page',
-            scrollSpeed: 600,
-            speed: 600,
-            autoplay: true,
-            autoplayButtonOutput: false,
-            mouseDrag: true,
-            gutter: 0,
-            items: 1,
-            nav: true,
-            controls: true,
-            controlsText: ['<i class="lni lni-chevron-left"></i>', '<i class="lni lni-chevron-right"></i>'],
-        });
-
-        // watch for changes in active slide and update the navigation
-        let lastSlideIndex = -1;
-        setInterval(() => {
-            let $activeSlide = document.querySelector('tns-slide-active');
-            let id = $activeSlide.getAttribute('id')
-            let slideIndex = parseInt(id.substring(id.indexOf('item') + 4));
-            if (lastSlideIndex !== slideIndex) {
-                lastSlideIndex = slideIndex;
-
-                let $nav = $('.tns-nav');
-                $nav.children().removeClass('active');
-                $nav.children().eq(slideIndex).addClass('active');
-
-                this.updateSlideshowNavigation(slideIndex);
-            }
-        }, 100);
     }
 
 
