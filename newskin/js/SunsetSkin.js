@@ -23,6 +23,8 @@ import {ProductBreadcrumbBuilder, ProductDetailBuilder} from "./builders/Product
 import {CategoryBuilder} from "./builders/CategoryBuilder.js";
 import {SlideshowParser} from "./parsers/SlideshowParser.js";
 import {SlideshowBuilder} from "./builders/SlideshowBuilder.js";
+import {ViewCartParser} from "./parsers/ViewCartParser";
+import {ViewCartBuilder} from "./builders/ViewCartBuilder";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
@@ -123,6 +125,10 @@ export class SunsetSkin {
             newSkinUrl = 'newskin/html/Category.html';
             hasMenu = true;
         }
+        else if (this.fileType === 'Cart') {
+            newSkinUrl = 'newskin/html/Cart.html';
+            hasMenu = true;
+        }
         else {
             alert('unknown page type: ' + this.fileType);
             console.error('unknown page type: ' + this.fileType);
@@ -162,6 +168,9 @@ export class SunsetSkin {
         }
         else if (this.fileType === 'Category') {
             this.buildCategoryHtml();
+        }
+        else if (this.fileType === 'Cart') {
+            this.buildCartHtml();
         }
 
         // setup common page controls
@@ -464,4 +473,34 @@ export class SunsetSkin {
         let searchUrl = 'ItemSearch.aspx?Search=' + encodeURIComponent(searchTerm);
         document.location = searchUrl;
     }
+
+    buildCartHtml() {
+
+        console.log('buildCartHtml()');
+
+        // find where we're going to insert the product details
+        let $insertionPoint = document.querySelector('.shopping-cart');
+        if (!$insertionPoint) {
+            console.error('Could not find insertion point! (.shopping-cart)');
+            return;
+        }
+
+        // parse product details from the old webpage
+        let parser = new ViewCartParser(this.html.oldHtmlBody, null);
+        let cart = parser.readCart();
+        console.log({cart:cart});
+
+        // build the main product details area
+        let builder = new ViewCartBuilder();
+        $insertionPoint.replaceWith(builder.buildCartView(cart));
+
+        // build the breadcrumbs in the header
+        //let breadcrumbBuilder = new ProductBreadcrumbBuilder();
+        //let $breadcrumbs = breadcrumbBuilder.build(productItem.text, productItem.category);
+        //document.querySelector('.breadcrumbs').replaceWith($breadcrumbs);
+
+        // set the window title
+        document.title = `Checkout - Sunset Wholesale West`;
+    }
+
 }

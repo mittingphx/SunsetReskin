@@ -20,6 +20,7 @@ export class FileDetector {
         Category: 'Category',
         ItemDetail: 'ItemDetail',
         ContactUs:  'ContactUs',
+        Cart: 'Cart',
         Login: 'Login',
         Unknown: 'Unknown'
     };
@@ -34,6 +35,7 @@ export class FileDetector {
         // determine if it's a category page or a search result
         Category: [ 'ItemSearch.aspx', 'swwest_category.html' ],
         ItemDetail: [ 'ItemDetail.aspx', 'swwest_detail.html'],
+        Cart: [ 'ViewCart.aspx', 'swwest_cart.html' ],
         ContactUs: [ 'ContactUs.aspx' ],
         Login: [ 'Login.aspx' ]
     };
