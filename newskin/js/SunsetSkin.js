@@ -360,11 +360,24 @@ export class SunsetSkin {
         // parse from the old to build the category grid
         let parser = new CategoryParser(this.html.oldHtmlBody);
         let category = parser.readNodesFromTable($table);
-        console.log({category:category});
+        //console.log({category:category});
 
         let builder = new CategoryBuilder();
         builder.buildCategoryProducts(category, $insertionPoint);
-        let $subcategoryMenu = builder.buildSubcategoryList(category, this.menu);
+
+        // build the subcategory list on the left, or show search terms when searching
+        let $subcategoryMenu;
+        if (this.isSearchResult()) {
+            let search = this.getSearchTerm();
+            $subcategoryMenu = builder.buildMessageAsList(
+                'Search Results',
+                'The results for your search <b>' + search + '</b> are now being displayed'
+            );
+        }
+        else {
+            $subcategoryMenu = builder.buildSubcategoryList(category, this.menu);
+        }
+
         if ($subcategoryMenu) {
             console.log('inserting subcategory list at .sub-category-list');
             console.log($subcategoryMenu);
@@ -373,6 +386,7 @@ export class SunsetSkin {
         else {
             console.error('Could not build $subcategoryMenu');
         }
+
 
         // build the breadcrumbs in the header
         let breadcrumbBuilder = new ProductBreadcrumbBuilder();
@@ -460,20 +474,6 @@ export class SunsetSkin {
         });
     }
 
-    /**
-     * Handles forwarding to the search to the real search bar in the
-     * hidden original page.
-     */
-    handleSearch() {
-
-        let searchTerm = document.querySelector('#search').value;
-        console.log('handleSearch() searchTerm: ' + searchTerm);
-
-        // https://swwest.com/ItemSearch.aspx?Search=esko+leaf
-        let searchUrl = 'ItemSearch.aspx?Search=' + encodeURIComponent(searchTerm);
-        document.location = searchUrl;
-    }
-
     buildCartHtml() {
 
         console.log('buildCartHtml()');
@@ -503,4 +503,41 @@ export class SunsetSkin {
         document.title = `Checkout - Sunset Wholesale West`;
     }
 
+    /**
+     * Handles forwarding to the search to the real search bar in the
+     * hidden original page.
+     */
+    handleSearch() {
+
+        let searchTerm = document.querySelector('#search').value;
+        console.log('handleSearch() searchTerm: ' + searchTerm);
+
+        // https://swwest.com/ItemSearch.aspx?Search=esko+leaf
+        document.location = 'ItemSearch.aspx?Search=' + encodeURIComponent(searchTerm);
+    }
+
+    /**
+     * Returns true iff the current page is showing search results.
+     * @returns {boolean}
+     */
+    isSearchResult() {
+        let url = '' + document.location;
+        return url.indexOf('?Search=') !== -1;
+    }
+
+    /**
+     * Returns the search term from the current page's url.
+     * @returns {string|null}
+     */
+    getSearchTerm() {
+        let url = '' + document.location;
+        let searchStart = url.indexOf('?Search=');
+        if (searchStart === -1) return null;
+        searchStart += '?Search='.length;
+        let searchEnd = url.indexOf('&', searchStart);
+        if (searchEnd === -1) {
+            searchEnd = url.length;
+        }
+        return url.substring(searchStart, searchEnd);
+    }
 }

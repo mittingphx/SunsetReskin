@@ -8,6 +8,8 @@
  */
 
 
+import {ImageHelper} from "../util/ImageHelper.js";
+
 /**
  * Builds the HTML for the special offers on the front page.
  */
@@ -162,6 +164,8 @@ export class FrontPageSpecialsBuilder {
                 $productImageImg.src = product.image;
                 $productImageImg.alt = product.text;
                 $productImage.appendChild($productImageImg);
+
+                ImageHelper.addMissingImageHandler($productImageImg);
             }
 
             /*

@@ -1,3 +1,5 @@
+import {ImageHelper} from "../util/ImageHelper.js";
+
 /**
  * Builds the HTML for the category page.
  */
@@ -5,6 +7,41 @@ export class CategoryBuilder {
 
     build() {
         // TODO: make this the function the main code calls.
+    }
+
+    /**
+     * Builds a custom box for the subcategories area when showing
+     * subcategories doesn't make any sense, such as with search
+     * results.
+     * @param title {string}
+     * @param text {string}
+     * @returns {HTMLDivElement}
+     */
+    buildMessageAsList(title, text) {
+
+        let $customList = document.createElement('div');
+        {
+            $customList.classList.add('single-widget', 'sub-category-list');
+
+            let $menuH3 = document.createElement('h3');
+            {
+                $menuH3.innerHTML = title;
+                $customList.appendChild($menuH3);
+            }
+
+            let $menuUl = document.createElement('ul');
+            {
+                $menuUl.classList.add('list');
+                $customList.appendChild($menuUl);
+
+                let $message = document.createElement('li');
+                {
+                    $message.innerHTML = text;
+                    $menuUl.appendChild($message);
+                }
+            }
+        }
+        return $customList;
     }
 
     /**
@@ -38,7 +75,7 @@ export class CategoryBuilder {
         // list the immediate children in the subcategory list
         let $widgetDiv = document.createElement('div');
         {
-            $widgetDiv.classList.add('single-widget');
+            $widgetDiv.classList.add('single-widget', 'sub-category-list');
 
             // title of the list
             $widgetDiv.appendChild(this.createSubcategoryHeader(item, categoryData.breadcrumbs));
@@ -87,11 +124,8 @@ export class CategoryBuilder {
      * Builds the HTML for the products in the category grid view.
      */
     buildCategoryProducts(categoryData, $insertionPoint) {
-        console.log('buildCategoryProducts()');
-
-        //let text = JSON.stringify(categoryData);
-        //alert('got data=' + text);
-        console.log ({categoryData:categoryData});
+        //console.log('buildCategoryProducts()');
+        //console.log ({categoryData:categoryData});
 
         let $tabContent = document.createElement('div');
         {
@@ -235,6 +269,8 @@ export class CategoryBuilder {
                 $img.src = product.image;
                 $img.alt = product.text;
                 $divImage.appendChild($img);
+
+                ImageHelper.addMissingImageHandler($img);
             }
 
             let $divInfo = document.createElement('div');
@@ -301,6 +337,8 @@ export class CategoryBuilder {
                         $img.src = product.image;
                         $img.alt = product.text;
                         $productImage.appendChild($img);
+
+                        ImageHelper.addMissingImageHandler($img);
 
                         let $button = document.createElement('div');
                         {

@@ -163,6 +163,17 @@
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.537);
 }
 
+.btn-update-cart {
+    margin: 10px 0 !important;
+}
+
+.right {
+    margin-top: 10px !important;
+}
+
+.right input {
+    padding: 2px 1px !important;
+}
 
 /*** Subcategory list ***/
 .active-category {

@@ -66,6 +66,8 @@ export class SunsetSkinHtml {
         this.oldHtmlHead = document.createElement('div');
         this.oldHtmlBody.innerHTML = document.body.innerHTML;
         this.oldHtmlHead.innerHTML = document.head.innerHTML;
+        this.oldHtmlBody.style.display = 'none';
+
     }
 
     /**
@@ -127,6 +129,9 @@ export class SunsetSkinHtml {
         if (set === 'new') {
             document.head.innerHTML = this.newHtmlHead.innerHTML;
             document.body.innerHTML = this.newHtmlBody.innerHTML;
+
+            // TESTING attaching old html to keep it active
+            document.body.appendChild(this.oldHtmlBody);
 
             //this.runScripts(this.newHtmlBody);
         }
