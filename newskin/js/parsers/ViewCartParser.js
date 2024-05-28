@@ -16,6 +16,30 @@ export class ShoppingCart {
     $btnSubmit = null;
 
     /**
+     * The update cart button in the shopping cart.
+     * @type {HTMLInputElement}
+     */
+    $btnUpdate = null;
+
+    /**
+     * The <select> for shipping in the old form.
+     * @type {HTMLSelectElement}
+     */
+    $oldShipping = null;
+
+    /**
+     * The <input> for PO number in the old form.
+     * @type {HTMLInputElement}
+     */
+    $oldPO = null;
+
+    /**
+     * The <input> for message in the old form.
+     * @type {HTMLInputElement}
+     */
+    $oldMessage = null;
+
+    /**
      * The <select> for shipping in the shopping cart.
      * @type {HTMLSelectElement}
      */
@@ -56,12 +80,34 @@ export class ShoppingCart {
      *
      * TODO: need to handle the response elegantly somehow
      */
-    updateAndSave() {
+    updateAndSubmit() {
+        this.update();
+        this.$btnSubmit.click();
+    }
+
+    /**
+     * This copies all the new form fields into the old form
+     * and presses update button.
+     */
+    updateCart() {
+
+        // TODO: we must reconnect the old form in order to be able to submit against it
+
+        this.update();
+        this.$btnUpdate.click();
+    }
+
+    /**
+     * Copies the new form fields into the old form and updates the
+     * items properties to reflect the new values.
+     */
+    update() {
         for (let item of this.items) {
+            // we can reliably use the object values, as event handling
+            // guarantees these match the form fields
             item.$qty.value = item.quantity.toString();
             item.$removeCheckbox.checked = item.markedForDeletion;
         }
-        this.$btnSubmit.click();
     }
 }
 
@@ -208,9 +254,22 @@ export class ViewCartParser {
             return null;
         }
 
+        //.TablePadded
+        let $tableSummary = this.source.querySelector('table#MainContent_TblSumm');
+        if (!$tableSummary) {
+            console.error('could not find table using selector: table#MainContent_TblSumm');
+            return null;
+        }
+
+
+
         let cart = new ShoppingCart()
         cart.items = this.readCartProducts($table);
-        cart.$btnSubmit = $table.querySelector('input[type="submit"]');
+        cart.$oldShipping = $tableSummary.querySelector('select#MainContent_DropShipMethod');
+        cart.$oldPO = $tableSummary.querySelector('input#MainContent_TxtPONumber');
+        cart.$oldMessage = $tableSummary.querySelector('input#MainContent_TxtMessage');
+        cart.$btnSubmit = $tableSummary.querySelector('input#MainContent_BtnCheckOut');
+        cart.$btnUpdate = $table.querySelector('input#MainContent_BtnUpdateCart');
         return cart;
     }
 

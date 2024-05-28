@@ -1,5 +1,6 @@
 import { ShoppingCart, CartProductItem } from '../parsers/ViewCartParser.js';
-import {Format} from "../util/Format";
+import {Format} from "../util/Format.js";
+import {ProductCategoryBreadcrumb} from "../parsers/CommonParser.js";
 
 export class ViewCartBuilder {
 
@@ -205,11 +206,13 @@ export class ViewCartBuilder {
                         $aRemove.classList.remove('remove');
                         $icon.classList.add('fa-toggle-off');
                         $icon.classList.remove('fa-toggle-on');
+                        item.markedForDeletion = false;
                     }
                     else {
                         $aRemove.classList.add('remove');
                         $icon.classList.remove('fa-toggle-off');
                         $icon.classList.add('fa-toggle-on');
+                        item.markedForDeletion = true;
                     }
                 });
             }
@@ -256,6 +259,27 @@ export class ViewCartBuilder {
                                 $left.classList.add('left');
                                 $col1.appendChild($left);
 
+
+                                // update button (test)
+                                let $divButtonUpdate = document.createElement('div');
+                                {
+                                    $divButtonUpdate.classList.add('button');
+                                    $left.appendChild($divButtonUpdate);
+
+                                    let $a1 = document.createElement('a');
+                                    {
+                                        $a1.classList.add('btn', 'btn-update-cart');
+                                        $a1.innerHTML = 'Update Cart';
+                                        $divButtonUpdate.appendChild($a1);
+
+                                        $a1.addEventListener('click', () => {
+                                            cart.updateCart()
+                                        });
+                                    }
+                                } // end buttons
+
+/*
+                                // disabled because we don't do coupons
                                 let $coupon = document.createElement('div');
                                 {
                                     $coupon.classList.add('coupon');
@@ -288,6 +312,7 @@ export class ViewCartBuilder {
                                         }
                                     }
                                 }
+ */
                             }
                         }
 
@@ -350,6 +375,20 @@ export class ViewCartBuilder {
                                                 $selectShip.appendChild($option2);
                                             }
                                         }
+
+                                        $selectShip.addEventListener('change', () => {
+                                            switch ($selectShip.value) {
+                                                case '1':
+                                                    //cart.$oldShipping.value = 'Delivery';
+                                                    cart.$oldShipping.selectedIndex = 0;
+
+                                                    break;
+                                                case '2':
+                                                    //cart.$oldShipping.value = 'Pick-Up';
+                                                    cart.$oldShipping.selectedIndex = 1;
+                                                    break;
+                                            }
+                                        })
                                     } // end line 2
 
                                     let $li3 = document.createElement('li');
@@ -367,6 +406,9 @@ export class ViewCartBuilder {
                                                 $input.placeholder = 'Enter PO Number';
                                                 $span.appendChild($input);
                                                 cart.$newPO = $input;
+                                                cart.$newPO.addEventListener('input', () => {
+                                                   cart.$oldPO.value = cart.$newPO.value
+                                                });
                                             }
                                         }
                                     } // end of line 3
@@ -386,6 +428,9 @@ export class ViewCartBuilder {
                                                 $input.placeholder = 'Enter Message';
                                                 $span.appendChild($input);
                                                 cart.$newMessage = $input;
+                                                cart.$newMessage.addEventListener('input', () => {
+                                                    cart.$oldMessage.value = cart.$newMessage.value;
+                                                })
                                             }
                                         }
                                     } // end of line 4
@@ -406,8 +451,7 @@ export class ViewCartBuilder {
                                         $divButton.appendChild($a1);
 
                                         $a1.addEventListener('click', () => {
-                                            alert('checkout clicked');
-                                            // TODO: copy fields to old form and submit
+                                            cart.updateAndSubmit();
                                         });
                                     }
 
@@ -429,5 +473,25 @@ export class ViewCartBuilder {
             }
         }
         return $div;
+    }
+
+    /**
+     * Creates breadcrumbs to show on the view cart screen.
+     * @returns {ProductCategoryBreadcrumb}
+     */
+    buildBreadCrumbs() {
+
+        let ret = new ProductCategoryBreadcrumb();
+
+        ret.name = "View Shopping Cart";
+        //ret.link = "#";
+        ret.current = true;
+        ret.parent = new ProductCategoryBreadcrumb();
+
+        ret.parent.name = "Home";
+        ret.parent.link = "Default.aspx";
+        ret.parent.parent = null;
+
+        return ret;
     }
 }
