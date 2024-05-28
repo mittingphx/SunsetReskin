@@ -23,8 +23,8 @@ import {ProductBreadcrumbBuilder, ProductDetailBuilder} from "./builders/Product
 import {CategoryBuilder} from "./builders/CategoryBuilder.js";
 import {SlideshowParser} from "./parsers/SlideshowParser.js";
 import {SlideshowBuilder} from "./builders/SlideshowBuilder.js";
-import {ViewCartParser} from "./parsers/ViewCartParser";
-import {ViewCartBuilder} from "./builders/ViewCartBuilder";
+import {ViewCartParser} from "./parsers/ViewCartParser.js";
+import {ViewCartBuilder} from "./builders/ViewCartBuilder.js";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
@@ -495,9 +495,9 @@ export class SunsetSkin {
         $insertionPoint.replaceWith(builder.buildCartView(cart));
 
         // build the breadcrumbs in the header
-        //let breadcrumbBuilder = new ProductBreadcrumbBuilder();
-        //let $breadcrumbs = breadcrumbBuilder.build(productItem.text, productItem.category);
-        //document.querySelector('.breadcrumbs').replaceWith($breadcrumbs);
+        let breadcrumbBuilder = new ProductBreadcrumbBuilder();
+        let $breadcrumbs = breadcrumbBuilder.build('Shopping Cart', builder.buildBreadCrumbs());
+        document.querySelector('.breadcrumbs').replaceWith($breadcrumbs);
 
         // set the window title
         document.title = `Checkout - Sunset Wholesale West`;
