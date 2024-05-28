@@ -48,14 +48,21 @@ export class SunsetPreload {
     }
 
     /**
-     * Called by the website to inform the preloader that everything
-     * is ready to go.
+     * Stops the interval checking that the preloader is up.
      */
-    ready() {
+    stopChecking() {
         if (this.#checkInterval) {
             clearInterval(this.#checkInterval);
             this.#checkInterval = null;
         }
+    }
+
+    /**
+     * Called by the website to inform the preloader that everything
+     * is ready to go.
+     */
+    ready() {
+        this.stopChecking();
         this.#showSite();
     }
 
@@ -120,7 +127,7 @@ export class SunsetPreload {
         let alpha = 1.0;
         const delta = 0.01;
         let me = this;
-        let animHandle = setInterval(function() {
+        let animHandle = setInterval(function () {
             if (!me.#isConnected()) {
                 me.#addAssets();
                 $div = me.#$preloader;
@@ -130,7 +137,7 @@ export class SunsetPreload {
             //console.log({alpha:alpha});
 
             $div.style.display = 'block';
-            $div.style.opacity = ''+alpha;
+            $div.style.opacity = '' + alpha;
             //$div.style.background = 'rgba(0,0,0,' + alpha + ')';
             if (alpha <= 0) {
                 $div.style.display = 'none';
@@ -181,6 +188,6 @@ export class SunsetPreload {
 
         document.body.appendChild($div)
         this.#assetsAdded = true;
-    }
 
+    }
 }
