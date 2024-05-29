@@ -23,8 +23,11 @@ import {ProductBreadcrumbBuilder, ProductDetailBuilder} from "./builders/Product
 import {CategoryBuilder} from "./builders/CategoryBuilder.js";
 import {SlideshowParser} from "./parsers/SlideshowParser.js";
 import {SlideshowBuilder} from "./builders/SlideshowBuilder.js";
-import {ViewCartParser} from "./parsers/ViewCartParser.js";
+import {ShoppingCart, ViewCartParser} from "./parsers/ViewCartParser.js";
 import {ViewCartBuilder} from "./builders/ViewCartBuilder.js";
+import {ProductCategoryBreadcrumb} from "./parsers/CommonParser.js";
+import {SiteSearch} from "./util/SiteSearch.js";
+import {WishListBuilder} from "./builders/WishListBuilder";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
@@ -174,29 +177,47 @@ export class SunsetSkin {
         }
 
         // setup common page controls
-        let $searchBtn = document.querySelector('.search-btn button');
-        if ($searchBtn) {
-            $searchBtn.addEventListener('click', () => {
-                this.handleSearch();
-            });
-        }
-        else {
-            console.warn('Could not find search button on reskin page');
-        }
-
-        let $searchInput = document.querySelector('#search');
-        if ($searchInput) {
-            $searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    this.handleSearch();
-                }
-            });
-        }
-        else {
-            console.warn('Could not find search input on reskin page');
-        }
+        SiteSearch.setupSearchControls();
+        this.buildCartDropdown();
+        this.buildWishListDropdown();
 
     }
+
+    /**
+     * Builds the dropdown preview of the cart available on every page.
+     */
+    buildCartDropdown() {
+
+        // TODO: consider showing a load image
+
+        ShoppingCart.getInstanceAsync(cart => {
+            console.log('buildCartDropdown() got cort', cart);
+
+            let builder = new ViewCartBuilder();
+            let $dropdown = builder.buildCartDropdown(cart);
+            let $insertionPoint = document.querySelector('.ddl-cart');
+            if (!$insertionPoint) {
+                console.error('Could not find insertion point! (.ddl-cart)');
+                return;
+            }
+            $insertionPoint.replaceWith($dropdown);
+        })
+    }
+
+    /**
+     * Renders the wish list dropdown on every page.
+     */
+    buildWishListDropdown() {
+        let builder = new WishListBuilder();
+        let $dropdown = builder.build();
+        let $insertionPoint = document.querySelector('.ddl-wishlist');
+        if (!$insertionPoint) {
+            console.error('Could not find insertion point! (.ddl-wishlist)');
+            return;
+        }
+        $insertionPoint.replaceWith($dropdown);
+    }
+
 
     /**
      * Creates the events for the new skin toggle in the upper right.
@@ -360,33 +381,43 @@ export class SunsetSkin {
         // parse from the old to build the category grid
         let parser = new CategoryParser(this.html.oldHtmlBody);
         let category = parser.readNodesFromTable($table);
-        //console.log({category:category});
+        console.log({category:category});
 
         let builder = new CategoryBuilder();
         builder.buildCategoryProducts(category, $insertionPoint);
 
         // build the subcategory list on the left, or show search terms when searching
         let $subcategoryMenu;
-        if (this.isSearchResult()) {
-            let search = this.getSearchTerm();
+        if (SiteSearch.isSearchResult()) {
+            // custom left pane
+            let search = SiteSearch.getSearchTerm();
             $subcategoryMenu = builder.buildMessageAsList(
                 'Search Results',
                 'The results for your search <b>' + search + '</b> are now being displayed'
             );
+
+            // custom breadcrumb
+            category.name = 'Search Results';
+            category.breadcrumbs = new ProductCategoryBreadcrumb();
+            category.breadcrumbs.name = 'Search Results for "' + SiteSearch.getSearchTerm() + '"';
+            category.breadcrumbs.parent = new ProductCategoryBreadcrumb();
+            category.breadcrumbs.parent.name = 'Home';
+            category.breadcrumbs.parent.link = 'Default.aspx';
         }
         else {
             $subcategoryMenu = builder.buildSubcategoryList(category, this.menu);
         }
 
+        // insert the subcategory list in the left panel
         if ($subcategoryMenu) {
-            console.log('inserting subcategory list at .sub-category-list');
-            console.log($subcategoryMenu);
+            console.log('inserting subcategory list at .sub-category-list', {$subcategoryMenu:$subcategoryMenu});
             document.querySelector('.sub-category-list').replaceWith($subcategoryMenu);
         }
         else {
+            // no subcategory list so remove the left panel completely
             console.error('Could not build $subcategoryMenu');
+            document.querySelector('.sub-category-list').remove();
         }
-
 
         // build the breadcrumbs in the header
         let breadcrumbBuilder = new ProductBreadcrumbBuilder();
@@ -456,24 +487,6 @@ export class SunsetSkin {
         document.title = `${productItem.text} - Sunset Wholesale West`;
     }
 
-    /**
-     * Adds a click handler that conducts a search.
-     * @param $btn {HTMLElement}
-     */
-    addSearchEvent($btn) {
-        console.log({btn:$btn})
-
-        $btn.addEventListener('click', () => {
-            this.handleSearch();
-        });
-        $btn.addEventListener('keydown', (e) => {
-            console.log(e);
-            if (e.key === 'Enter') {
-                this.handleSearch();
-            }
-        });
-    }
-
     buildCartHtml() {
 
         console.log('buildCartHtml()');
@@ -501,43 +514,5 @@ export class SunsetSkin {
 
         // set the window title
         document.title = `Checkout - Sunset Wholesale West`;
-    }
-
-    /**
-     * Handles forwarding to the search to the real search bar in the
-     * hidden original page.
-     */
-    handleSearch() {
-
-        let searchTerm = document.querySelector('#search').value;
-        console.log('handleSearch() searchTerm: ' + searchTerm);
-
-        // https://swwest.com/ItemSearch.aspx?Search=esko+leaf
-        document.location = 'ItemSearch.aspx?Search=' + encodeURIComponent(searchTerm);
-    }
-
-    /**
-     * Returns true iff the current page is showing search results.
-     * @returns {boolean}
-     */
-    isSearchResult() {
-        let url = '' + document.location;
-        return url.indexOf('?Search=') !== -1;
-    }
-
-    /**
-     * Returns the search term from the current page's url.
-     * @returns {string|null}
-     */
-    getSearchTerm() {
-        let url = '' + document.location;
-        let searchStart = url.indexOf('?Search=');
-        if (searchStart === -1) return null;
-        searchStart += '?Search='.length;
-        let searchEnd = url.indexOf('&', searchStart);
-        if (searchEnd === -1) {
-            searchEnd = url.length;
-        }
-        return url.substring(searchStart, searchEnd);
     }
 }

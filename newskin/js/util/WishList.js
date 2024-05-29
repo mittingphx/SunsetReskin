@@ -1,3 +1,4 @@
+import {WishListBuilder} from "../builders/WishListBuilder";
 
 /**
  * An item stored in the wish list data.
@@ -29,6 +30,12 @@ export class WishListItem {
     price = 0;
 
     /**
+     * Whether the product has a price, set to false if price is 'Login to View'
+     * @type {boolean}
+     */
+    hasPrice = true;
+
+    /**
      * When the product was added to the wish list
      * @type {number}
      */
@@ -41,14 +48,35 @@ export class WishListItem {
     constructor(props) {
         this.text = props.text;
         this.image = props.image;
+        let price = null;
         if (!props.price && props.casePrice) {
-            this.price = props.casePrice;
+            price = props.casePrice;
         }
         else {
-            this.price = props.price;
+            price = props.price;
         }
+        if (price === 'Login to View') {
+            this.price = 0;
+            this.hasPrice = false;
+        }
+        else {
+            this.price = price;
+            this.hasPrice = true;
+        }
+
         this.timestamp = props.timestamp;
     }
+
+
+
+    /**
+     * Returns the link to the item detail page.
+     * @returns {string}
+     */
+    get link() {
+        return 'ItemDetail.aspx?ItemNo=' + this.itemNo + '&ReturnURL=ViewCart.aspx';
+    }
+
 
 }
 
@@ -163,5 +191,23 @@ export class WishList {
     static count() {
         this.load();
         return WishList.wishList.length;
+    }
+
+    /**
+     * Rebuilds the wish list view whenever the list changes.
+     */
+    static rebuild() {
+        let $wishList = new WishListBuilder().build();
+        if (!$wishList) {
+            console.error('could not generate wish list');
+            return;
+        }
+
+        let $insertion = document.querySelector('.ddl-wishlist');
+        if (!$insertion) {
+            console.error('could not find insertion point! (.ddl-wishlist)');
+            return;
+        }
+        $insertion.replaceWith($wishList);
     }
 }

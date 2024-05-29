@@ -494,4 +494,199 @@ export class ViewCartBuilder {
 
         return ret;
     }
+
+
+    /**
+     * Builds the dropdown preview of the cart available on every page.
+     * @param cart {ShoppingCart}
+     * @returns {HTMLDivElement}
+     */
+    buildCartDropdown(cart) {
+
+        let $cartItems = document.createElement('div');
+        {
+            $cartItems.classList.add('cart-items', 'ddl-cart');
+
+            // button with item count badge
+            let $btn = document.createElement('a');
+            {
+                $btn.classList.add('main-btn');
+                $btn.href = 'javascript:void(0)';
+                $cartItems.appendChild($btn);
+
+                let $i = document.createElement('i');
+                {
+                    $i.classList.add('lni', 'lni-cart');
+                    $btn.appendChild($i);
+                }
+
+                let $span = document.createElement('span');
+                {
+                    $span.classList.add('total-items');
+                    $span.innerHTML = cart.items.length.toString();
+                    $btn.appendChild($span);
+                }
+            }
+
+            // dropdown display
+            let $divShopping = document.createElement('div');
+            {
+                $divShopping.classList.add('shopping-item');
+                $cartItems.appendChild($divShopping);
+
+                // header
+                let $header = document.createElement('div');
+                {
+                    $header.classList.add('dropdown-cart-header');
+                    $divShopping.appendChild($header);
+
+                    let $span = document.createElement('span');
+                    {
+                        $span.classList.add('total-items');
+                        let count = cart.items.length;
+                        $span.innerHTML = count.toString() + ' Item' + (count == 1 ? '' : 's');
+                        $header.appendChild($span);
+                    }
+
+                    let $a = document.createElement('a');
+                    {
+                        $a.href = 'ViewCart.aspx';
+                        $a.innerHTML = 'View Cart';
+                        $header.appendChild($a);
+                    }
+                }
+
+                // cart items
+                let $ul = document.createElement('ul');
+                {
+                    $ul.classList.add('shopping-list');
+                    $divShopping.appendChild($ul);
+
+                    for (let item of cart.items) {
+                        $ul.appendChild(this.buildCartDropDownItemRow(cart, item));
+                    }
+
+                    if (cart.items.length === 0) {
+                        $ul.innerHTML = '<li>No items in cart</li>';
+                    }
+                }
+
+                // footer
+                let $footer = document.createElement('div');
+                {
+                    $footer.classList.add('bottom');
+                    $divShopping.appendChild($footer);
+
+                    let $total = document.createElement('div');
+                    {
+                        $total.classList.add('total');
+                        $footer.appendChild($total);
+
+                        let $span1 = document.createElement('span');
+                        {
+                            $span1.innerHTML = 'Total '
+                            $total.appendChild($span1);
+                        }
+
+                        let $span2 = document.createElement('span');
+                        {
+                            $span2.classList.add('total-amount');
+                            $span2.innerHTML = '$' + cart.total.toFixed(2);
+                            $total.appendChild($span2);
+                        }
+                    }
+
+                    let $btn = document.createElement('div');
+                    {
+                        $btn.classList.add('button');
+                        $footer.appendChild($btn);
+
+                        let $a = document.createElement('a');
+                        {
+                            $a.classList.add('btn', 'animate');
+                            $a.href = 'ViewCart.aspx';
+                            $a.innerHTML = 'Checkout';
+                            $btn.appendChild($a);
+                        }
+                    }
+                }
+            }
+        }
+        return $cartItems;
+    }
+
+
+    /**
+     * Builds on item view withing the dropdown cart preview.
+     * @param cart {ShoppingCart}
+     * @param item {CartProductItem}
+     * @returns {HTMLLIElement}
+     */
+    buildCartDropDownItemRow(cart, item) {
+
+        let $li = document.createElement('li');
+        {
+            let $removeA = document.createElement('a');
+            {
+                $removeA.classList.add('remove');
+                $removeA.href = 'javascript:void(0)';
+                $removeA.title = 'Remove this item';
+                $removeA.innerHTML = '<i class="lni lni-close"></i>';
+                $removeA.addEventListener('click', () => {
+                    alert('TODO: implement shopping cart remove here');
+                    //cart.remove(item);
+                });
+
+                $li.appendChild($removeA);
+            }
+
+            let $divImg = document.createElement('div');
+            {
+                $divImg.classList.add('cart-img-head');
+                $li.appendChild($divImg);
+
+                let $imgA = document.createElement('a');
+                {
+                    $imgA.href = item.link;
+                    $imgA.classList.add('cart-img');
+                    $divImg.appendChild($imgA);
+
+                    let $img = document.createElement('img');
+                    {
+                        $img.src = item.image;
+                        $img.alt = item.description;
+                        $imgA.appendChild($img);
+                    }
+                }
+            }
+
+            let $divContent = document.createElement('div');
+            {
+                $divContent.classList.add('content');
+                $li.appendChild($divContent);
+
+                let $h4 = document.createElement('h4');
+                {
+                    $h4.innerHTML = item.description;
+                    $divContent.appendChild($h4);
+                }
+
+                let $p = document.createElement('p');
+                {
+                    $p.classList.add('quantity');
+                    $p.innerHTML = item.quantity +'x - ';
+                    $divContent.appendChild($p);
+
+                    let $spanPrice = document.createElement('span');
+                    {
+                        $spanPrice.classList.add('amount');
+                        $spanPrice.innerHTML = item.price.toFixed(2);
+                        $p.appendChild($spanPrice);
+                    }
+                }
+            }
+
+        }
+        return $li;
+    }
 }

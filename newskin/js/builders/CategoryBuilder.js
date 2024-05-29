@@ -247,8 +247,36 @@ export class CategoryBuilder {
   //      $tabContent.classList.add('insert-category');
 //        $insertionPoint.replaceWith($tabContent);
 
+
         $insertionPoint.innerHTML = $tabContent.innerHTML
         $insertionPoint.classList.add('tab-content');
+
+        this.addTabViewEventHandlers()
+    }
+
+    /**
+     * Adds event handlers to icons to change the tab views.
+     */
+    addTabViewEventHandlers() {
+
+        let $tabList = document.querySelector('#nav-list-tab');
+        let $tabListView = document.querySelector('#nav-list');
+        let $tabGrid = document.querySelector('#nav-grid-tab');
+        let $tabGridView = document.querySelector('#nav-grid');
+
+        $tabList.addEventListener('click', () => {
+            $tabGrid.classList.remove('active');
+            $tabGridView.classList.remove('active', 'show');
+            $tabList.classList.add('active');
+            $tabListView.classList.add('active', 'show');
+        });
+        $tabGrid.addEventListener('click', () => {
+            $tabList.classList.remove('active');
+            $tabListView.classList.remove('active', 'show');
+            $tabGrid.classList.add('active');
+            $tabGridView.classList.add('active', 'show');
+        });
+
     }
 
     /**

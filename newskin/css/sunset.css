@@ -214,3 +214,75 @@
 .tns-item {
     text-align: center;
 }
+
+/*** Wish List Dropdown ***/
+
+
+.ddl-wishlist {
+    margin-right: 10px;
+}
+
+.header .navbar-cart .wishlist {
+    position: relative;
+}
+
+.header .navbar-cart .wishlist:hover .main-btn {
+    color: #fff;
+    background-color: #0167F3;
+    border-color: transparent;
+}
+
+.header .navbar-cart .wishlist .main-btn {
+    height: 40px;
+    width: 40px;
+    line-height: 40px;
+    display: inline-block;
+    border-radius: 50%;
+    border: 1px solid #eee;
+    color: #555;
+    font-size: 18px;
+    text-align: center;
+    position: relative;
+}
+
+.header .navbar-cart .wishlist .main-btn .total-items {
+    position: absolute;
+    right: -6px;
+    top: -5px;
+    height: 19px;
+    width: 19px;
+    line-height: 19px;
+    background-color: #081828;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    border-radius: 50%;
+}
+
+.header .navbar-cart .wishlist:hover .shopping-item {
+    opacity: 1;
+    visibility: visible;
+}
+
+.header .navbar-cart .wishlist .shopping-item {
+    position: absolute;
+    top: 72px;
+    right: 0;
+    width: 300px;
+    background: #fff;
+    padding: 20px 25px;
+    -webkit-transition: all 0.3s ease 0s;
+    transition: all 0.3s ease 0s;
+    z-index: 99;
+    border-radius: 4px;
+    -webkit-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.137);
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.137);
+    opacity: 0;
+    visibility: hidden;
+}
+
+.item-details .product-info .wish-button {
+    text-wrap: nowrap;
+    width: 135px;
+}

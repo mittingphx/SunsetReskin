@@ -9,6 +9,7 @@
 
 import {UrlHelper} from "../UrlHelper.js";
 import {WishList} from "../util/WishList.js";
+import {WishListBuilder} from "./WishListBuilder";
 
 /**
  * Builds the breadcrumb area above the product details.
@@ -526,35 +527,6 @@ export class ProductDetailBuilder {
                         {
                             $btn.classList.add('btn');
 
-                            // sets up the icon for the wish button in the upper-right
-                            function updateWishListIcon() {
-                                let wishCount = WishList.count();
-
-                                let $wishIcon = document.createElement('div');
-                                {
-                                    $wishIcon.classList.add('wishlist');
-
-                                    let $wishA = document.createElement('a');
-                                    {
-                                        $wishA.href = 'javascript:void(0)';
-                                        $wishA.addEventListener('click', () => {
-                                            alert('TODO: show wish list items here');
-                                        });
-                                        $wishA.innerHTML = '<i class="lni lni-heart"></i>';
-
-                                        let $count = document.createElement('span');
-                                        {
-                                            $count.classList.add('total-items');
-                                            $count.innerHTML = wishCount.toLocaleString();
-                                        }
-                                        $wishA.appendChild($count);
-                                    }
-                                    $wishIcon.appendChild($wishA);
-                                }
-
-                                document.querySelector('.wishlist').replaceWith($wishIcon);
-                            }
-
                             // sets up the wish button on the product details page
                             function setupWishListButton(on) {
                                 if (on) {
@@ -565,7 +537,7 @@ export class ProductDetailBuilder {
                                     $btn.innerHTML = '<i class="lni lni-heart"></i> To Wishlist';
                                     $btn.classList.remove('wishlist-on');
                                 }
-                                updateWishListIcon();
+                                WishList.rebuild();
                             }
 
                             let onWishList = WishList.has(productItem);

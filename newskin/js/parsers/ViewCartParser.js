@@ -4,6 +4,18 @@
 export class ShoppingCart {
 
     /**
+     * The last loaded instance of the shopping cart, allowing for
+     * building features like the cart dropdown view without having
+     * to reload the cart page in the background.
+     *
+     * Reloaded instances will only have the items property available.
+     * All other properties will be disconnected.
+     *
+     * @type {ShoppingCart}
+     */
+    static instance = null;
+
+    /**
      * The items in the shopping cart.
      * @type {CartProductItem[]}
      */
@@ -72,7 +84,57 @@ export class ShoppingCart {
      * Default constructor
      */
     constructor() {
+
+        // save last instance as singleton
+        ShoppingCart.instance = this;
     }
+
+    /**
+     * Attempts to load the cart's items from cache if the singleton is
+     * not already available.
+     */
+    static getInstance() {
+        if (!ShoppingCart.instance) {
+            ShoppingCart.instance = new ShoppingCart();
+            ShoppingCart.instance.readFromCache();
+        }
+        return ShoppingCart.instance;
+    }
+
+    /**
+     * Calls the asynchronous function to load the cart from the server
+     * and calls the callback function when finished.
+     * @param fnCallback
+     */
+    static getInstanceAsync(fnCallback) {
+        let loaded = false;
+        console.log('Call to getInstanceAsync()');
+
+        // check for singleton instance first
+        if (ShoppingCart.instance) {
+            fnCallback(ShoppingCart.instance);
+            return;
+        }
+
+        // attempt a cache read
+        let cart  = new ShoppingCart();
+        loaded = cart.readFromCache();
+        if (loaded) {
+            fnCallback(cart);
+            return;
+        }
+
+        // load in the background from server
+        new Promise(async () => {
+            cart = await ShoppingCart.loadCartFromServer();
+            if (!cart) {
+                fnCallback(new ShoppingCart());
+            }
+        }).then(() => {
+            fnCallback(cart);
+        });
+    }
+
 
     /**
      * Sets the DOM elements from the shopping cart in the old page
@@ -90,9 +152,6 @@ export class ShoppingCart {
      * and presses update button.
      */
     updateCart() {
-
-        // TODO: we must reconnect the old form in order to be able to submit against it
-
         this.update();
         this.$btnUpdate.click();
     }
@@ -108,6 +167,100 @@ export class ShoppingCart {
             item.$qty.value = item.quantity.toString();
             item.$removeCheckbox.checked = item.markedForDeletion;
         }
+    }
+
+    /**
+     * Serializes the items and writes them to local storage, so we
+     * can build the cart preview without reloading the cart data
+     * from the server on every page hit.
+     */
+
+    storeInCache() {
+
+        // save last instance as singleton
+        ShoppingCart.instance = this;
+
+        // store item data in local storage
+        let items = [];
+        for (let item of this.items) {
+            items.push(item.freeze());
+        }
+        let data = {
+            items: items,
+            timestamp: new Date().getTime()
+        };
+        localStorage.setItem('cart', JSON.stringify(data));
+    }
+
+    /**
+     * Loads item data from local storage.
+     *
+     * @returns {boolean} true iff successfully read from cache to fill object
+     */
+    readFromCache() {
+
+        // read item data from local storage
+        let cache = localStorage.getItem('cart');
+        if (cache === null) {
+            return false;
+        }
+
+        // make sure it's not expired
+        const TEN_MINUTES = 10 * 60;
+        let data = JSON.parse(cache);
+        let now = new Date().getTime();
+        let elapsedSeconds = (now - data.timestamp) / 1000;
+        if (elapsedSeconds > TEN_MINUTES) {
+            return false;
+        }
+
+        // parse the individual items
+        this.items = [];
+        if (data.items) {
+            for (let item of data.items) {
+                let newItem = CartProductItem.thaw(item);
+                this.items.push(newItem);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Loads the HTML for the shopping cart in the background.
+     * This allows the cached data to be updated from the server.
+     * Also sets the instance property and updates cache.
+     *
+     * @returns {ShoppingCart}
+     */
+    static async loadCartFromServer() {
+
+        console.log('loadCartFromServer()');
+
+        let cart = null;
+
+        try {
+            // grab from server
+            // TODO: need to check that we're in the root folder so we're pointing at the correct url
+            const response = await fetch('ViewCart.aspx');
+            if (response.status !== 200) {
+                console.error('HTTP Error ' + response.statusText + ' while loading cart data');
+                return null;
+            }
+
+            const htmlContent = await response.text();
+            const cartDocument = new DOMParser().parseFromString(htmlContent, 'text/html');
+            console.log({cartDocument: cartDocument})
+
+            // parse and cache
+            let parser = new ViewCartParser(cartDocument.body, null);
+            cart = parser.readCart();
+            console.log({cart: cart});
+        }
+        catch (error) {
+            console.error(error);
+        }
+
+        return cart;
     }
 }
 
@@ -212,6 +365,42 @@ export class CartProductItem {
     constructor() {
     }
 
+    /**
+     * Serializes the item values that need to be cached between page hits.
+     */
+    freeze() {
+        const fields = [
+            'itemNo',
+            'description',
+            'unitType',
+            'image',
+            'price',
+            'quantity',
+            'markedForDeletion',
+            'textError'
+        ];
+
+        let data = {};
+        for (let field of fields) {
+            data[field] = this[field];
+        }
+        return JSON.stringify(data);
+    }
+
+    /**
+     * Deserializes the cached item data, not including DOM elements.
+     * @param dataString {string}
+     * @returns {CartProductItem}
+     */
+    static thaw(dataString) {
+        let data = JSON.parse(dataString);
+
+        let item = new CartProductItem();
+        for (let field in data) {
+            item[field] = data[field];
+        }
+        return item;
+    }
 }
 
 /**
@@ -270,6 +459,8 @@ export class ViewCartParser {
         cart.$oldMessage = $tableSummary.querySelector('input#MainContent_TxtMessage');
         cart.$btnSubmit = $tableSummary.querySelector('input#MainContent_BtnCheckOut');
         cart.$btnUpdate = $table.querySelector('input#MainContent_BtnUpdateCart');
+
+        cart.storeInCache();
         return cart;
     }
 
