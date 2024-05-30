@@ -1,6 +1,7 @@
-import { ShoppingCart, CartProductItem } from '../parsers/ViewCartParser.js';
 import {Format} from "../util/Format.js";
+import { ShoppingCart, CartProductItem } from '../parsers/ViewCartParser.js';
 import {ProductCategoryBreadcrumb} from "../parsers/CommonParser.js";
+import {LoginStatus} from "../parsers/LoginStatusParser.js";
 
 export class ViewCartBuilder {
 
@@ -499,9 +500,10 @@ export class ViewCartBuilder {
     /**
      * Builds the dropdown preview of the cart available on every page.
      * @param cart {ShoppingCart}
+     * @param loginStatus {LoginStatus}
      * @returns {HTMLDivElement}
      */
-    buildCartDropdown(cart) {
+    buildCartDropdown(cart, loginStatus) {
 
         let $cartItems = document.createElement('div');
         {
@@ -544,7 +546,7 @@ export class ViewCartBuilder {
                     {
                         $span.classList.add('total-items');
                         let count = cart.items.length;
-                        $span.innerHTML = count.toString() + ' Item' + (count == 1 ? '' : 's');
+                        $span.innerHTML = count.toString() + ' Item' + (count === 1 ? '' : 's');
                         $header.appendChild($span);
                     }
 
@@ -565,7 +567,6 @@ export class ViewCartBuilder {
                     for (let item of cart.items) {
                         $ul.appendChild(this.buildCartDropDownItemRow(cart, item));
                     }
-
                     if (cart.items.length === 0) {
                         $ul.innerHTML = '<li>No items in cart</li>';
                     }
@@ -577,36 +578,60 @@ export class ViewCartBuilder {
                     $footer.classList.add('bottom');
                     $divShopping.appendChild($footer);
 
-                    let $total = document.createElement('div');
-                    {
-                        $total.classList.add('total');
-                        $footer.appendChild($total);
+                    if (!cart.isEmpty()) {
 
-                        let $span1 = document.createElement('span');
+
+
+
+
+                            let $total = document.createElement('div');
                         {
-                            $span1.innerHTML = 'Total '
-                            $total.appendChild($span1);
+                            $total.classList.add('total');
+                            $footer.appendChild($total);
+
+                            let $span1 = document.createElement('span');
+                            {
+                                $span1.innerHTML = 'Total '
+                                $total.appendChild($span1);
+                            }
+
+                            let $span2 = document.createElement('span');
+                            {
+                                $span2.classList.add('total-amount');
+                                $span2.innerHTML = '$' + cart.total.toFixed(2);
+                                $total.appendChild($span2);
+                            }
                         }
 
-                        let $span2 = document.createElement('span');
-                        {
-                            $span2.classList.add('total-amount');
-                            $span2.innerHTML = '$' + cart.total.toFixed(2);
-                            $total.appendChild($span2);
+                        if (loginStatus.loggedIn === false) {
+                            let $btn = document.createElement('div');
+                            {
+                                $btn.innerHTML = 'You need to Sign In to checkout your cart.';
+                                $footer.appendChild($btn);
+                            }
+
+                            let $a = document.createElement('a');
+                            {
+                                $a.classList.add('btn', 'animate');
+                                $a.href = 'Login/Login.aspx';
+                                $a.innerHTML = 'Sign In';
+                                $btn.appendChild($a);
+                            }
                         }
-                    }
+                        else {
+                            let $btn = document.createElement('div');
+                            {
+                                $btn.classList.add('button');
+                                $footer.appendChild($btn);
 
-                    let $btn = document.createElement('div');
-                    {
-                        $btn.classList.add('button');
-                        $footer.appendChild($btn);
-
-                        let $a = document.createElement('a');
-                        {
-                            $a.classList.add('btn', 'animate');
-                            $a.href = 'ViewCart.aspx';
-                            $a.innerHTML = 'Checkout';
-                            $btn.appendChild($a);
+                                let $a = document.createElement('a');
+                                {
+                                    $a.classList.add('btn', 'animate');
+                                    $a.href = 'ViewCart.aspx';
+                                    $a.innerHTML = 'Checkout';
+                                    $btn.appendChild($a);
+                                }
+                            }
                         }
                     }
                 }
@@ -614,7 +639,6 @@ export class ViewCartBuilder {
         }
         return $cartItems;
     }
-
 
     /**
      * Builds on item view withing the dropdown cart preview.

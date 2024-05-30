@@ -129,17 +129,26 @@ export class WishListBuilder {
 
         let $li = document.createElement('li');
         {
+            // clicking anywhere except remove is a link to details
+            $li.style.cursor = 'pointer';
+            $li.addEventListener('click', (e) => {
+                // close button clicked
+                if (e.target.classList.contains('lni-close')) {
+                    WishList.remove(item);
+                    WishList.rebuild();
+                }
+                // anywhere else clicked
+                else {
+                    window.location = item.link;
+                }
+            });
+
             let $removeA = document.createElement('a');
             {
                 $removeA.classList.add('remove');
                 $removeA.href = 'javascript:void(0)';
                 $removeA.title = 'Remove this item';
                 $removeA.innerHTML = '<i class="lni lni-close"></i>';
-                $removeA.addEventListener('click', () => {
-                    WishList.remove(item);
-                    // TODO: refresh wishlist view
-                });
-
                 $li.appendChild($removeA);
             }
 
@@ -184,7 +193,7 @@ export class WishListBuilder {
                         $spanPrice.classList.add('amount');
                         let price = item.price;
                         if (item.hasPrice) {
-                            $spanPrice.innerHTML = item.price.toFixed(2);
+                            $spanPrice.innerHTML = '$' + item.price.toFixed(2);
                         }
                         else {
                             $spanPrice.innerHTML = 'Login to View'

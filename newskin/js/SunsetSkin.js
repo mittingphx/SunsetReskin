@@ -27,7 +27,8 @@ import {ShoppingCart, ViewCartParser} from "./parsers/ViewCartParser.js";
 import {ViewCartBuilder} from "./builders/ViewCartBuilder.js";
 import {ProductCategoryBreadcrumb} from "./parsers/CommonParser.js";
 import {SiteSearch} from "./util/SiteSearch.js";
-import {WishListBuilder} from "./builders/WishListBuilder";
+import {WishListBuilder} from "./builders/WishListBuilder.js";
+import {LoginStatusParser,LoginStatus} from "./parsers/LoginStatusParser.js";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
@@ -56,6 +57,12 @@ export class SunsetSkin {
      * @type {SunsetMenu}
      */
     menu = null;
+
+    /**
+     * Account details for the logged-in user.
+     * @type {LoginStatus}
+     */
+    loginStatus = null;
 
     /**
      * Constructor
@@ -178,9 +185,15 @@ export class SunsetSkin {
 
         // setup common page controls
         SiteSearch.setupSearchControls();
-        this.buildCartDropdown();
         this.buildWishListDropdown();
 
+        // setup common controls that require use login information
+        let loginParser = new LoginStatusParser(this.html.oldHtmlBody);
+        loginParser.readLoginStatus(status => {
+            this.loginStatus = status;
+            this.buildCartDropdown();
+            this.buildLoginInfo();
+        })
     }
 
     /**
@@ -188,14 +201,22 @@ export class SunsetSkin {
      */
     buildCartDropdown() {
 
-        // TODO: consider showing a load image
+        console.log('buildCartDropdown()');
 
+        // show a spinner while the cart is being loaded
+        let $insertionPoint = document.querySelector('.ddl-cart');
+        if (!$insertionPoint) {
+            console.error('Could not find insertion point! (.ddl-cart)');
+            return;
+        }
+        $insertionPoint.innerHTML = '<i class="fa fa-spinner fa-spin fa-2x"></i>';
+
+        // load cart in the background
         ShoppingCart.getInstanceAsync(cart => {
             console.log('buildCartDropdown() got cort', cart);
 
             let builder = new ViewCartBuilder();
-            let $dropdown = builder.buildCartDropdown(cart);
-            let $insertionPoint = document.querySelector('.ddl-cart');
+            let $dropdown = builder.buildCartDropdown(cart, this.loginStatus);
             if (!$insertionPoint) {
                 console.error('Could not find insertion point! (.ddl-cart)');
                 return;
@@ -514,5 +535,99 @@ export class SunsetSkin {
 
         // set the window title
         document.title = `Checkout - Sunset Wholesale West`;
+    }
+
+    /**
+     * Inserts current information about the logged in user into the
+     * header.
+     */
+    buildLoginInfo() {
+
+        // TODO: move to LoginStatusBuilder class?
+
+        let $topEnd = document.querySelector('.top-end');
+        if (!$topEnd) {
+            console.error('Could not find .top-end');
+            return;
+        }
+        $topEnd.innerHTML = '';
+
+        // username display
+        let $user = document.createElement('div');
+        {
+            $user.classList.add('user');
+            $topEnd.appendChild($user);
+
+            $user.innerHTML = '<i class="lni lni-user"></i>';
+
+            if (this.loginStatus.loggedIn) {
+                $user.innerHTML += ` ${this.loginStatus.email}`;
+            }
+            else {
+                $user.innerHTML += ' Not Logged In';
+            }
+        }
+
+        // user buttons
+        let $userLogin = document.createElement('ul');
+        {
+            $userLogin.classList.add('user-login');
+            $topEnd.appendChild($userLogin);
+
+            if (this.loginStatus.loggedIn) {
+
+                let $btnSignOut = this.html.oldHtmlBody.querySelector('#LBtnLogOut');
+                if (!$btnSignOut) {
+                    console.error('Could not find #LBtnLogOut');
+                }
+
+                // sign out button
+                let $login = document.createElement('li');
+                {
+                    let $aSignOut = $login.querySelector('a');
+                    {
+                        $aSignOut.title = 'Sign Out';
+                        $aSignOut.href = 'javascript:void(0)';
+                        $login.appendChild($aSignOut);
+                        $aSignOut.addEventListener('click', function() {
+                            $btnSignOut.click();
+                        });
+                    }
+                    $userLogin.appendChild($login);
+                }
+
+                // my account button
+                let $register = document.createElement('li');
+                {
+                    $register.innerHTML = '<a href="MyAccount.aspx">My Account</a>';
+                    $userLogin.appendChild($register);
+                }
+
+                // admin button
+                if (this.loginStatus.isAdmin) {
+                    let $admin = document.createElement('li');
+                    {
+                        $admin.innerHTML = '<a href="Admin/Dashboard.aspx">Admin</a>';
+                        $userLogin.appendChild($admin);
+                    }
+                }
+            }
+            else {
+                // sign in button
+                let $login = document.createElement('li');
+                {
+                    $login.innerHTML = '<a href="Login/Login.aspx">Sign In</a>';
+                    $userLogin.appendChild($login);
+                }
+
+                // register button
+                let $register = document.createElement('li');
+                {
+                    $register.innerHTML = '<a href="MyAccount.aspx">Register</a>';
+                    $userLogin.appendChild($register);
+                }
+            }
+        }
+
     }
 }

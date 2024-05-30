@@ -9,7 +9,6 @@
 
 import {UrlHelper} from "../UrlHelper.js";
 import {WishList} from "../util/WishList.js";
-import {WishListBuilder} from "./WishListBuilder";
 
 /**
  * Builds the breadcrumb area above the product details.

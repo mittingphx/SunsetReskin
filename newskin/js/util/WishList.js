@@ -1,4 +1,4 @@
-import {WishListBuilder} from "../builders/WishListBuilder";
+import {WishListBuilder} from "../builders/WishListBuilder.js";
 
 /**
  * An item stored in the wish list data.
@@ -46,6 +46,7 @@ export class WishListItem {
      * @param props {Object}
      */
     constructor(props) {
+        this.itemNo = props.itemNo;
         this.text = props.text;
         this.image = props.image;
         let price = null;

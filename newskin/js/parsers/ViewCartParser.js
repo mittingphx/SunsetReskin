@@ -11,9 +11,11 @@ export class ShoppingCart {
      * Reloaded instances will only have the items property available.
      * All other properties will be disconnected.
      *
+     * Other classes should call getInstance()
+     *
      * @type {ShoppingCart}
      */
-    static instance = null;
+    static #instance = null;
 
     /**
      * The items in the shopping cart.
@@ -86,7 +88,7 @@ export class ShoppingCart {
     constructor() {
 
         // save last instance as singleton
-        ShoppingCart.instance = this;
+        ShoppingCart.#instance = this;
     }
 
     /**
@@ -94,11 +96,11 @@ export class ShoppingCart {
      * not already available.
      */
     static getInstance() {
-        if (!ShoppingCart.instance) {
-            ShoppingCart.instance = new ShoppingCart();
-            ShoppingCart.instance.readFromCache();
+        if (!ShoppingCart.#instance) {
+            ShoppingCart.#instance = new ShoppingCart();
+            ShoppingCart.#instance.readFromCache();
         }
-        return ShoppingCart.instance;
+        return ShoppingCart.#instance;
     }
 
     /**
@@ -111,8 +113,8 @@ export class ShoppingCart {
         console.log('Call to getInstanceAsync()');
 
         // check for singleton instance first
-        if (ShoppingCart.instance) {
-            fnCallback(ShoppingCart.instance);
+        if (ShoppingCart.#instance) {
+            fnCallback(ShoppingCart.#instance);
             return;
         }
 
@@ -178,7 +180,7 @@ export class ShoppingCart {
     storeInCache() {
 
         // save last instance as singleton
-        ShoppingCart.instance = this;
+        ShoppingCart.#instance = this;
 
         // store item data in local storage
         let items = [];
@@ -261,6 +263,15 @@ export class ShoppingCart {
         }
 
         return cart;
+    }
+
+
+    /**
+     * Returns true iff there are no items in the cart.
+     * @returns {boolean}
+     */
+    isEmpty() {
+        return this.items.length === 0;
     }
 }
 
