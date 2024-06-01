@@ -1,3 +1,4 @@
+import {UrlHelper} from "../UrlHelper";
 
 
 /**
@@ -230,7 +231,8 @@ export class CommonParser {
         let $a = $node.querySelector('a');
         if (!$a) return false;
         obj.text = CommonParser.stripWhitespace($a.textContent);
-        obj.link = $a.getAttribute('href');
+        //obj.link = $a.href; //.getAttribute('href');
+        obj.link = UrlHelper.makeRelativeUrl($a.href);
         obj.image = CommonParser.getImageFromStyle($a.querySelector('.divImage'));
         return true;
     }

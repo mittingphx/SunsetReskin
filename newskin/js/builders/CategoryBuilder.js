@@ -1,4 +1,5 @@
 import {ImageHelper} from "../util/ImageHelper.js";
+import {UrlHelper} from "../UrlHelper";
 
 /**
  * Builds the HTML for the category page.

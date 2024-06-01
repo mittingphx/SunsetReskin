@@ -59,6 +59,19 @@ export class SunsetSkinHtml {
     footer = null;
 
     /**
+     * Function that gets called when a 404 is encountered.  Can be replaced
+     * by a custom handler.
+     * @param response {Response}
+     */
+    on404 = response => { alert('Page Not Found' + response.url); };
+
+    /**
+     * The event handler for monitoring the page scrolling.
+     * @type {null}
+     */
+    #scrollListener = null;
+
+    /**
      * Constructor saves copy of current webpage.
      */
     constructor() {
@@ -68,6 +81,35 @@ export class SunsetSkinHtml {
         this.oldHtmlHead.innerHTML = document.head.innerHTML;
         this.oldHtmlBody.style.display = 'none';
 
+    }
+
+    /**
+     * Loads a page from the old website, so we can extract data from it
+     * and read the new template without actually navigating to a new page,
+     * causing a bunch of flicker.
+     * @param oldUrl {string}
+     * @returns {Promise<boolean>}
+     */
+    async loadOld(oldUrl) {
+
+        const response = await fetch(oldUrl);
+        if (response.status !== 200) {
+            console.error('HTTP Error ' + response.statusText + ' while loading old html: ' + oldUrl);
+            this.on404(response);
+            return false;
+        }
+
+        const htmlContents = await response.text();
+        const document = new DOMParser().parseFromString(htmlContents, 'text/html');
+        this.oldHtmlBody.innerHTML = document.body.innerHTML;
+        this.oldHtmlHead.innerHTML = document.head.innerHTML;
+        this.oldHtmlBody.style.display = 'none';
+
+
+        // hack to block white space at bottom of page from being visible
+        this.addScrollListener()
+
+        return true;
     }
 
     /**
@@ -244,17 +286,31 @@ export class SunsetSkinHtml {
             return bodyHeight - windowHeight;
         }, 100);
 
-        // scrolling event handler
-        window.addEventListener('scroll', function() {
+        // remove old handler if needed
+        if (this.#scrollListener) {
+            this.removeScrollListener();
+        }
 
-            // prevent over-scrolling by scrolling back to the max allowed value
+        // scrolling event handler
+        this.#scrollListener = () => {
             if (window.scrollY > maxScroll.get()) {
                 window.scrollTo({
                     top: maxScroll.get(),
                     behavior: 'instant'
                 });
             }
-        });
+        };
+        window.addEventListener('scroll', this.#scrollListener);
+    }
+
+    /**
+     * Removes the scroll listener added before to prevent over-scrolling.
+     */
+    removeScrollListener() {
+        if (this.#scrollListener) {
+            window.removeEventListener('scroll', this.#scrollListener);
+            this.#scrollListener = null;
+        }
     }
 
     /**

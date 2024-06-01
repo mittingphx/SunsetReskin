@@ -29,9 +29,45 @@ import {ProductCategoryBreadcrumb} from "./parsers/CommonParser.js";
 import {SiteSearch} from "./util/SiteSearch.js";
 import {WishListBuilder} from "./builders/WishListBuilder.js";
 import {LoginStatusParser,LoginStatus} from "./parsers/LoginStatusParser.js";
+import {LinkHandler} from "./util/LinkHandler.js";
+import {UrlHelper} from "./UrlHelper.js";
+import {ProgressBar} from "./util/ProgressBar.js";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
+
+/**
+ * Settings constants for different aspects of the system.
+ */
+export class SunsetSettings {
+
+    /**
+     * Settings for each of the file types supported by this system.
+     * @type {Object.<string,{newSkinUrl: string, hasMenu: boolean, fn: string}>}
+     */
+    static fileTypes = {
+        'FrontPage': {
+            newSkinUrl: 'newskin/html/FrontPage.html',
+            hasMenu: true,
+            fn: 'buildFrontPageHtml'
+        },
+        'ItemDetail': {
+            newSkinUrl: 'newskin/html/ItemDetails.html',
+            hasMenu: true,
+            fn: 'buildProductDetailsHtml'
+        },
+        'Category': {
+            newSkinUrl: 'newskin/html/Category.html',
+            hasMenu: true,
+            fn: 'buildCategoryHtml'
+        },
+        'Cart': {
+            newSkinUrl: 'newskin/html/Cart.html',
+            hasMenu: true,
+            fn: 'buildCartHtml'
+        }
+    };
+}
 
 /**
  * Analyzes the original HTML to figure out the contents of the menu
@@ -65,6 +101,12 @@ export class SunsetSkin {
     loginStatus = null;
 
     /**
+     * Intercepts links to other pages.
+     * @type {LinkHandler}
+     */
+    linkHandler = null;
+
+    /**
      * Constructor
      */
     constructor() {
@@ -80,33 +122,72 @@ export class SunsetSkin {
         console.log('apply()');
 
         // trigger event when document.body is available
-        let bodyCallback = this.onDocumentBodyReady.bind(this);
-        let initInterval = setInterval(function() {
-            if (document.body) {
-                clearInterval(initInterval);
-                bodyCallback();
-            }
-        }, 1);
+        let initInterval = setInterval(() => {
+           if (document.body) {
+               clearInterval(initInterval);
+               this.showLoading();
+           }
+        });
 
         // trigger document.ready event
-        document.addEventListener("DOMContentLoaded", this.onWebPageLoaded.bind(this));
-    }
-
-    /**
-     * Triggered once document.body is available
-     */
-    onDocumentBodyReady() {
-        this.showLoading();
-    }
-
-    /**
-     * Triggered once the webpage has finished loading
-     */
-    onWebPageLoaded() {
-        this.loadNewSkinPage().then(_ => {
-            console.log('load webpage completed');
-            sunsetPreloader.ready();
+        document.addEventListener("DOMContentLoaded", () => {
+            this.loadNewSkinPage().then(_ => {
+                console.log('load webpage completed');
+                sunsetPreloader.ready();
+            });
         });
+
+        // monitor history
+        window.addEventListener('popstate', (event) => {
+            this.navigateTo(event.state.url).then(_ => {
+                console.log('navigate finished: ' + event.state.url);
+
+                // TODO: will need make sure any loading messages are removed
+                // sunsetPreloader.ready();
+            });
+        });
+    }
+
+    /**
+     * Navigates to a relative link within the sunset site, showing
+     * a loading message as needed while the page is loading.  The
+     * browser's History API is used to navigate within the site.
+     * @param url {string}
+     */
+    async navigateTo(url) {
+     //   window.location.href = url;
+
+        if (!this.html) {
+            console.error('navigateTo() called before loadNewSkinPage()');
+            alert('navigateTo() called before loadNewSkinPage()');
+            return;
+        }
+
+        //alert('navigateTo: ' + url);
+
+        let progress = new ProgressBar()
+        progress.anim(70, 5);
+        progress.setVisible(true);
+
+        // load both old and new page
+        let loaded = await this.html.loadOld(url)
+        if (!loaded) {
+            progress.setVisible(false);
+            console.error('loading failed.  url=' + url);
+            alert('load failed');
+            return;
+        }
+
+        // load the new page
+        //await this.loadNewSkinPage();
+
+        // update history api
+        history.pushState({ url: url }, '', url);
+
+        // let progress bar finish and show new page
+        progress.anim(100, 1);
+        window.scrollTo(0, 0);
+        setTimeout(async _ => await this.loadNewSkinPage(), 1000);
     }
 
     /**
@@ -121,34 +202,17 @@ export class SunsetSkin {
         console.log('loadNewSkinPage()');
 
         // determine settings by file type
-        let newSkinUrl = null;
-        let hasMenu = false;
-        if (this.fileType === 'FrontPage') {
-            newSkinUrl = 'newskin/html/FrontPage.html';
-            hasMenu = true;
-        }
-        else if (this.fileType === 'ItemDetail') {
-            newSkinUrl = 'newskin/html/ItemDetails.html';
-            hasMenu = true;
-        }
-        else if (this.fileType === 'Category') {
-            newSkinUrl = 'newskin/html/Category.html';
-            hasMenu = true;
-        }
-        else if (this.fileType === 'Cart') {
-            newSkinUrl = 'newskin/html/Cart.html';
-            hasMenu = true;
-        }
-        else {
+        let fileTypeSettings = SunsetSettings.fileTypes[this.fileType];
+        if (!fileTypeSettings) {
             alert('unknown page type: ' + this.fileType);
             console.error('unknown page type: ' + this.fileType);
+            return;
         }
 
         // load new page html from server if needed
-        this.html = new SunsetSkinHtml()
-
-        if (newSkinUrl) {
-            await this.html.load(newSkinUrl);
+        if (fileTypeSettings.newSkinUrl) {
+            this.html = new SunsetSkinHtml()
+            await this.html.load(fileTypeSettings.newSkinUrl);
             sunsetPreloader.transfer(this.html.newHtmlBody);
 
             // remove any loading messages from old webpage
@@ -162,38 +226,59 @@ export class SunsetSkin {
         }
         else {
             console.error('No url to load new skin from');
+            return;
         }
 
         // insert new menu data into menu html
-        if (hasMenu) {
+        if (fileTypeSettings.hasMenu) {
             this.buildMenuHtml();
         }
 
-        // insert products into the html
-        if (this.fileType === 'FrontPage') {
-            this.buildFrontPageHtml();
-        }
-        else if (this.fileType === 'ItemDetail') {
-            this.buildProductDetailsHtml();
-        }
-        else if (this.fileType === 'Category') {
-            this.buildCategoryHtml();
-        }
-        else if (this.fileType === 'Cart') {
-            this.buildCartHtml();
+        // run custom html generators for filetype
+        if (fileTypeSettings.fn) {
+            this[fileTypeSettings.fn]();
         }
 
         // setup common page controls
+        this.setupCommonPageControls();
+    }
+
+    /**
+     * Handles processing that is needed on the new skin for all pages.
+     */
+    setupCommonPageControls() {
+
+        // setup header controls
         SiteSearch.setupSearchControls();
         this.buildWishListDropdown();
 
-        // setup common controls that require use login information
+        // setup controls that require login information
         let loginParser = new LoginStatusParser(this.html.oldHtmlBody);
         loginParser.readLoginStatus(status => {
             this.loginStatus = status;
             this.buildCartDropdown();
             this.buildLoginInfo();
-        })
+        });
+
+        // intercept links so we can manually load new pages into the
+        // skin, allowing us to show loading messages for pages that
+        // take a while and to avoid seeing a flash of the old webpage
+        if (this.linkHandler) {
+            this.linkHandler.removeEventListener();
+        }
+
+        // how to handle links that pass the filters
+        let fnHandler = async $a => {
+            await this.navigateTo($a.href);
+        };
+
+        // filter out links to other websites from custom handler
+        let fnFilter = $a => {
+            return UrlHelper.urlIsOnSameDomain($a);
+        };
+
+        this.linkHandler = new LinkHandler(fnHandler, fnFilter);
+        this.linkHandler.addEventListener();
     }
 
     /**
@@ -371,7 +456,6 @@ export class SunsetSkin {
                 slideshowBuilder.addSlideshowChooseProductHandler()
             }, 100);
         }
-
 
         // set the window title
         document.title = `Sunset Wholesale West`;
