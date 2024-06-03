@@ -63,7 +63,7 @@ export class SunsetSkinHtml {
      * by a custom handler.
      * @param response {Response}
      */
-    on404 = response => { alert('Page Not Found' + response.url); };
+    on404 = response => { alert('Page Not Found: ' + response.url); };
 
     /**
      * The event handler for monitoring the page scrolling.
@@ -100,9 +100,9 @@ export class SunsetSkinHtml {
         }
 
         const htmlContents = await response.text();
-        const document = new DOMParser().parseFromString(htmlContents, 'text/html');
-        this.oldHtmlBody.innerHTML = document.body.innerHTML;
-        this.oldHtmlHead.innerHTML = document.head.innerHTML;
+        const parsedDocument = new DOMParser().parseFromString(htmlContents, 'text/html');
+        this.oldHtmlBody.innerHTML = parsedDocument.body.innerHTML;
+        this.oldHtmlHead.innerHTML = parsedDocument.head.innerHTML;
         this.oldHtmlBody.style.display = 'none';
 
 
@@ -133,10 +133,16 @@ export class SunsetSkinHtml {
             urls.push('newskin/html/footer.html');
             footerIndex = urls.length - 1;
         }
-        if (!this.newHtmlDocument || !this.newHtmlBody || !this.newHtmlHead) {
+
+        let needTemplate =  !this.newHtmlDocument || !this.newHtmlBody || !this.newHtmlHead;
+        needTemplate = true; // since we're reusing this object, we need to load the template always
+        if (needTemplate) {
             urls.push(newSkinUrl);
             templateIndex = urls.length - 1;
         }
+
+
+
         const responses = await Promise.all(urls.map(url => fetch(url)));
         const htmlContents = await Promise.all(responses.map(response => response.text()));
         const documents = htmlContents.map(html => new DOMParser().parseFromString(html, 'text/html'));

@@ -42,10 +42,11 @@ export class FileDetector {
 
     /**
      * Returns the page type of the current page.
+     * @param url {string|null} the url of the current page, or null to use the window.location
      * @returns {*|string}
      */
-    static getPageType() {
-        let filename = FileDetector.#getCurrentFilename();
+    static getPageType(url= null) {
+        let filename = FileDetector.#getCurrentFilename(url);
         for (let key in FileDetector.#PageFn) {
             let fn = FileDetector.#PageFn[key];
             if (typeof fn === 'function') {
@@ -57,11 +58,13 @@ export class FileDetector {
     }
 
     /**
-     * Returns the filename from the current url.
+     * Returns the filename from the current url, optionally passing in that current url
+     * @param currentUrl {string|null}
      * @returns {string}
      */
-    static #getCurrentFilename() {
+    static #getCurrentFilename(currentUrl = null) {
         let url = window.location.pathname;
+        if (currentUrl) url = new URL(currentUrl).pathname;
         let lastSlash = url.lastIndexOf('/');
         return lastSlash === -1 ? '' : url.substring(lastSlash + 1);
     }

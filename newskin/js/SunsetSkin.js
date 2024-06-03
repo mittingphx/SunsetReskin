@@ -178,6 +178,9 @@ export class SunsetSkin {
             return;
         }
 
+        // determine file type of new page
+        this.fileType = FileDetector.getPageType(url);
+
         // load the new page
         //await this.loadNewSkinPage();
 
@@ -185,9 +188,10 @@ export class SunsetSkin {
         history.pushState({ url: url }, '', url);
 
         // let progress bar finish and show new page
+        const NEW_SKIN_DELAY = 100;
         progress.anim(100, 1);
         window.scrollTo(0, 0);
-        setTimeout(async _ => await this.loadNewSkinPage(), 1000);
+        setTimeout(async _ => await this.loadNewSkinPage(), NEW_SKIN_DELAY);
     }
 
     /**
@@ -199,8 +203,6 @@ export class SunsetSkin {
      */
     async loadNewSkinPage() {
 
-        console.log('loadNewSkinPage()');
-
         // determine settings by file type
         let fileTypeSettings = SunsetSettings.fileTypes[this.fileType];
         if (!fileTypeSettings) {
@@ -208,10 +210,13 @@ export class SunsetSkin {
             console.error('unknown page type: ' + this.fileType);
             return;
         }
+        console.log('loadNewSkinPage()',{fileType:this.fileType, fileTypeSettings:fileTypeSettings});
 
         // load new page html from server if needed
         if (fileTypeSettings.newSkinUrl) {
-            this.html = new SunsetSkinHtml()
+            if (!this.html) {
+                this.html = new SunsetSkinHtml()
+            }
             await this.html.load(fileTypeSettings.newSkinUrl);
             sunsetPreloader.transfer(this.html.newHtmlBody);
 
