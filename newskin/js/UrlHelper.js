@@ -44,21 +44,14 @@ export class SplitUrl {
      */
     query = null;
 
+
     /**
-     * Splits an url into its server deployment, hierarchy of folders,
-     * filename, and query.
-     * @param url {string|null} the url to split, defaults to the current
-     * @returns {SplitUrl|null}
+     * Finds the base url of the copy of this website that is serving
+     * the current page, so we can determine how to convert relative
+     * urls to absolute urls.
+     * @param url {string|null}
      */
-    static parse(url = null) {
-
-        let ret = new SplitUrl()
-        ret.sourceUrl = url;
-
-        if (url && url.startsWith('http') === false) {
-            console.error('Calling SplitUrl.parse() with a relative link is not supported');
-            return null;
-        }
+    static findDeployment(url) {
 
         // list of known deployments
         let deployments = [
@@ -71,15 +64,50 @@ export class SplitUrl {
         if (!url) url = '' + document.location;
         for (let i = 0; i < deployments.length; i++) {
             if (url.startsWith(deployments[i])) {
-                ret.server = deployments[i];
-                url = url.substring(deployments[i].length);
-                break;
+                return deployments[i];
             }
         }
 
+        console.error('Url is not on a known deployment: ' + url);
+        return null;
+    }
+
+    /**
+     * Splits an url into its server deployment, hierarchy of folders,
+     * filename, and query.
+     * @param url {string|null} the url to split, defaults to the current
+     * @returns {SplitUrl|null}
+     */
+    static parse(url = null) {
+
+        let ret = new SplitUrl()
+        ret.sourceUrl = url || '' + document.location;
+
+        // if url is relative, use current location to determine deployment
+        // to support links that both start and don't start with /.
+        let deployment;
+        if (url && url.startsWith('http') === false) {
+            deployment = SplitUrl.findDeployment(null);
+        }
+        else {
+            deployment = SplitUrl.findDeployment(url);
+        }
+
+        // assign the deployment and extract the rest of the url
+        ret.server = deployment;
         if (!ret.server) {
-            console.error('Url is not on a known deployment: ' + url);
             return null;
+        }
+        if (!url) {
+            url = '' + document.location;
+        }
+        if (url.startsWith(ret.server)) {
+            url = url.substring(ret.server.length);
+        }
+
+        // remove the leading slash if still present
+        if (url.startsWith('/')) {
+            url = url.substring(1);
         }
 
         // split the url query
@@ -96,7 +124,7 @@ export class SplitUrl {
         // split the url into folders
         ret.folders = url.split('/');
         ret.filename = ret.folders.pop();
-        ret.folders = ret.folders.filter((v, i) => i > 0);
+        //ret.folders = ret.folders.filter((v, i) => i > 0);
 
         return ret;
     }
@@ -173,30 +201,6 @@ export class UrlHelper {
         if (target.query) ret += target.query;
 
         return ret;
-    }
-
-    /**
-     * Adds a slash to the end of a url if it doesn't already have one.
-     * @param url {string}
-     * @returns {string}
-     */
-    static addTrailingSlash(url) {
-        if (!url.endsWith('/')) {
-            url += '/';
-        }
-        return url;
-    }
-
-    /**
-     * Removes a slash from the end of a url if it has one.
-     * @param url {string}
-     * @returns {string}
-     */
-    static removeTrailingSlash(url) {
-        if (url.endsWith('/')) {
-            url = url.substring(0, url.length - 1);
-        }
-        return url;
     }
 
     /**

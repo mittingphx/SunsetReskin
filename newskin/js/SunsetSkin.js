@@ -89,6 +89,13 @@ export class SunsetSkin {
     html = null;
 
     /**
+     * Gets set to true when a page is being loaded using fetch() instead
+     * of redirecting the browser to a page directly.
+     * @type {boolean}
+     */
+    usingDynamicLoading = false;
+
+    /**
      * The menu of product categories displayed as a mega menu.
      * @type {SunsetMenu}
      */
@@ -164,6 +171,7 @@ export class SunsetSkin {
         }
 
         //alert('navigateTo: ' + url);
+        this.usingDynamicLoading = true;
 
         let progress = new ProgressBar()
         progress.anim(70, 5);
@@ -191,23 +199,29 @@ export class SunsetSkin {
         const NEW_SKIN_DELAY = 100;
         progress.anim(100, 1);
         window.scrollTo(0, 0);
-        setTimeout(async _ => await this.loadNewSkinPage(), NEW_SKIN_DELAY);
+        setTimeout(async _ => await this.loadNewSkinPage(url), NEW_SKIN_DELAY);
     }
 
     /**
      * Loads the webpage index.html and replaces the current
      * page's head and body with the loaded head and body, while
      * inserting data from the old page.
-     *
+     * @param newUrl {string|null} the optional url to load if we can't load by file type
      * @returns {Promise<void>}
      */
-    async loadNewSkinPage() {
+    async loadNewSkinPage(newUrl = null) {
 
         // determine settings by file type
         let fileTypeSettings = SunsetSettings.fileTypes[this.fileType];
         if (!fileTypeSettings) {
             alert('unknown page type: ' + this.fileType);
             console.error('unknown page type: ' + this.fileType);
+
+            // just redirect when using dynamic js loading.
+            if (this.usingDynamicLoading && newUrl) {
+                document.location = newUrl;
+            }
+
             return;
         }
         console.log('loadNewSkinPage()',{fileType:this.fileType, fileTypeSettings:fileTypeSettings});
@@ -688,7 +702,8 @@ export class SunsetSkin {
                 // my account button
                 let $register = document.createElement('li');
                 {
-                    $register.innerHTML = '<a href="MyAccount.aspx">My Account</a>';
+                    let url = UrlHelper.makeRelativeUrl('/MyAccount.aspx');
+                    $register.innerHTML = '<a href="' + url + '">My Account</a>';
                     $userLogin.appendChild($register);
                 }
 
@@ -696,7 +711,8 @@ export class SunsetSkin {
                 if (this.loginStatus.isAdmin) {
                     let $admin = document.createElement('li');
                     {
-                        $admin.innerHTML = '<a href="Admin/Dashboard.aspx">Admin</a>';
+                        let url = UrlHelper.makeRelativeUrl('/Admin/Dashboard.aspx');
+                        $admin.innerHTML = '<a href="' + url + '">Admin</a>';
                         $userLogin.appendChild($admin);
                     }
                 }
@@ -705,14 +721,16 @@ export class SunsetSkin {
                 // sign in button
                 let $login = document.createElement('li');
                 {
-                    $login.innerHTML = '<a href="Login/Login.aspx">Sign In</a>';
+                    let url = UrlHelper.makeRelativeUrl('/Login/Login.aspx');
+                    $login.innerHTML = '<a href="' + url + '">Sign In</a>';
                     $userLogin.appendChild($login);
                 }
 
                 // register button
                 let $register = document.createElement('li');
                 {
-                    $register.innerHTML = '<a href="MyAccount.aspx">Register</a>';
+                    let url = UrlHelper.makeRelativeUrl('/MyAccount.aspx');
+                    $register.innerHTML = '<a href="' + url + '">Register</a>';
                     $userLogin.appendChild($register);
                 }
             }

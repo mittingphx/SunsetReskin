@@ -125,7 +125,7 @@ export class SunsetPreload {
         // fade out
         let $div = this.#$preloader;
         let alpha = 1.0;
-        const delta = 0.01;
+        const delta = 0.05;
         let me = this;
         let animHandle = setInterval(function () {
             if (!me.#isConnected()) {
