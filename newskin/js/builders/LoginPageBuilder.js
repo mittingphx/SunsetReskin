@@ -39,50 +39,29 @@ export class LoginPageBuilder {
             $regAccount: '#reg-acctNo',
         }))
 
-        /*
-        let $newUsername = $loginForm.querySelector('#reg-email');
-        let $newPassword = $loginForm.querySelector('#reg-pass');
-        let $newRememberMe = $loginForm.querySelector('#reg-remember');
-        if (!$newUsername || !$newPassword || !$newRememberMe) {
-            console.error('Could not find all login form elements!');
-            return;
-        }
-
-        // grab new form buttons
-        let $newSubmit = $loginForm.querySelector('#reg-submit');
-        let $newForgot = $loginForm.querySelector('#reg-forgot');
-        let $newRegister = $loginForm.querySelector('#reg-register');
-        if (!$newSubmit || !$newForgot || !$newRegister) {
-            console.error('Could not find all login form buttons!');
-            return;
-        }
-
-        let $newError = $loginForm.querySelector('.error');
-        if (!$newError) {
-            console.error('Could not find login form error message!');
-            return;
-        }
-*/
         // show the error message if there is one
         if (loginForm.errorMessage) {
             data.$newError.innerText = loginForm.errorMessage;
         }
 
-        // login form binding
-        DomHelper.bindFormInputs( data.$newUsername, loginForm.$username);
-        DomHelper.bindFormInputs( data.$newPassword, loginForm.$password);
-        DomHelper.bindFormInputs( data.$newRememberMe, loginForm.$chkRememberMe);
+        // bind input elements on new skin to original form fields
+        DomHelper.bindAllFormInputs([
+            // login form bindings
+            { from: data.$newUsername, to: loginForm.$username },
+            { from: data.$newPassword, to: loginForm.$password },
+            { from: data.$newRememberMe, to: loginForm.$chkRememberMe },
 
-        // registration form binding
-        DomHelper.bindFormInputs( data.$regEmail, loginForm.$regEmail);
-        DomHelper.bindFormInputs( data.$regPass, loginForm.$regPassword);
-        DomHelper.bindFormInputs( data.$regPassConfirm, loginForm.$regConfirmPassword);
-        DomHelper.bindFormInputs( data.$regFirstName, loginForm.$regFirstName);
-        DomHelper.bindFormInputs( data.$regLastName, loginForm.$regLastName);
-        DomHelper.bindFormInputs( data.$regCompany, loginForm.$regCompany);
-        DomHelper.bindFormInputs( data.$regAccount, loginForm.$regAcctNo);
+            // registration form bindings
+            { from: data.$regEmail, to: loginForm.$regEmail },
+            { from: data.$regPass, to: loginForm.$regPassword },
+            { from: data.$regPassConfirm, to: loginForm.$regConfirmPassword },
+            { from: data.$regFirstName, to: loginForm.$regFirstName },
+            { from: data.$regLastName, to: loginForm.$regLastName },
+            { from: data.$regCompany, to: loginForm.$regCompany },
+            { from: data.$regAccount, to: loginForm.$regAcctNo }
+        ]);
 
-        // add event listeners for buttons
+        // login button
         data.$newSubmit.addEventListener('click', _ => {
 
             // make sure there's an email address entered
@@ -101,12 +80,11 @@ export class LoginPageBuilder {
                 return;
             }
 
-
             // press the login button
             loginForm.$btnSubmit.click();
         });
 
-        // show forgot password
+        // forgot password button
         data.$newForgot.addEventListener('click', _ => {
 
             // make sure there's an email address entered
@@ -123,7 +101,34 @@ export class LoginPageBuilder {
             loginForm.$btnForgotPassword.click();
         });
 
-        // show registration form
+        // register account button
+        data.$regAccount.addEventListener('click', _ => {
+
+            // make sure there's an email address entered
+            if (!data.$regEmail.value) {
+                alert('Please enter an email address before pressing Register');
+                return;
+            }
+            if (!Format.isEmail(data.$regEmail)) {
+                alert('The value "' + data.$regEmail.value + '" is not a valid email.');
+                return;
+            }
+
+            // make sure there's a password entered
+            if (!data.$regPass.value) {
+                alert('Please enter a password before pressing Register');
+                return;
+            }
+            if (!data.$regPass.value !== data.$regPassConfirm.value) {
+                alert('The passwords do not match');
+                return;
+            }
+
+            // click the register button
+            data.$regBtnSubmit.click();
+        })
+
+        // show registration form from login
         data.$newRegister.addEventListener('click', _ => {
             document.querySelector('#panel-register').style.display = 'block';
             document.querySelector('#panel-login').style.display = 'none';
@@ -132,7 +137,7 @@ export class LoginPageBuilder {
             }, 250);
         });
 
-        // show login form
+        // show login form from registration
         data.$newLogin.addEventListener('click', _ => {
             document.querySelector('#panel-register').style.display = 'none';
             document.querySelector('#panel-login').style.display = 'block';

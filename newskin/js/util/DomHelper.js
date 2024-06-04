@@ -1,4 +1,13 @@
 /**
+ * Project: Sunset Wholesale West Website
+ * File:    DomHelper.js
+ * Author:  Scott Mitting
+ * Date:    2024-06-04
+ * Abstract:
+ * Algorithms for dealing with the document object model.
+ */
+
+/**
  * Helper methods for dealing with the document object model.
  */
 export class DomHelper {
@@ -39,10 +48,21 @@ export class DomHelper {
     }
 
     /**
+     * Binds several form fields together from an array of objects
+     * with the properties from and to.
+     * @param bindings {{from: HTMLElement, to: HTMLElement}[]}
+     */
+    static bindAllFormInputs(bindings) {
+        for (let binding of bindings) {
+            DomHelper.bindFormInputs(binding.from, binding.to);
+        }
+    }
+
+    /**
      * Binds two form fields together so a change in one causes a
      * change in the other.
-     * @param $source
-     * @param $target
+     * @param $source {HTMLElement}
+     * @param $target {HTMLElement}
      */
     static bindFormInputs($source, $target) {
 
@@ -98,7 +118,7 @@ export class DomHelper {
         }
 
         // add appropriate event (always 'change' so far)
-        $source.addEventListener('change', event => {
+        $source.addEventListener('change', _ => {
             fnSetValue(fnGetValue());
         });
     }

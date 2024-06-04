@@ -8,33 +8,34 @@
  *
  */
 
+import {FileDetector} from "./FileDetector.js";
 import {SunsetPreload} from "./SunsetPreload.js";
 import {SunsetSkinHtml} from "./SunsetSkinHtml.js";
-import {FileDetector} from "./FileDetector.js";
 
-import {FrontPageSpecialsParser} from "./parsers/FrontPageSpecialsParser.js";
-import {SunsetMenuParser} from "./parsers/SunsetMenuParser.js";
-import {ProductDetailParser} from "./parsers/ProductDetailParser.js";
 import {CategoryParser} from "./parsers/CategoryParser.js";
-
-import {FrontPageSpecialsBuilder} from "./builders/FrontPageSpecialsBuilder.js";
-import {SunsetMenuBuilder} from "./builders/SunsetMenuBuilder.js";
-import {ProductBreadcrumbBuilder, ProductDetailBuilder} from "./builders/ProductDetailBuilder.js";
-import {CategoryBuilder} from "./builders/CategoryBuilder.js";
-import {SlideshowParser} from "./parsers/SlideshowParser.js";
-import {SlideshowBuilder} from "./builders/SlideshowBuilder.js";
-import {ShoppingCart, ViewCartParser} from "./parsers/ViewCartParser.js";
-import {ViewCartBuilder} from "./builders/ViewCartBuilder.js";
 import {ProductCategoryBreadcrumb} from "./parsers/CommonParser.js";
-import {SiteSearch} from "./util/SiteSearch.js";
-import {WishListBuilder} from "./builders/WishListBuilder.js";
-import {LoginStatusParser,LoginStatus} from "./parsers/LoginStatusParser.js";
-import {LinkHandler} from "./util/LinkHandler.js";
-import {UrlHelper} from "./UrlHelper.js";
-import {ProgressBar} from "./util/ProgressBar.js";
+import {FrontPageSpecialsParser} from "./parsers/FrontPageSpecialsParser.js";
 import {LoginPageParser} from "./parsers/LoginPageParser.js";
+import {LoginStatusParser,LoginStatus} from "./parsers/LoginStatusParser.js";
+import {ProductDetailParser} from "./parsers/ProductDetailParser.js";
+import {SlideshowParser} from "./parsers/SlideshowParser.js";
+import {SunsetMenuParser} from "./parsers/SunsetMenuParser.js";
+import {ShoppingCart, ViewCartParser} from "./parsers/ViewCartParser.js";
+
+import {CategoryBuilder} from "./builders/CategoryBuilder.js";
+import {FrontPageSpecialsBuilder} from "./builders/FrontPageSpecialsBuilder.js";
 import {LoginPageBuilder} from "./builders/LoginPageBuilder.js";
+import {ProductBreadcrumbBuilder, ProductDetailBuilder} from "./builders/ProductDetailBuilder.js";
+import {SlideshowBuilder} from "./builders/SlideshowBuilder.js";
+import {SunsetMenuBuilder} from "./builders/SunsetMenuBuilder.js";
+import {ViewCartBuilder} from "./builders/ViewCartBuilder.js";
+import {WishListBuilder} from "./builders/WishListBuilder.js";
+
 import {DomHelper} from "./util/DomHelper.js";
+import {LinkHandler} from "./util/LinkHandler.js";
+import {ProgressBar} from "./util/ProgressBar.js";
+import {SiteSearch} from "./util/SiteSearch.js";
+import {UrlHelper} from "./UrlHelper.js";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
@@ -667,7 +668,7 @@ export class SunsetSkin {
     }
 
     /**
-     * Inserts current information about the logged in user into the
+     * Inserts current information about the logged-in user into the
      * header.
      */
     buildLoginInfo() {

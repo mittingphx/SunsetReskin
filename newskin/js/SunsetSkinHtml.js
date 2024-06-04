@@ -9,6 +9,7 @@
  */
 
 import {TimedMemoizer} from "./util/TimedMemoizer.js";
+import {UrlHelper} from "./UrlHelper.js";
 
 /**
  * Stores the old and new HTML sections of the website.
@@ -121,9 +122,9 @@ export class SunsetSkinHtml {
 
         let headerIndex = -1;
         let footerIndex = -1;
-        let templateIndex = -1;
+        let templateIndex;
 
-        // load all needed files in parallel
+        // gather files to load
         let urls = [];
         if (!this.header) {
             urls.push('newskin/html/header.html');
@@ -134,15 +135,24 @@ export class SunsetSkinHtml {
             footerIndex = urls.length - 1;
         }
 
-        let needTemplate =  !this.newHtmlDocument || !this.newHtmlBody || !this.newHtmlHead;
-        needTemplate = true; // since we're reusing this object, we need to load the template always
-        if (needTemplate) {
+        //let needTemplate =  !this.newHtmlDocument || !this.newHtmlBody || !this.newHtmlHead;
+        // since we're reusing this object, we need to load the template always
+        //if (needTemplate) {
             urls.push(newSkinUrl);
             templateIndex = urls.length - 1;
-        }
+        //}
+
+        // make the relative urls be based on the root of the website
+        // (no longer needed, since all urls are relative to the base url)
+        /*
+        for (let i = 0; i < urls.length; i++) {
+            if (!urls[i].startsWith('http')) {
+                urls[i] = UrlHelper.makeRelativeUrl(urls[i]);
+            }
+        }*/
 
 
-
+        // load the template files in parallel
         const responses = await Promise.all(urls.map(url => fetch(url)));
         const htmlContents = await Promise.all(responses.map(response => response.text()));
         const documents = htmlContents.map(html => new DOMParser().parseFromString(html, 'text/html'));
@@ -173,6 +183,12 @@ export class SunsetSkinHtml {
             document.body.classList.add('popup-mode');
         }
 
+        // by changing the base url to the deployment location, all the
+        // references that are relative to the base continue to work even
+        // when in sub-folders like login/ and admin/.
+        let base = document.createElement('base');
+        base.href = UrlHelper.getDeployment();
+        document.head.appendChild(base);
     };
 
     /**

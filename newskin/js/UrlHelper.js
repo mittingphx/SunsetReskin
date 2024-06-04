@@ -51,7 +51,7 @@ export class SplitUrl {
      * urls to absolute urls.
      * @param url {string|null}
      */
-    static findDeployment(url) {
+    static findDeployment(url= null) {
 
         // list of known deployments
         let deployments = [
@@ -141,6 +141,14 @@ export class UrlHelper {
      */
     static getBaseUrl() {
         return window.location.origin;
+    }
+
+    /**
+     * Gets the base deployment url of the running website.
+     * @returns {string}
+     */
+    static getDeployment() {
+        return SplitUrl.findDeployment(null);
     }
 
     /**

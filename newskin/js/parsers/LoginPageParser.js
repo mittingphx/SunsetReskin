@@ -60,7 +60,7 @@ export class LoginPageForm {
     $regPassword = null;
 
     /**
-     * Reference to the confirm password text box on the registration form.
+     * Reference to the confirm-password text box on the registration form.
      * @type {HTMLInputElement|null}
      */
     $regConfirmPassword = null;
@@ -121,18 +121,7 @@ export class LoginPageParser {
      * @returns {LoginPageForm}
      */
     getLoginForm() {
-
         let ret = new LoginPageForm();
-
-        // grab DOM references
-        /*
-        ret.$username = this.sourceDocument.querySelector('#MainContent_TxtReturningEmail');
-        ret.$password = this.sourceDocument.querySelector('#MainContent_TxtReturningPassword');
-        ret.$chkRememberMe = this.sourceDocument.querySelector('#MainContent_ChkRememberMe');
-        ret.$btnSubmit = this.sourceDocument.querySelector('#MainContent_BtnLogin');
-        ret.$btnForgotPassword = this.sourceDocument.querySelector('#MainContent_BtnForgotPassword');
-*/
-
         DomHelper.addElementsByQuery(ret, this.sourceDocument, {
             // dom elements on login form
             $username: '#MainContent_TxtReturningEmail',
@@ -153,22 +142,10 @@ export class LoginPageParser {
             $regCompany: '#MainContent_TxtCompany',
             $regAcctNo: '#MainContent_TxtAcctNo',
             $regBtnSubmit: '#MainContent_BtnContinue'
-
         });
-
-/*
-        // grab error message
-        let $error = this.sourceDocument.querySelector('#MainContent_LblReturningError');
-        if ($error) {
-            ret.errorMessage = $error.innerText;
-        }
-*/
         if (ret.$error) {
             ret.errorMessage = ret.$error.innerText;
         }
-
-
         return ret;
     }
-
 }
