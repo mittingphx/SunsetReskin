@@ -503,8 +503,12 @@ export class SunsetSkin {
             $registerForm: 'form.account-register-form'
         })) return;
 
+        // build the form
         let builder = new LoginPageBuilder()
         builder.build(loginForm, data.$loginForm, data.$registerForm);
+
+        // set the window title
+        document.title = `Login - Sunset Wholesale West`;
     }
 
 

@@ -177,7 +177,6 @@ export class SunsetSkinHtml {
         this.newHtmlDocument.querySelector('footer').replaceWith(this.footer);
         this.replaceDocument(this.newHtmlDocument);
 
-
         // if the query has mode=window then we hide the header and footer
         if (window.location.search.indexOf('mode=window') >= 0) {
             document.body.classList.add('popup-mode');
@@ -189,6 +188,21 @@ export class SunsetSkinHtml {
         let base = document.createElement('base');
         base.href = UrlHelper.getDeployment();
         document.head.appendChild(base);
+
+        // if we're on the dev server, add a bunch of test links
+        if (base.href.indexOf('localhost') >= 0) {
+
+            let testLinks = document.createElement('div');
+            testLinks.innerHTML = `
+            <a href="swwest_detail.html">test detail</a>
+            <a href="swwest_category.html">test category</a>
+            <a href="swwest_cart.html">test cart</a>
+            <a href="swwest_copy.html">test front page</a>
+            <a href="swwest_login.html">test login</a>
+            `;
+            document.querySelector('.nav-social').appendChild(testLinks);
+        }
+
     };
 
     /**
