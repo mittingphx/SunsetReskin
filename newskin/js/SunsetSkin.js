@@ -32,6 +32,9 @@ import {LoginStatusParser,LoginStatus} from "./parsers/LoginStatusParser.js";
 import {LinkHandler} from "./util/LinkHandler.js";
 import {UrlHelper} from "./UrlHelper.js";
 import {ProgressBar} from "./util/ProgressBar.js";
+import {LoginPageParser} from "./parsers/LoginPageParser.js";
+import {LoginPageBuilder} from "./builders/LoginPageBuilder.js";
+import {DomHelper} from "./util/DomHelper.js";
 
 // launch preloader as soon as possible
 let sunsetPreloader = new SunsetPreload();
@@ -65,6 +68,11 @@ export class SunsetSettings {
             newSkinUrl: 'newskin/html/Cart.html',
             hasMenu: true,
             fn: 'buildCartHtml'
+        },
+        'Login': {
+            newSkinUrl: 'newskin/html/Login.html',
+            hasMenu: true,
+            fn: 'buildLoginPageHtml'
         }
     };
 }
@@ -480,6 +488,24 @@ export class SunsetSkin {
         document.title = `Sunset Wholesale West`;
     }
 
+    /**
+     * Builds the login form.
+     */
+    buildLoginPageHtml() {
+
+        let parser = new LoginPageParser(this.html.oldHtmlBody);
+        let loginForm = parser.getLoginForm();
+
+        let data = {};
+        if (!DomHelper.addElementsByQuery(data, {
+            $loginForm: 'form.login-form',
+            $registerForm: 'form.account-register-form'
+        })) return;
+
+        let builder = new LoginPageBuilder()
+        builder.build(loginForm, data.$loginForm, data.$registerForm);
+    }
+
 
     /**
      * Builds the category and search pages.
@@ -702,7 +728,7 @@ export class SunsetSkin {
                 // my account button
                 let $register = document.createElement('li');
                 {
-                    let url = UrlHelper.makeRelativeUrl('/MyAccount.aspx');
+                    let url = UrlHelper.makeRelativeUrl('/Login/MyAccount.aspx');
                     $register.innerHTML = '<a href="' + url + '">My Account</a>';
                     $userLogin.appendChild($register);
                 }
@@ -729,7 +755,7 @@ export class SunsetSkin {
                 // register button
                 let $register = document.createElement('li');
                 {
-                    let url = UrlHelper.makeRelativeUrl('/MyAccount.aspx');
+                    let url = UrlHelper.makeRelativeUrl('/Login/MyAccount.aspx');
                     $register.innerHTML = '<a href="' + url + '">Register</a>';
                     $userLogin.appendChild($register);
                 }

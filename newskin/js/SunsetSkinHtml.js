@@ -167,6 +167,12 @@ export class SunsetSkinHtml {
         this.newHtmlDocument.querySelector('footer').replaceWith(this.footer);
         this.replaceDocument(this.newHtmlDocument);
 
+
+        // if the query has mode=window then we hide the header and footer
+        if (window.location.search.indexOf('mode=window') >= 0) {
+            document.body.classList.add('popup-mode');
+        }
+
     };
 
     /**

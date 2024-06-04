@@ -37,7 +37,7 @@ export class FileDetector {
         ItemDetail: [ 'ItemDetail.aspx', 'swwest_detail.html'],
         Cart: [ 'ViewCart.aspx', 'swwest_cart.html' ],
         ContactUs: [ 'ContactUs.aspx' ],
-        Login: [ 'Login.aspx' ]
+        Login: [ 'Login.aspx', 'swwest_login.html' ]
     };
 
     /**

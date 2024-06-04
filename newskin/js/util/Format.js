@@ -11,4 +11,17 @@ export class Format {
     static money(value) {
         return '$' + value.toFixed(2);
     }
+
+    /**
+     * Returns true iff the value (or input with a value) entered contains a valid email
+     * @param value {string|HTMLInputElement}
+     * @returns {boolean}
+     */
+    static isEmail(value) {
+        if (value instanceof HTMLInputElement) {
+            value = value.value;
+        }
+
+        return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(value);
+    }
 }
