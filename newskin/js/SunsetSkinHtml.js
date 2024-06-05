@@ -12,6 +12,68 @@ import {TimedMemoizer} from "./util/TimedMemoizer.js";
 import {UrlHelper} from "./UrlHelper.js";
 
 /**
+ * Uses the window title to display messages for advanced users.
+ */
+export class WindowTitleAlert {
+
+    /**
+     * Singleton instance of this object.
+     * @type {WindowTitleAlert}
+     */
+    static #instance = new WindowTitleAlert();
+
+    /**
+     * The title to change the window back to.
+     * @type {string|null}
+     */
+    #oldTitle = null;
+
+    /**
+     * The handle to the timeout for the window title message.
+     * @type {number|null}
+     */
+    #windowTitleMessageTimeout = null;
+
+    /**
+     * Changes the window title for 5 seconds to provide a confirmation to advance-level users.
+     * @param msg {string} message to display
+     */
+    static showMessage(msg) {
+        WindowTitleAlert.#instance.#showMessageInWindowTitle(msg);
+    }
+
+    /**
+     * Instance method to display the message in the window title.
+     * You should use the static method instead.
+     * @param msg {string}
+     */
+    #showMessageInWindowTitle(msg) {
+
+        console.log(msg);
+
+        // check if we are already restoring the title message,
+        // so we restore it to that one instead of another message
+        // we displayed in the last 5 seconds
+        if (this.#windowTitleMessageTimeout) {
+            clearTimeout(this.#windowTitleMessageTimeout);
+            this.#windowTitleMessageTimeout = null;
+        }
+        else {
+            this.#oldTitle = document.title;
+        }
+
+        // set the title to the newest message but restore it in 5
+        // seconds from now to whatever the original title was
+        document.title = msg;
+        this.#windowTitleMessageTimeout = setTimeout(_ => {
+            document.title = this.#oldTitle;
+            this.#oldTitle = null;
+            this.#windowTitleMessageTimeout = null;
+        }, 5000);
+    }
+}
+
+/**
  * Stores the old and new HTML sections of the website.
  */
 export class SunsetSkinHtml {
@@ -73,6 +135,12 @@ export class SunsetSkinHtml {
     #scrollListener = null;
 
     /**
+     * Enable/disable the over-shoot scrolling listener.
+     * @type {boolean}
+     */
+    #scrollListenerEnabled = true;
+
+    /**
      * Constructor saves copy of current webpage.
      */
     constructor() {
@@ -109,6 +177,7 @@ export class SunsetSkinHtml {
 
         // hack to block white space at bottom of page from being visible
         this.addScrollListener()
+        this.addKeyListener();
 
         return true;
     }
@@ -184,8 +253,14 @@ export class SunsetSkinHtml {
         }
 
         // use new template with header inserted
-        this.newHtmlDocument.querySelector('header').replaceWith(this.header);
-        this.newHtmlDocument.querySelector('footer').replaceWith(this.footer);
+        let $newHeader = this.newHtmlDocument.querySelector('header');
+        if ($newHeader) {
+            $newHeader.replaceWith(this.header);
+        }
+        let $newFooter = this.newHtmlDocument.querySelector('footer');
+        if ($newFooter) {
+            $newFooter.replaceWith(this.footer);
+        }
         this.replaceDocument(this.newHtmlDocument);
 
         // if the query has mode=window then we hide the header and footer
@@ -317,11 +392,12 @@ export class SunsetSkinHtml {
         this.toggle('new');
 
         // hack to block white space at bottom of page from being visible
-        this.addScrollListener()
+        this.addScrollListener();
+        this.addKeyListener();
     }
 
     /**
-     * Adds scroll listener to prevent over-scrolling.
+     * Adds scroll listener to prevent over-scrolling and a hot-key to disable it.
      */
     addScrollListener() {
 
@@ -342,11 +418,14 @@ export class SunsetSkinHtml {
 
         // remove old handler if needed
         if (this.#scrollListener) {
-            this.removeScrollListener();
+            window.removeEventListener('scroll', this.#scrollListener);
+            this.#scrollListener = null;
         }
 
         // scrolling event handler
+        this.#scrollListenerEnabled = true;
         this.#scrollListener = () => {
+            if (!this.#scrollListenerEnabled) return;
             if (window.scrollY > maxScroll.get()) {
                 window.scrollTo({
                     top: maxScroll.get(),
@@ -355,17 +434,54 @@ export class SunsetSkinHtml {
             }
         };
         window.addEventListener('scroll', this.#scrollListener);
+
     }
 
     /**
-     * Removes the scroll listener added before to prevent over-scrolling.
+     * Adds keyboard event handlers.
      */
-    removeScrollListener() {
-        if (this.#scrollListener) {
-            window.removeEventListener('scroll', this.#scrollListener);
-            this.#scrollListener = null;
-        }
+    addKeyListener() {
+
+        let lastKey = null;
+        let $hiddenDiv = this.#findHiddenOldBody();
+        window.addEventListener('keydown', (e) => {
+            // toggle over-scroll checking enabled with hot-key
+            if (e.key === 'Escape' && e.key === lastKey) {
+                lastKey = null;
+                this.#scrollListenerEnabled = !this.#scrollListenerEnabled;
+                WindowTitleAlert.showMessage('Over-scroll check ' + (this.#scrollListenerEnabled ? 'enabled' : 'disabled'));
+            }
+            // toggle making the old page visible
+            else if (e.key === '`' && e.key === lastKey) {
+                lastKey = null;
+                if ($hiddenDiv) {
+                    $hiddenDiv.style.display = $hiddenDiv.style.display === 'none' ? 'block' : 'none';
+                    WindowTitleAlert.showMessage('Old page: ' + ($hiddenDiv.style.display === 'none' ? 'hidden' : 'visible'));
+                }
+            }
+            else {
+                lastKey = e.key;
+            }
+        });
     }
+
+    /**
+     * Returns the old page's hidden element by searching the DOM
+     * rather than relying on a reference from a previous page loud.
+     * @returns {HTMLDivElement|null}
+     */
+    #findHiddenOldBody() {
+        let $body = document.body;
+        let children = $body.children;
+        for (let i = children.length - 1; i >= 0; i--) {
+            if (children[i].tagName !== 'DIV') continue;
+            if (!children[i].style) continue;
+            if (children[i].style.display !== 'none') continue;
+            return children[i];
+        }
+        return null;
+    }
+
 
     /**
      * Removes HTML elements from the old document.

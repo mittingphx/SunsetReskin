@@ -1,5 +1,5 @@
 import {UrlHelper} from "../UrlHelper.js";
-import {DomHelper} from "../util/DomHelper";
+import {DomHelper} from "../util/DomHelper.js";
 
 /**
  * The contents of the customer's shopping cart.
