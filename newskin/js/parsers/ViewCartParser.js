@@ -1,3 +1,5 @@
+import {UrlHelper} from "../UrlHelper.js";
+
 /**
  * The contents of the customer's shopping cart.
  */
@@ -242,8 +244,8 @@ export class ShoppingCart {
 
         try {
             // grab from server
-            // TODO: need to check that we're in the root folder so we're pointing at the correct url
-            const response = await fetch('ViewCart.aspx');
+            const url = UrlHelper.getDeployment() + 'ViewCart.aspx';
+            const response = await fetch(url);
             if (response.status !== 200) {
                 console.error('HTTP Error ' + response.statusText + ' while loading cart data');
                 return null;

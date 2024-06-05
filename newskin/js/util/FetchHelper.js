@@ -1,3 +1,5 @@
+import {UrlHelper} from "../UrlHelper.js";
+
 /**
  * One url and element to read in a set to multi-fetch.
  */
@@ -21,7 +23,7 @@ export class FetchQueryItem {
      * @param query
      */
     constructor(url, query) {
-        this.url = url;
+        this.url = UrlHelper.makeRelativeUrl(url);
         this.query = query;
     }
 }

@@ -174,8 +174,12 @@ export class UrlHelper {
     static makeRelativeUrl(url) {
         let ret = '';
 
+        // parse the url, returning input if either fails to parse
         let target = SplitUrl.parse(url);
         let current = SplitUrl.parse(null);
+        if (target === null || current === null) {
+            return url;
+        }
 
         // we're going to allow different deployments, because localhost sometimes gets links to swwest.com that don't work
         /*

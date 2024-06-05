@@ -119,6 +119,7 @@ export class SunsetSkinHtml {
      * @returns {Promise<void>}
      */
     async load(newSkinUrl) {
+        console.log('load() ' + newSkinUrl);
 
         let headerIndex = -1;
         let footerIndex = -1;
@@ -134,22 +135,15 @@ export class SunsetSkinHtml {
             urls.push('newskin/html/footer.html');
             footerIndex = urls.length - 1;
         }
-
-        //let needTemplate =  !this.newHtmlDocument || !this.newHtmlBody || !this.newHtmlHead;
-        // since we're reusing this object, we need to load the template always
-        //if (needTemplate) {
-            urls.push(newSkinUrl);
-            templateIndex = urls.length - 1;
-        //}
+        urls.push(newSkinUrl);
+        templateIndex = urls.length - 1;
 
         // make the relative urls be based on the root of the website
-        // (no longer needed, since all urls are relative to the base url)
-        /*
         for (let i = 0; i < urls.length; i++) {
             if (!urls[i].startsWith('http')) {
                 urls[i] = UrlHelper.makeRelativeUrl(urls[i]);
             }
-        }*/
+        }
 
 
         // load the template files in parallel
@@ -172,6 +166,23 @@ export class SunsetSkinHtml {
             this.newHtmlDocument = documents[templateIndex];
         }
 
+        // fix relative stylesheet links when in a sub-folder
+        if (this.newHtmlDocument) {
+            this.newHtmlDocument.querySelectorAll('link').forEach(link => {
+                let originalLink = link.href;
+                if (link.href.indexOf('cloudflare.com') >= 0) {
+                    return;
+                }
+                let relativeLink = UrlHelper.makeRelativeUrl(originalLink);
+                //console.log('mapping <link>: ' + originalLink + ' -> ' + relativeLink);
+                if (relativeLink === originalLink) {
+                    return;
+                }
+
+                link.href = relativeLink;
+            });
+        }
+
         // use new template with header inserted
         this.newHtmlDocument.querySelector('header').replaceWith(this.header);
         this.newHtmlDocument.querySelector('footer').replaceWith(this.footer);
@@ -187,9 +198,10 @@ export class SunsetSkinHtml {
         // when in sub-folders like login/ and admin/.
         let base = document.createElement('base');
         base.href = UrlHelper.getDeployment();
-        document.head.appendChild(base);
+        document.head.prepend(base);
 
         // if we're on the dev server, add a bunch of test links
+        /*
         if (base.href.indexOf('localhost') >= 0) {
 
             let testLinks = document.createElement('div');
@@ -201,7 +213,7 @@ export class SunsetSkinHtml {
             <a href="swwest_login.html">test login</a>
             `;
             document.querySelector('.nav-social').appendChild(testLinks);
-        }
+        }*/
 
     };
 
