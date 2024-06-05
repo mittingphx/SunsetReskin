@@ -15,8 +15,8 @@ export class DomHelper {
     /**
      * Adds fields to an object by query selector.
      * @param data {object} object to add results to
-     * @param $parent {HTMLElement|Object.<string,string>} parent element to pull from (optional)
-     * @param selectors {HTMLElement|Object<string, string>} map of property names to query selectors
+     * @param $parent {HTMLElement|Document|Object.<string,string>} parent element to pull from (optional)
+     * @param selectors {HTMLElement|Document|Object<string, string>} map of property names to query selectors
      * @returns {boolean} true iff all elements were found
      */
     static addElementsByQuery(data, $parent, selectors= null) {

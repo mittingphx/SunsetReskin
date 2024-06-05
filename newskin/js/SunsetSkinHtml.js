@@ -169,7 +169,7 @@ export class SunsetSkinHtml {
         // fix relative stylesheet links when in a sub-folder
         if (this.newHtmlDocument) {
             this.newHtmlDocument.querySelectorAll('link').forEach(link => {
-                let originalLink = link.href;
+                let originalLink = link.getAttribute('href');
                 if (link.href.indexOf('cloudflare.com') >= 0) {
                     return;
                 }

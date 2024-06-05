@@ -436,53 +436,49 @@ export class SunsetSkin {
     buildFrontPageHtml() {
         console.log('buildFrontPageHtml()');
 
-        // find the table containing product data
-        let $table = this.html.oldHtmlBody.querySelector('.ItemSpecials');
-        if (!$table) {
-            console.error('Could not find table with class "ItemSpecials"');
-            return;
-        }
-
-        // find where we're going to insert the sections
-        let $insertionPoint = document.querySelector('.insert-products');
-        if (!$insertionPoint) {
-            console.error('Could not find insertion point!');
-            return;
-        }
+        // grab DOM references
+        let dom = {};
+        DomHelper.addElementsByQuery(dom, this.html.oldHtmlBody, {
+            $table: '.ItemSpecials'
+        });
+        DomHelper.addElementsByQuery(dom, document, {
+            $insertionPoint: '.insert-products',
+            $slideshowInsertion: '.slider-head'
+        });
 
         // parse from the old to build the new specials
-        let parser = new FrontPageSpecialsParser();
-        let specials = parser.readNodesFromTable($table);
-        console.log({specials:specials});
+        if (dom.$table) {
+            let parser = new FrontPageSpecialsParser();
+            let specials = parser.readNodesFromTable(dom.$table);
+            console.log({specials: specials});
 
-        let builder = new FrontPageSpecialsBuilder();
-        builder.buildFrontPageProducts(specials, $insertionPoint);
+            if (dom.$insertionPoint) {
+                let builder = new FrontPageSpecialsBuilder();
+                builder.buildFrontPageProducts(specials, dom.$insertionPoint);
+            }
+        }
 
         // set up the slide show using slides from the old page
         let slideshowParser = new SlideshowParser();
         let slideshow = slideshowParser.readSlidesFromDocument(this.html.oldHtmlBody);
-        let $slideshowInsertion = document.querySelector('.slider-head');
-        if (!$slideshowInsertion) {
-            console.error('Could not find slideshow insertion point');
-            return;
-        }
-
         console.log({slideshow:slideshow});
-        let slideshowBuilder = new SlideshowBuilder(slideshow);
-        if (slideshow.length === 0) {
-            let $missingSlideshow = document.createElement('div');
-            $missingSlideshow.classList.add('slider-head');
-            $missingSlideshow.innerHTML = '<div class="hero-slider">ERROR: Slideshow contains no slides.</div>';
-            $slideshowInsertion.replaceWith($missingSlideshow);
-        }
-        else {
-            $slideshowInsertion.replaceWith(slideshowBuilder.build());
-            slideshowBuilder.setupSlideshow();
 
-            // wait until page has settled down to process custom content
-            setTimeout(() => {
-                slideshowBuilder.addSlideshowChooseProductHandler()
-            }, 100);
+        if (dom.$slideshowInsertion) {
+            let slideshowBuilder = new SlideshowBuilder(slideshow);
+            if (slideshow.length === 0) {
+                let $missingSlideshow = document.createElement('div');
+                $missingSlideshow.classList.add('slider-head');
+                $missingSlideshow.innerHTML = '<div class="hero-slider">ERROR: Slideshow contains no slides.</div>';
+                dom.$slideshowInsertion.replaceWith($missingSlideshow);
+            } else {
+                dom.$slideshowInsertion.replaceWith(slideshowBuilder.build());
+                slideshowBuilder.setupSlideshow();
+
+                // wait until page has settled down to process custom content
+                setTimeout(() => {
+                    slideshowBuilder.addSlideshowChooseProductHandler()
+                }, 100);
+            }
         }
 
         // set the window title
@@ -497,15 +493,15 @@ export class SunsetSkin {
         let parser = new LoginPageParser(this.html.oldHtmlBody);
         let loginForm = parser.getLoginForm();
 
-        let data = {};
-        if (!DomHelper.addElementsByQuery(data, {
+        let dom = {};
+        if (!DomHelper.addElementsByQuery(dom, {
             $loginForm: 'form.login-form',
             $registerForm: 'form.account-register-form'
         })) return;
 
         // build the form
         let builder = new LoginPageBuilder()
-        builder.build(loginForm, data.$loginForm, data.$registerForm);
+        builder.build(loginForm, dom.$loginForm, dom.$registerForm);
 
         // set the window title
         document.title = `Login - Sunset Wholesale West`;

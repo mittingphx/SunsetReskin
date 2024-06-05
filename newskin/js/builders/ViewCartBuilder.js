@@ -558,6 +558,17 @@ export class ViewCartBuilder {
                     }
                 }
 
+                // cart error
+                if (cart.errorMessage) {
+                    let $ul = document.createElement('ul');
+                    {
+                        $ul.classList.add('error-list');
+                        $divShopping.appendChild($ul);
+
+                        $ul.innerHTML = '<li>' + cart.errorMessage + '</li>';
+                    }
+                }
+
                 // cart items
                 let $ul = document.createElement('ul');
                 {
@@ -580,11 +591,7 @@ export class ViewCartBuilder {
 
                     if (!cart.isEmpty()) {
 
-
-
-
-
-                            let $total = document.createElement('div');
+                        let $total = document.createElement('div');
                         {
                             $total.classList.add('total');
                             $footer.appendChild($total);
@@ -603,7 +610,7 @@ export class ViewCartBuilder {
                             }
                         }
 
-                        if (loginStatus.loggedIn === false) {
+                        if (!loginStatus || loginStatus.loggedIn === false) {
                             let $btn = document.createElement('div');
                             {
                                 $btn.innerHTML = 'You need to Sign In to checkout your cart.';

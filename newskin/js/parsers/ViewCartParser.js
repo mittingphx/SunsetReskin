@@ -1,4 +1,5 @@
 import {UrlHelper} from "../UrlHelper.js";
+import {DomHelper} from "../util/DomHelper";
 
 /**
  * The contents of the customer's shopping cart.
@@ -24,6 +25,12 @@ export class ShoppingCart {
      * @type {CartProductItem[]}
      */
     items = [];
+
+    /**
+     * Error message reported by the server (usually cart is empty)
+     * @type {string|null}
+     */
+    errorMessage = null;
 
     /**
      * The submit button in the shopping cart.
@@ -134,8 +141,11 @@ export class ShoppingCart {
             if (!cart) {
                 fnCallback(new ShoppingCart());
             }
+            else {
+                fnCallback(cart);
+            }
         }).then(() => {
-            fnCallback(cart);
+            // moved callback to above
         });
     }
 
@@ -247,8 +257,10 @@ export class ShoppingCart {
             const url = UrlHelper.getDeployment() + 'ViewCart.aspx';
             const response = await fetch(url);
             if (response.status !== 200) {
-                console.error('HTTP Error ' + response.statusText + ' while loading cart data');
-                return null;
+                console.error('HTTP Error ' + response.statusText + ' while loading cart data.  Returning cached cart.');
+                cart = ShoppingCart.getInstance();
+                cart.errorMessage = 'HTTP Error ' + response.status + ' (' + response.statusText + ')';
+                return cart;
             }
 
             const htmlContent = await response.text();
@@ -450,28 +462,40 @@ export class ViewCartParser {
      * @returns {ShoppingCart}
      */
     readCart() {
-        let $table = this.source.querySelector('.ViewCart');
-        if (!$table) {
-            console.error('could not find table using selector: .ViewCart');
-            return null;
-        }
 
-        //.TablePadded
-        let $tableSummary = this.source.querySelector('table#MainContent_TblSumm');
-        if (!$tableSummary) {
-            console.error('could not find table using selector: table#MainContent_TblSumm');
-            return null;
-        }
+        // grab cart elements from DOM
+        let dom = {};
+        DomHelper.addElementsByQuery(dom, this.source, {
+            $table: '.ViewCart',
+            $tableSummary: 'table#MainContent_TblSumm',
+            $error: 'span#MainContent_LblError'
+        })
 
-
-
+        // create cart with any error received
         let cart = new ShoppingCart()
-        cart.items = this.readCartProducts($table);
-        cart.$oldShipping = $tableSummary.querySelector('select#MainContent_DropShipMethod');
-        cart.$oldPO = $tableSummary.querySelector('input#MainContent_TxtPONumber');
-        cart.$oldMessage = $tableSummary.querySelector('input#MainContent_TxtMessage');
-        cart.$btnSubmit = $tableSummary.querySelector('input#MainContent_BtnCheckOut');
-        cart.$btnUpdate = $table.querySelector('input#MainContent_BtnUpdateCart');
+        if (dom.$error) {
+            console.warn('Cart error: ' + dom.$error.textContent);
+            cart.errorMessage = dom.$error.textContent;
+        }
+
+        // fill cart items and submit button
+        if (dom.$table) {
+            cart.items = this.readCartProducts(dom.$table);
+            cart.$btnUpdate = dom.$table.querySelector('input#MainContent_BtnUpdateCart');
+        }
+        else {
+            cart.items = [];
+        }
+
+        // fill cart with DOM references from summary table
+        if (dom.$tableSummary) {
+            DomHelper.addElementsByQuery(cart, dom.$tableSummary, {
+                $oldShipping: 'select#MainContent_DropShipMethod',
+                $oldPO: 'input#MainContent_TxtPONumber',
+                $oldMessage: 'input#MainContent_TxtMessage',
+                $btnSubmit: 'input#MainContent_BtnCheckOut'
+            })
+        }
 
         cart.storeInCache();
         return cart;

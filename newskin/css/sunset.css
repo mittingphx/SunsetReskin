@@ -310,3 +310,7 @@ body.popup-mode .breadcrumbs {
 .shopping-list li:hover {
     box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
 }
+
+.error-list {
+    color: red;
+}
