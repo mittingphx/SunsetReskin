@@ -10,6 +10,9 @@
  */
 
 
+import {Tween} from "./util/Tween.js";
+import {Range} from "./util/Range.js";
+
 /**
  * Class controlling the display of a preloader over the website until
  * it is completely loaded.
@@ -36,15 +39,39 @@ export class SunsetPreload {
     #$preloader = null;
 
     /**
+     * Object that fades out the preloader
+     * @type {Tween}
+     */
+    #tween = null;
+
+    /**
+     * Singleton instance.
+     */
+    static #instance = null;
+
+    /**
      * Adds the assets needed to hide the website and displays the
      * drapes to the end user immediately.
      */
     constructor() {
+        SunsetPreload.#instance = this;
+        this.#setupTween();
         this.#addAssets();
         this.#showDrapes();
 
         const rate = 1000 / 30;  // 30fps
-        this.#checkInterval = setInterval(this.preload.bind(this), rate);
+        this.#checkInterval = setInterval(_ => this.preload(), rate);
+    }
+
+    /**
+     * Returns a singleton instance, creating a new instance if needed.
+     * @returns {SunsetPreload}
+     */
+    static getInstance() {
+        if (!SunsetPreload.#instance) {
+            SunsetPreload.#instance = new SunsetPreload();
+        }
+        return SunsetPreload.#instance;
     }
 
     /**
@@ -63,7 +90,7 @@ export class SunsetPreload {
      */
     ready() {
         this.stopChecking();
-        this.#showSite();
+        this.fadeOutPreloader();
     }
 
     /**
@@ -73,6 +100,7 @@ export class SunsetPreload {
     preload() {
         if (!this.#isConnected()) {
             this.#assetsAdded = false;
+            this.#addAssets()
         }
         this.#showDrapes();
     }
@@ -110,40 +138,50 @@ export class SunsetPreload {
      * Hides the website with a preloader panel.
      */
     #showDrapes() {
-        this.#addAssets();
         this.#$preloader.style.display = 'block';
     }
 
     /**
-     * Hides the preloader, revealing the website.
+     * Fades out the preloader overlay over a period of time in milliseconds.
+     * @param time {number} default 2000 = 2.0 seconds
      */
-    #showSite() {
-        this.#addAssets();
-        //alert('temp no hide');
-        // this.#$preloader.style.display = 'none';
+    fadeOutPreloader(time = 2000) {
+        this.#setupTween();
+        this.#tween.duration = time;
+        this.#tween.start();
+    }
 
-        // fade out
-        let $div = this.#$preloader;
-        let alpha = 1.0;
-        const delta = 0.05;
-        let me = this;
-        let animHandle = setInterval(function () {
-            if (!me.#isConnected()) {
-                me.#addAssets();
-                $div = me.#$preloader;
-            }
+    /**
+     * Removes the preloader overlay immediately.
+     */
+    static hidePreloader() {
+        SunsetPreload.getInstance().fadeOutPreloader(0);
+    }
 
-            alpha -= delta;
-            //console.log({alpha:alpha});
+    /**
+     * Sets up the tween object to fade out the preloader.
+     */
+    #setupTween() {
+        if (this.#tween) return;
 
-            $div.style.display = 'block';
-            $div.style.opacity = '' + alpha;
-            //$div.style.background = 'rgba(0,0,0,' + alpha + ')';
-            if (alpha <= 0) {
-                $div.style.display = 'none';
-                clearInterval(animHandle);
-            }
-        }, 20);
+        this.#tween = new Tween((tween, progress)=> {
+            this.#setAlpha(progress);
+        }, new Range(1, 0), 2000);
+    }
+
+    /**
+     * Sets the opacity of the preloader from the tween.
+     * @param value {number} the new opacity value
+     */
+    #setAlpha(value) {
+        if (value <= 0) {
+            this.#$preloader.style.display = 'none';
+            this.#$preloader.style.opacity = '' + value;
+        }
+        else {
+            this.#$preloader.style.display = 'block';
+            this.#$preloader.style.opacity = '' + value;
+        }
     }
 
     /**
@@ -159,7 +197,17 @@ export class SunsetPreload {
             return;
         }
 
+        // grab reference to preloader if already exists
+        if (this.#$preloader === null) {
+            this.#$preloader = document.getElementById('divSunsetPreloader');
+            if (this.#$preloader !== null) {
+                console.log('reusing preloader');
+                this.#assetsAdded = true;
+                return;
+            }
+        }
 
+        // create preloader
         let $div = document.createElement('div');
         $div.id = 'divSunsetPreloader';
         $div.style.position = 'fixed';
@@ -188,6 +236,5 @@ export class SunsetPreload {
 
         document.body.appendChild($div)
         this.#assetsAdded = true;
-
     }
 }

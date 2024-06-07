@@ -53,6 +53,14 @@ export class SplitUrl {
      */
     static findDeployment(url= null) {
 
+        let originalUrl = url;
+
+        // if url is relative, use current location to determine deployment
+        if (!url) url = '' + document.location;
+        if (url.startsWith('http') === false) {
+            url = '' + document.location;
+        }
+
         // list of known deployments
         let deployments = [
             'https://swwest.com/reskin/',
@@ -61,14 +69,19 @@ export class SplitUrl {
         ];
 
         // find which domain we're on
-        if (!url) url = '' + document.location;
         for (let i = 0; i < deployments.length; i++) {
             if (url.startsWith(deployments[i])) {
                 return deployments[i];
             }
         }
 
-        console.error('Url is not on a known deployment: ' + url);
+        // report an error if we didn't find a match
+        if (url !== originalUrl) {
+            console.error('Url is not on a known deployment: ' + originalUrl + ' (using ' + url + ')');
+        }
+        else {
+            console.error('Url is not on a known deployment: ' + originalUrl);
+        }
         return null;
     }
 
@@ -136,6 +149,20 @@ export class SplitUrl {
 export class UrlHelper {
 
     /**
+     * Returns true if the current url is on localhost.  Borrowed from React.
+     * @returns {boolean}
+     */
+    static isLocalhost = Boolean(
+        window.location.hostname === 'localhost' ||
+        // [::1] is the IPv6 localhost address.
+        window.location.hostname === '[::1]' ||
+        // 127.0.0.1/8 is considered localhost for IPv4.
+        window.location.hostname.match(
+            /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
+        )
+    );
+
+    /**
      * Returns the base URL of the current page.
      * @returns {string}
      */
@@ -167,53 +194,45 @@ export class UrlHelper {
     }
 
     /**
-     * Converts an absolute URL pointing at https://swwest.com to a
-     * relative url that can be used to navigate to the same page.
+     * Converts a relative url to an absolute url to resolve some problems
+     * fetch was having dealing with relative urls when using the history
+     * API while changing sub-folders.
      * @param url {string}
      */
-    static makeRelativeUrl(url) {
-        let ret = '';
+    static makeAbsoluteUrl(url) {
 
-        // parse the url, returning input if either fails to parse
-        let target = SplitUrl.parse(url);
-        let current = SplitUrl.parse(null);
-        if (target === null || current === null) {
+        let linkDeployment = SplitUrl.findDeployment(url);
+        let currentDeployment = SplitUrl.findDeployment(null);
+
+        // if url is for an offsite link, just use that
+        if (!linkDeployment) {
             return url;
         }
 
-        // we're going to allow different deployments, because localhost sometimes gets links to swwest.com that don't work
-        /*
-        if (target.server !== current.server) {
-            console.error('UrlHelper.makeRelativeUrl() called with a url that is not on the same deployment: ' + url);
-            return url;
-        }
-        */
-
-        // get depth of folders that is the same for both
-        let skipFolderCount = 0;
-        for (let i = 0; i < current.folders.length; i++) {
-            if (current.folders[i] !== target.folders[i]) {
-                skipFolderCount = i;
-                break;
-            }
+        // if url contains its deployment url, strip it out
+        if (url.startsWith(linkDeployment)) {
+            url = url.substring(linkDeployment.length);
         }
 
-        // get number of folders we need to walk up to get to the common folder
-        for (let i = skipFolderCount; i < current.folders.length; i++) {
-            ret += '../';
-        }
-
-        // add the remaining folders to make the target a relative url
-        for (let i = skipFolderCount; i < target.folders.length; i++) {
-            ret += target.folders[i] + '/';
-        }
-
-        // add back the filename and query
-        if (target.filename) ret += target.filename;
-        if (target.query) ret += target.query;
-
-        return ret;
+        // re-home the url to the current page's deployment server
+        return new URL(url, currentDeployment).toString();
     }
+
+    /**
+     * Finds all <a> tags and maps their hrefs to absolute urls.
+     * @param $parent
+     */
+    static mapLinks($parent) {
+        console.log('mapLinks', $parent);
+        $parent.querySelectorAll('a').forEach((a) => {
+            let oldHref = a.href
+            a.href = UrlHelper.makeAbsoluteUrl(oldHref);
+            if (oldHref !== a.href) {
+                console.log('UrlHelper.mapLinks() mapped ' + oldHref + ' to ' + a.href);
+            }
+        });
+    }
+
 
     /**
      * Convert a full size image url to a thumbnail image url
@@ -232,4 +251,14 @@ export class UrlHelper {
     static toFullSize(src) {
         return src.replace('thn.', '.');
     }
+}
+
+/**
+ * Short version of UrlHelper.makeAbsoluteUrl() that can more easily
+ * be embedded in html generating code.
+ * @param url {string}
+ * @returns {string}
+ */
+export function fixUrl(url) {
+    return UrlHelper.makeAbsoluteUrl(url);
 }

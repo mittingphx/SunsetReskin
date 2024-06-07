@@ -1,4 +1,4 @@
-import {UrlHelper} from "../UrlHelper.js";
+import {fixUrl} from "../UrlHelper.js";
 
 /**
  * One url and element to read in a set to multi-fetch.
@@ -23,7 +23,8 @@ export class FetchQueryItem {
      * @param query
      */
     constructor(url, query) {
-        this.url = UrlHelper.makeRelativeUrl(url);
+        //this.url = UrlHelper.makeRelativeUrl(url);
+        this.url = fixUrl(url);
         this.query = query;
     }
 }
@@ -135,21 +136,6 @@ export class FetchQueryList {
 export class FetchHelper {
 
     /**
-     * Takes a url like '/ItemDetail.aspx?ItemNo=1234' and returns 'https://swwest.com/reskin/ItemDetail.aspx?ItemNo=1234'
-     * @param url
-     * @returns {*|string}
-     */
-    static makeRelativeUrl(url) {
-        if (url.startsWith('http')) {
-            return url;
-        }
-        if (!url.startsWith('/')) {
-            url = '/' + url;
-        }
-        return 'https://swwest.com/reskin' + url;
-    }
-
-    /**
      * Fetches all the urls needed to grab the requested elements
      * simultaneously, returning the innerHTML of each.
      * @param queryList {FetchQueryList}
@@ -178,7 +164,17 @@ export class FetchHelper {
                 console.error( 'Could not find element with query: ' + query.query + ' in url: ' + query.url);
                 continue;
             }
-            results[key] = $element.innerHTML;;
+            switch ($element.tagName) {
+                case 'IMG':
+                    results[key] = $element.src;
+                    break;
+                case 'INPUT':
+                    results[key] = $element.value;
+                    break;
+                default:
+                    results[key] = $element.innerHTML;
+                    break;
+            }
         }
         return results;
     }

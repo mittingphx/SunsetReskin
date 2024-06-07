@@ -9,6 +9,7 @@
 
 import {UrlHelper} from "../UrlHelper.js";
 import {CommonParser} from "./CommonParser.js";
+import {Format} from "../util/Format.js";
 
 /**
  * Model class for parsed product detail data.
@@ -85,10 +86,22 @@ export class ProductDetailItem {
     pallet = '';
 
     /**
-     * Price for this product.
+     * Price pulled from old page before processing.
      * @type {string}
      */
-    price = '';
+    priceString = '';
+
+    /**
+     * Price per unit for this product.
+     * @type {number}
+     */
+    unitPrice = 0;
+
+    /**
+     * Price per case for this product.
+     * @type {number}
+     */
+    casePrice = 0;
 
     /**
      * Price before discount is applied.
@@ -108,11 +121,22 @@ export class ProductDetailItem {
      */
     options = [];
 
+
     /**
-     * Price per case for this product.
-     * @type {string}
+     * Gets the price of the item per case with formatting, including leading $
+     * @returns {string}
      */
-    casePrice = '';
+    getCasePrice() {
+        return Format.formatPrice(this.casePrice);
+    }
+
+    /**
+     * Gets the price of the item per unit with formatting, including leading $
+     * @returns {string}
+     */
+    getUnitPrice() {
+        return Format.formatPrice(this.unitPrice);
+    }
 
 }
 
@@ -205,7 +229,7 @@ export class ProductDetailParser {
             'ItemNo': 'itemNo',
             'UPC': 'upc',
             'Palette': 'pallet',
-            'Price': 'price'
+            'Price': 'priceString'
         };
 
         // check each span within the details area
@@ -223,6 +247,30 @@ export class ProductDetailParser {
             if (key in propMap) {
                 ret[propMap[key]] = $spans[i].textContent;
             }
+        }
+
+        // extract prices
+        let txtPrice = ret.priceString;
+        let hasPerCase = ret.priceString.indexOf('per case') !== -1;
+        let hasPerUnit = ret.priceString.indexOf('per unit') !== -1;
+
+        if (hasPerCase) {
+            let end = ret.priceString.indexOf('per case');
+            let strPrice = ret.priceString.substring(0, end);
+            ret.casePrice = Format.parsePrice(strPrice);
+        }
+        else {
+            ret.casePrice = 0;
+        }
+
+        if (hasPerUnit) {
+            let start = ret.priceString.indexOf('[') + 1;
+            let end = ret.priceString.indexOf(']');
+            let strPrice = ret.priceString.substring(start, end);
+            ret.unitPrice = Format.parsePrice(strPrice);
+        }
+        else {
+            ret.unitPrice = 0;
         }
 
         // grab the category breadcrumbs

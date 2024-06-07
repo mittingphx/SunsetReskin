@@ -1,4 +1,5 @@
 import {WishListBuilder} from "../builders/WishListBuilder.js";
+import {Format} from "./Format.js";
 
 /**
  * An item stored in the wish list data.
@@ -49,14 +50,19 @@ export class WishListItem {
         this.itemNo = props.itemNo;
         this.text = props.text;
         this.image = props.image;
-        let price = null;
-        if (!props.price && props.casePrice) {
+
+        let price;
+        if (props.casePrice) {
             price = props.casePrice;
+        }
+        else if (props.unitPrice) {
+            price = props.unitPrice;
         }
         else {
             price = props.price;
         }
-        if (price === 'Login to View') {
+
+        if (price === 'Login to View' || props.price === 'Login to View' || props.priceString === 'Login to View') {
             this.price = 0;
             this.hasPrice = false;
         }
@@ -68,8 +74,6 @@ export class WishListItem {
         this.timestamp = props.timestamp;
     }
 
-
-
     /**
      * Returns the link to the item detail page.
      * @returns {string}
@@ -78,6 +82,13 @@ export class WishListItem {
         return 'ItemDetail.aspx?ItemNo=' + this.itemNo + '&ReturnURL=ViewCart.aspx';
     }
 
+    /**
+     * Returns the price of the item with formatting, including leading $
+     * @returns {string}
+     */
+    getPrice() {
+        return Format.formatPrice(this.price);
+    }
 
 }
 

@@ -36,9 +36,7 @@ import {LinkHandler} from "./util/LinkHandler.js";
 import {ProgressBar} from "./util/ProgressBar.js";
 import {SiteSearch} from "./util/SiteSearch.js";
 import {UrlHelper} from "./UrlHelper.js";
-
-// launch preloader as soon as possible
-let sunsetPreloader = new SunsetPreload();
+import {LoginStatusBuilder} from "./builders/LoginStatusBuilder.js";
 
 /**
  * Settings constants for different aspects of the system.
@@ -123,10 +121,34 @@ export class SunsetSkin {
     linkHandler = null;
 
     /**
+     * True once the loading has completed
+     * @type {boolean}
+     */
+    finishedLoading = false;
+
+    /**
+     * Most recent instance of this object.
+     * @type {SunsetSkin}
+     */
+    static #instance = null;
+
+    /**
      * Constructor
      */
     constructor() {
+        SunsetSkin.#instance = this;
         this.fileType = FileDetector.getPageType();
+    }
+
+    /**
+     * Gets the most recent instance of this object.
+     * @returns {SunsetSkin}
+     */
+    static getInstance() {
+        if (!SunsetSkin.#instance) {
+            SunsetSkin.#instance = new SunsetSkin();
+        }
+        return this.#instance;
     }
 
     /**
@@ -149,7 +171,7 @@ export class SunsetSkin {
         document.addEventListener("DOMContentLoaded", () => {
             this.loadNewSkinPage().then(_ => {
                 console.log('load webpage completed');
-                sunsetPreloader.ready();
+                SunsetPreload.getInstance().ready();
             });
         });
 
@@ -162,6 +184,32 @@ export class SunsetSkin {
                 // sunsetPreloader.ready();
             });
         });
+    }
+
+    /**
+     * Completely eliminates all trace of the preloader from the page.
+     */
+    removePreloader() {
+        SunsetPreload.hidePreloader();
+
+        if (this.html) {
+            this.html.removeElementsFromOld('#divSunsetPreloader');
+            this.html.removeElementsFromOld('.preloader');
+        }
+        else {
+            let list = document.querySelectorAll('#divSunsetPreloader');
+            for (let i = 0; i < list.length; i++) {
+                list[i].remove();
+            }
+
+            list = document.querySelectorAll('.preloader');
+            for (let i = 0; i < list.length; i++) {
+                list[i].remove();
+            }
+        }
+
+
+        this.finishedLoading = true;
     }
 
     /**
@@ -198,9 +246,6 @@ export class SunsetSkin {
         // determine file type of new page
         this.fileType = FileDetector.getPageType(url);
 
-        // load the new page
-        //await this.loadNewSkinPage();
-
         // update history api
         history.pushState({ url: url }, '', url);
 
@@ -226,27 +271,25 @@ export class SunsetSkin {
             alert('unknown page type: ' + this.fileType);
             console.error('unknown page type: ' + this.fileType);
 
+            // hide the loading screen for unknown file types
+            this.removePreloader();
+
             // just redirect when using dynamic js loading.
             if (this.usingDynamicLoading && newUrl) {
                 document.location = newUrl;
             }
-
             return;
         }
         console.log('loadNewSkinPage()',{fileType:this.fileType, fileTypeSettings:fileTypeSettings});
 
         // load new page html from server if needed
         if (fileTypeSettings.newSkinUrl) {
-            if (!this.html) {
-                this.html = new SunsetSkinHtml()
-            }
+            this.html = this.html || new SunsetSkinHtml()
             await this.html.load(fileTypeSettings.newSkinUrl);
-            sunsetPreloader.transfer(this.html.newHtmlBody);
+            SunsetPreload.getInstance().transfer(this.html.newHtmlBody);
 
             // remove any loading messages from old webpage
-            this.html.removeElementsFromOld('#divSunsetPreloader');
-            this.html.removeElementsFromOld('.preloader');
-            this.finishedLoaded = true;
+            this.removePreloader();
 
             // show toggle so we can switch back and forth between
             // the new skin and the old skin
@@ -264,48 +307,54 @@ export class SunsetSkin {
 
         // run custom html generators for filetype
         if (fileTypeSettings.fn) {
+            console.log('Running custom html generator: ' + fileTypeSettings.fn + '()');
             this[fileTypeSettings.fn]();
         }
 
         // setup common page controls
-        this.setupCommonPageControls();
+        SiteSearch.setupSearchControls();
+        this.buildWishListDropdown();
+        this.updateLoginStatus();
+        this.setupLinkHandler();
     }
 
     /**
-     * Handles processing that is needed on the new skin for all pages.
+     * Renders the wish list dropdown on every page.
      */
-    setupCommonPageControls() {
+    buildWishListDropdown() {
+        document.querySelector('.ddl-wishlist')
+            .replaceWith(new WishListBuilder().build());
+    }
 
-        // setup header controls
-        SiteSearch.setupSearchControls();
-        this.buildWishListDropdown();
+    /**
+     * Sets up controls that need the login status.
+     */
+    updateLoginStatus() {
+        // TODO: this may require re-loading pages.
+        new LoginStatusParser(this.html.oldHtmlBody)
+            .readLoginStatus(status => {
+                this.loginStatus = status;
+                this.buildCartDropdown();
+                this.buildLoginInfo();
+            });
+    }
 
-        // setup controls that require login information
-        let loginParser = new LoginStatusParser(this.html.oldHtmlBody);
-        loginParser.readLoginStatus(status => {
-            this.loginStatus = status;
-            this.buildCartDropdown();
-            this.buildLoginInfo();
-        });
+    /**
+     * Intercept links so we can manually load new pages into the
+     * skin, allowing us to show loading messages for pages that
+     * take a while and to avoid seeing a flash of the old webpage
+     */
+    setupLinkHandler() {
 
-        // intercept links so we can manually load new pages into the
-        // skin, allowing us to show loading messages for pages that
-        // take a while and to avoid seeing a flash of the old webpage
+        // remove old handler if needed
         if (this.linkHandler) {
             this.linkHandler.removeEventListener();
         }
 
-        // how to handle links that pass the filters
-        let fnHandler = async $a => {
-            await this.navigateTo($a.href);
-        };
-
-        // filter out links to other websites from custom handler
-        let fnFilter = $a => {
-            return UrlHelper.urlIsOnSameDomain($a);
-        };
-
-        this.linkHandler = new LinkHandler(fnHandler, fnFilter);
+        // how to handle links and which links to handle
+        this.linkHandler = new LinkHandler(
+            async $a => { await this.navigateTo($a.href);},
+                     $a => { return UrlHelper.urlIsOnSameDomain($a);});
         this.linkHandler.addEventListener();
     }
 
@@ -326,32 +375,12 @@ export class SunsetSkin {
 
         // load cart in the background
         ShoppingCart.getInstanceAsync(cart => {
-            console.log('buildCartDropdown() got cort', cart);
-
-            let builder = new ViewCartBuilder();
-            let $dropdown = builder.buildCartDropdown(cart, this.loginStatus);
-            if (!$insertionPoint) {
-                console.error('Could not find insertion point! (.ddl-cart)');
-                return;
-            }
-            $insertionPoint.replaceWith($dropdown);
+            $insertionPoint.replaceWith(
+                new ViewCartBuilder()
+                    .buildCartDropdown(cart, this.loginStatus)
+            );
         })
     }
-
-    /**
-     * Renders the wish list dropdown on every page.
-     */
-    buildWishListDropdown() {
-        let builder = new WishListBuilder();
-        let $dropdown = builder.build();
-        let $insertionPoint = document.querySelector('.ddl-wishlist');
-        if (!$insertionPoint) {
-            console.error('Could not find insertion point! (.ddl-wishlist)');
-            return;
-        }
-        $insertionPoint.replaceWith($dropdown);
-    }
-
 
     /**
      * Creates the events for the new skin toggle in the upper right.
@@ -395,12 +424,10 @@ export class SunsetSkin {
     showLoading() {
 
         // don't show load screen if we've already finished
-        if (this.finishedLoaded) return;
+        if (this.finishedLoading) return;
 
         // show the preloader's loading screen
-        if (sunsetPreloader) {
-            sunsetPreloader.preload();
-        }
+        SunsetPreload.getInstance().preload(); // TODO: probably not needed, as constructor calls this
     }
 
     /**
@@ -434,7 +461,6 @@ export class SunsetSkin {
      * the section data loaded from the old page.
      */
     buildFrontPageHtml() {
-        console.log('buildFrontPageHtml()');
 
         // grab DOM references
         let dom = {};
@@ -512,7 +538,6 @@ export class SunsetSkin {
      * Builds the category and search pages.
      */
     buildCategoryHtml() {
-        console.log('buildCategoryHtml()');
 
         // find the table containing product data
         let $table = this.html.oldHtmlBody.querySelector('.Items');
@@ -611,7 +636,6 @@ export class SunsetSkin {
      *  the product data loaded from the old page.
      */
     buildProductDetailsHtml() {
-        console.log('buildProductDetailsHtml()');
 
         // find where we're going to insert the product details
         let $insertionPoint = document.querySelector('.insert-product-details');
@@ -639,8 +663,6 @@ export class SunsetSkin {
     }
 
     buildCartHtml() {
-
-        console.log('buildCartHtml()');
 
         // find where we're going to insert the product details
         let $insertionPoint = document.querySelector('.shopping-cart');
@@ -673,95 +695,17 @@ export class SunsetSkin {
      */
     buildLoginInfo() {
 
-        // TODO: move to LoginStatusBuilder class?
-
+        // grab insertion point
         let $topEnd = document.querySelector('.top-end');
         if (!$topEnd) {
             console.error('Could not find .top-end');
             return;
         }
-        $topEnd.innerHTML = '';
 
-        // username display
-        let $user = document.createElement('div');
-        {
-            $user.classList.add('user');
-            $topEnd.appendChild($user);
-
-            $user.innerHTML = '<i class="lni lni-user"></i>';
-
-            if (this.loginStatus.loggedIn) {
-                $user.innerHTML += ` ${this.loginStatus.email}`;
-            }
-            else {
-                $user.innerHTML += ' Not Logged In';
-            }
-        }
-
-        // user buttons
-        let $userLogin = document.createElement('ul');
-        {
-            $userLogin.classList.add('user-login');
-            $topEnd.appendChild($userLogin);
-
-            if (this.loginStatus.loggedIn) {
-
-                let $btnSignOut = this.html.oldHtmlBody.querySelector('#LBtnLogOut');
-                if (!$btnSignOut) {
-                    console.error('Could not find #LBtnLogOut');
-                }
-
-                // sign out button
-                let $login = document.createElement('li');
-                {
-                    let $aSignOut = $login.querySelector('a');
-                    {
-                        $aSignOut.title = 'Sign Out';
-                        $aSignOut.href = 'javascript:void(0)';
-                        $login.appendChild($aSignOut);
-                        $aSignOut.addEventListener('click', function() {
-                            $btnSignOut.click();
-                        });
-                    }
-                    $userLogin.appendChild($login);
-                }
-
-                // my account button
-                let $register = document.createElement('li');
-                {
-                    let url = UrlHelper.makeRelativeUrl('/Login/MyAccount.aspx');
-                    $register.innerHTML = '<a href="' + url + '">My Account</a>';
-                    $userLogin.appendChild($register);
-                }
-
-                // admin button
-                if (this.loginStatus.isAdmin) {
-                    let $admin = document.createElement('li');
-                    {
-                        let url = UrlHelper.makeRelativeUrl('/Admin/Dashboard.aspx');
-                        $admin.innerHTML = '<a href="' + url + '">Admin</a>';
-                        $userLogin.appendChild($admin);
-                    }
-                }
-            }
-            else {
-                // sign in button
-                let $login = document.createElement('li');
-                {
-                    let url = UrlHelper.makeRelativeUrl('/Login/Login.aspx');
-                    $login.innerHTML = '<a href="' + url + '">Sign In</a>';
-                    $userLogin.appendChild($login);
-                }
-
-                // register button
-                let $register = document.createElement('li');
-                {
-                    let url = UrlHelper.makeRelativeUrl('/Login/MyAccount.aspx');
-                    $register.innerHTML = '<a href="' + url + '">Register</a>';
-                    $userLogin.appendChild($register);
-                }
-            }
-        }
+        // create status info
+        let builder = new LoginStatusBuilder();
+        let $loginStatus = builder.build(this.loginStatus);
+        $topEnd.replaceWith($loginStatus);
 
     }
 }

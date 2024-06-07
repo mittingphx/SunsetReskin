@@ -1,6 +1,8 @@
 import { LoginPageForm} from "../parsers/LoginPageParser.js";
 import {DomHelper} from "../util/DomHelper.js";
 import {Format} from "../util/Format.js";
+import {UrlHelper} from "../UrlHelper.js";
+import {SunsetSkin} from "../SunsetSkin.js";
 
 /**
  * Connects the new skin's login page to the old skin's functionality.
@@ -62,7 +64,8 @@ export class LoginPageBuilder {
         ]);
 
         // login button
-        data.$newSubmit.addEventListener('click', _ => {
+        data.$newSubmit.addEventListener('click', (event) => {
+            event.preventDefault();
 
             // make sure there's an email address entered
             if (!data.$newUsername.value) {
@@ -80,8 +83,113 @@ export class LoginPageBuilder {
                 return;
             }
 
-            // press the login button
-            loginForm.$btnSubmit.click();
+            // open the login page in a new window
+            let loginUrl = new URL('Login/Login.aspx?reskin=0', UrlHelper.getDeployment()).href
+            let wnd = window.open(loginUrl, '_blank', 'width=1,height=1');
+
+            // code to inject into new window
+            function injectScript() {
+                let $email = document.querySelector('#MainContent_TxtReturningEmail');
+                let $password = document.querySelector('#MainContent_TxtReturningPassword');
+                let $button = document.querySelector('#MainContent_BtnLogin');
+                console.log({ body: document.body });
+
+                let allGood = true;
+                if (!$email) {
+                    console.error('could not find email field! (#MainContent_TxtReturningEmail)');
+                    allGood = false;
+                }
+                if (!$password) {
+                    console.error('could not find password field! (#MainContent_TxtReturningPassword)');
+                    allGood = false;
+                }
+                if (!$button) {
+                    console.error('could not find login button! (#MainContent_BtnLogin)');
+                    allGood = false;
+                }
+
+                if (allGood) {
+                    console.log('attempting to login...');
+                    $email.value = '%%USERNAME%%';
+                    $password.value = '%%PASSWORD%%';
+                    $button.click();
+                    setTimeout(_ => {
+                        wnd.close();
+                    }, 1000);
+                }
+                else {
+                    console.log('could not access login form... already logged in?')
+                    setTimeout(_ => {
+                        document.location = '/sunset/Login/Login.aspx?reskin=0';
+                    }, 1000);
+                }
+            }
+
+            // inject code into new window
+            let newScript = document.createElement('script');
+            let js = injectScript.toString();
+            js = js.replace('%%USERNAME%%', data.$newUsername.value);
+            js = js.replace('%%PASSWORD%%', data.$newPassword.value);
+            newScript.innerHTML = js + ' injectScript();';
+
+            // wait until window can receive an injected script
+            let interval = setInterval(_ => {
+                if (wnd && wnd.document && wnd.document.body) {
+
+                    // wait until there's actually something in the body;
+                    if (wnd.document.body.innerText.length === 0) {
+                        return;
+                    }
+
+                    // inject the new script
+                    let head = wnd.document.head.outerHTML;
+                    let body = wnd.document.body.outerHTML;
+                    body = body.replace('</body>', newScript.outerHTML + "</body>");
+                    body = body.replace('<script type="module" src="/reskin/NewSkin.js"></script>', '');
+                    body = body.replace('<script type="module" src="NewSkin.js"></script>', '');
+
+                    let html = '<html lang="en">' + head + body + '</html>';
+                    console.log(html);
+
+                    // write to the new window
+                    wnd.document.open();
+                    wnd.document.write(html);
+                    wnd.document.close();
+
+                    // stop waiting
+                    clearInterval(interval);
+
+
+                    // close window once page reloads
+                    let oldUrl = wnd.location.href;
+                    let oldTitle = wnd.document.title;
+                    /*
+                    wnd.addEventListener('load', _ => {
+                        console.log('window title = ' + wnd.document.title + ' location=' + wnd.location.href + ' old='+oldUrl + ' oldTitle=' + oldTitle);
+                        if (oldUrl === wnd.location.href) {
+                            wnd.close();
+                        }
+                    });
+                    */
+                    interval = setInterval(_ => {
+                        // TODO: need to detect errors in login
+                        if (wnd.location.href === oldUrl) {
+                            return;
+                        }
+                        console.log('window title = ' + wnd.document.title + ' location=' + wnd.location.href + ' old='+oldUrl + ' oldTitle=' + oldTitle);
+                        clearInterval(interval);
+
+                        // redirect the main page to the home page?  or maybe my account?
+                        wnd.close();
+
+                        // setup controls that require login information
+                        SunsetSkin.getInstance().updateLoginStatus();
+
+                        //alert('TODO: need to switch the current page')
+                        document.location = UrlHelper.getDeployment() + 'Login/MyAccount.aspx';
+                    });
+                }
+            });
         });
 
         // forgot password button

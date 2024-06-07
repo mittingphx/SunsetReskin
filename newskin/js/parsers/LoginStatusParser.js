@@ -1,4 +1,5 @@
 import {FetchHelper, FetchQueryList, FetchQueryItem} from "../util/FetchHelper.js";
+import {DomHelper} from "../util/DomHelper.js";
 
 /**
  * Current status of the user.
@@ -44,7 +45,23 @@ export class LoginStatus {
      */
     email = null;  // from ContactUs.aspx > MainContent_TxtEmail
 
+    /**
+     * Reference to the log-out button on the old page, if logged in.
+     * @type {HTMLElement|null}
+     */
+    $btnSignOut = null;
 
+    /**
+     * DOM reference to the link to the account page, if available.
+     * @type {HTMLElement|null}
+     */
+    $acctLink = null;
+
+    /**
+     * DOM reference to the link to the admin page, if available
+     * @type {HTMLElement|null}
+     */
+    $adminLink = null;
 }
 
 /**
@@ -68,73 +85,44 @@ export class LoginStatusParser {
     }
 
     /**
-     * Just checks the login status without attempting to load the
-     * rest of the account fields.
-     * @returns {boolean}
-     */
-    isLoggedIn() {
-        return this.readBasicLoginStatus().loggedIn;
-    }
-
-    /**
-     * Checks that the login is an admin user without attempting to load
-     * the rest of the account fields.
-     */
-    isAdmin() {
-        return this.readBasicLoginStatus().isAdmin
-    }
-
-    /**
-     * Gets just the login status from the source document without querying
-     * other files to fill in all details.
-     * @returns {LoginStatus}
-     */
-    readBasicLoginStatus() {
-        let ret = new LoginStatus();
-
-        // check for login
-        let $acctLink = this.sourceDocument.querySelector('#LnkMyAccount');
-        if (!$acctLink) {
-            console.error('Could not find account link using selector: #LnkMyAccount');
-            ret.loggedIn = false;
-            return ret;
-        }
-
-        // check for admin
-        let $adminLink = this.sourceDocument.querySelector('#LnkAdmin');
-        ret.isAdmin = !!$adminLink;
-
-        return ret;
-    }
-
-    /**
      * Reads the login status from the source document with an optional
      * callback when all details have finished loading.
      * @param {function(LoginStatus)} callback
      * @returns {LoginStatus}
      */
     readLoginStatus(callback) {
+        let ret = new LoginStatus();
 
-        // detected if we're logged in
-        let ret = this.readBasicLoginStatus();
+        // grab DOM references
+        DomHelper.addElementsByQuery(ret, this.sourceDocument, {
+            $acctLink: '#LnkMyAccount',
+            $adminLink: '#LnkAdmin',
+            $btnSignOut: '#LBtnLogOut'
+        });
 
+        // check for login, if not found then we're not logged in
+        if (!ret.$acctLink || ret.$acctLink.innerHTML === 'Create Account') {
+            ret.loggedIn = false;
+            if (typeof callback === 'function') {
+                callback(ret);
+            }
+            return ret;
+        }
         // read details if logged in
-        if (ret.loggedIn) {
+        else {
+            ret.loggedIn = true;
+            ret.isAdmin = !!ret.$adminLink;
             this.#fetchDetailPages().then(results => {
                 ret.email = results.email;
                 ret.name = results.name;
                 ret.company = results.company;
                 ret.acctNo = results.acctNo;
 
+                console.log('readLoginStatus() results', ret);
                 if (typeof callback === 'function') {
                     callback(ret);
                 }
             });
-        }
-        else {
-            if (typeof callback === 'function') {
-                callback(ret);
-            }
         }
         return ret;
     }
@@ -145,11 +133,10 @@ export class LoginStatusParser {
      */
     async #fetchDetailPages() {
         return await new FetchHelper().fetchAndQuery(new FetchQueryList({
-            email: new FetchQueryItem('ContactUs.aspx', 'MainContent_TxtEmail'),
-            name: new FetchQueryItem('Login/MyAccount.aspx', 'MainContent_LblName'),
-            company: new FetchQueryItem('Login/MyAccount.aspx', 'MainContent_LblCompany'),
-            acctNo: new FetchQueryItem('Login/MyAccount.aspx', 'MainContent_LblAcctNo')
+            email: new FetchQueryItem('ContactUs.aspx', '#MainContent_TxtEmail'),
+            name: new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_LblName'),
+            company: new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_LblCompany'),
+            acctNo: new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_LblAcctNo')
         }));
     }
-
 }

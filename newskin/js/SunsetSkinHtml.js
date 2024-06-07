@@ -188,7 +188,9 @@ export class SunsetSkinHtml {
      * @returns {Promise<void>}
      */
     async load(newSkinUrl) {
-        console.log('load() ' + newSkinUrl);
+        let deployment = UrlHelper.getDeployment();
+        console.log('load() ' + newSkinUrl + ' deployment=' + deployment);
+
 
         let headerIndex = -1;
         let footerIndex = -1;
@@ -210,10 +212,11 @@ export class SunsetSkinHtml {
         // make the relative urls be based on the root of the website
         for (let i = 0; i < urls.length; i++) {
             if (!urls[i].startsWith('http')) {
-                urls[i] = UrlHelper.makeRelativeUrl(urls[i]);
+                //urls[i] = UrlHelper.makeRelativeUrl(urls[i]);
+                //urls[i] = UrlHelper.makeAbsoluteUrl(urls[i]);
+                urls[i] = new URL(urls[i], deployment).href;
             }
         }
-
 
         // load the template files in parallel
         const responses = await Promise.all(urls.map(url => fetch(url)));
@@ -242,13 +245,15 @@ export class SunsetSkinHtml {
                 if (link.href.indexOf('cloudflare.com') >= 0) {
                     return;
                 }
+                link.href = UrlHelper.makeAbsoluteUrl(originalLink);
+                /*
                 let relativeLink = UrlHelper.makeRelativeUrl(originalLink);
                 //console.log('mapping <link>: ' + originalLink + ' -> ' + relativeLink);
                 if (relativeLink === originalLink) {
                     return;
                 }
-
                 link.href = relativeLink;
+                 */
             });
         }
 
@@ -276,21 +281,19 @@ export class SunsetSkinHtml {
         document.head.prepend(base);
 
         // if we're on the dev server, add a bunch of test links
-        /*
-        if (base.href.indexOf('localhost') >= 0) {
-
+        if (UrlHelper.isLocalhost) {
             let testLinks = document.createElement('div');
             testLinks.innerHTML = `
-            <a href="swwest_detail.html">test detail</a>
-            <a href="swwest_category.html">test category</a>
-            <a href="swwest_cart.html">test cart</a>
-            <a href="swwest_copy.html">test front page</a>
-            <a href="swwest_login.html">test login</a>
+                <a href="swwest_detail.html">test detail</a>
+                <a href="swwest_category.html">test category</a>
+                <a href="swwest_cart.html">test cart</a>
+                <a href="swwest_copy.html">test front page</a>
+                <a href="swwest_login.html">test login</a>
             `;
             document.querySelector('.nav-social').appendChild(testLinks);
-        }*/
-
-    };
+            UrlHelper.mapLinks(testLinks);
+        }
+    }
 
     /**
      * Toggles between the old and new HTML.
@@ -302,6 +305,12 @@ export class SunsetSkinHtml {
             document.body.innerHTML = this.newHtmlBody.innerHTML;
 
             // TESTING attaching old html to keep it active
+
+            // still getting error: Form submission canceled because the form is not connected
+            // so adding header too
+            //this.oldHtmlHead.setAttribute('id', 'old_html_head');
+            //document.head.appendChild(this.oldHtmlHead);
+            this.oldHtmlBody.setAttribute('id', 'old_html_body');
             document.body.appendChild(this.oldHtmlBody);
 
             //this.runScripts(this.newHtmlBody);

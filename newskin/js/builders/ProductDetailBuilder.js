@@ -310,7 +310,7 @@ export class ProductDetailBuilder {
             }
 
             // price (or login link)
-            if (productItem.price === 'Login to View') {
+            if (productItem.priceString === 'Login to View') {
                 let $priceLogin = document.createElement('div');
                 {
                     $priceLogin.innerHTML = '<i class="fa fa-sign-in"></i> ';
@@ -327,7 +327,21 @@ export class ProductDetailBuilder {
                 let $priceH3 = document.createElement('h3');
                 {
                     $priceH3.classList.add('price');
-                    $priceH3.innerHTML = '$' + productItem.price;
+
+                    let casePrice = productItem.getCasePrice();
+                    let unitPrice = productItem.getUnitPrice();
+
+                    $priceH3.innerHTML = '';
+                    if (casePrice) {
+                        $priceH3.innerHTML += casePrice + '<br>';
+                    }
+                    if (unitPrice) {
+                        $priceH3.innerHTML += unitPrice + '<br>';
+                    }
+                    if ($priceH3.innerHTML === '') {
+                        $priceH3.innerHTML = productItem.priceString;
+                    }
+
                     if (productItem.preDiscountPrice) {
                         $priceH3.innerHTML += ' <span>-$' + productItem.preDiscountPrice + '</span>';
                     }
@@ -387,11 +401,11 @@ export class ProductDetailBuilder {
     /**
      * Builds form for selecting different options for this product
      * @param productItem {ProductDetailItem}
-     * @returns {HTMLDivElement}
+     * @returns {HTMLDivElement|null}
      */
     buildProductOptions(productItem) {
 
-        // TODO: implement options for product
+        // NOTE: options are not currently implemented
         if (!productItem.options) {
             return null;
         }
@@ -650,7 +664,6 @@ export class ProductDetailBuilder {
                             $infoBody.appendChild(this.#buildSpecList(productItem));
 
                             // shipping
-                            // TODO: more details can go here (it's shipping options in template)
                             if (productItem.shippingOptions && productItem.shippingOptions.length > 0) {
                                 let $shippingH4 = document.createElement('h4');
                                 {
@@ -712,35 +725,5 @@ export class ProductDetailBuilder {
         }
 
         return $specUL;
-    }
-
-    /**
-     * Toggles the wish list button for the given product item.
-     * @param productItem {ProductDetailItem}
-     * @param $btn {HTMLElement}
-     */
-    onWishListClicked(productItem, $btn) {
-        if (WishList.has(productItem)) {
-            alert('adding');
-        }
-        else {
-            alert('removing')
-        }
-        WishList.toggle({
-            itemNo: productItem.itemNo,
-            text: productItem.text,
-            image: productItem.image,
-            price: productItem.casePrice,
-            timestamp: new Date().getTime()
-        });
-
-        if (WishList.has(productItem)) {
-            alert('adding');
-            $btn.innerHTML = '<i class="lni lni-heart-filled"></i> On Wishlist';
-        }
-        else {
-            alert('removing')
-            $btn.innerHTML = '<i class="lni lni-heart"></i> To Wishlist';
-        }
     }
 }

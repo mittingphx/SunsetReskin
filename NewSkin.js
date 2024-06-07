@@ -19,6 +19,25 @@
 
 import {SunsetSkin} from "./newskin/js/SunsetSkin.js";
 
-let skin = new SunsetSkin();
-skin.apply();
+// grab options form url query string
+let options = {
+    showSkin: true
+};
+let search = new URL(document.location.toString()).searchParams;
+switch (search.get("reskin")) {
+    case "off":
+    case "0":
+    case "no":
+    case "false":
+        options.showSkin = false;
+        break;
+}
+
+// show the skin
+if (options.showSkin) {
+    let skin = new SunsetSkin();
+    skin.apply();
+}
+
+
 

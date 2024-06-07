@@ -1,4 +1,4 @@
-import {UrlHelper} from "../UrlHelper.js";
+import {fixUrl, UrlHelper} from "../UrlHelper.js";
 
 
 /**
@@ -164,12 +164,12 @@ export class CommonParser {
         if ($categories.length > 0) {
             let category = new ProductCategoryBreadcrumb();
             category.name = $categories[0].textContent;
-            category.link = $categories[0].getAttribute('href');
+            category.link = fixUrl($categories[0].getAttribute('href'));
 
             for (let i = 1; i < $categories.length; i++) {
                 let cat = new ProductCategoryBreadcrumb();
                 cat.name = $categories[i].textContent;
-                cat.link = $categories[i].getAttribute('href');
+                cat.link = fixUrl($categories[i].getAttribute('href'));
                 cat.parent = category;
                 category = cat;
             }
@@ -232,7 +232,8 @@ export class CommonParser {
         if (!$a) return false;
         obj.text = CommonParser.stripWhitespace($a.textContent);
         //obj.link = $a.href; //.getAttribute('href');
-        obj.link = UrlHelper.makeRelativeUrl($a.href);
+        //obj.link = UrlHelper.makeRelativeUrl($a.href);
+        obj.link = fixUrl($a.href);
         obj.image = CommonParser.getImageFromStyle($a.querySelector('.divImage'));
         return true;
     }

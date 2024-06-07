@@ -191,15 +191,12 @@ export class WishListBuilder {
                     let $spanPrice = document.createElement('span');
                     {
                         $spanPrice.classList.add('amount');
-                        let price = item.price;
                         if (item.hasPrice) {
-                            $spanPrice.innerHTML = '$' + item.price.toFixed(2);
+                            $spanPrice.innerHTML = item.getPrice();
                         }
                         else {
-                            $spanPrice.innerHTML = 'Login to View'
+                            $spanPrice.innerHTML = 'Login to View';
                         }
-
-                        $spanPrice.innerHTML = item.price.toFixed(2);
                         $p.appendChild($spanPrice);
                     }
                 }
