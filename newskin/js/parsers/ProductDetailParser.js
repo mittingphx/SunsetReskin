@@ -123,11 +123,18 @@ export class ProductDetailItem {
 
 
     /**
+     * Reference to the button to add this item to the shopping cart.
+     * @type {HTMLInputElement|null}
+     */
+    $btnAddToCart = null;
+
+
+    /**
      * Gets the price of the item per case with formatting, including leading $
      * @returns {string}
      */
     getCasePrice() {
-        return Format.formatPrice(this.casePrice);
+        return Format.formatPrice(this.casePrice) + ' per case';
     }
 
     /**
@@ -135,7 +142,7 @@ export class ProductDetailItem {
      * @returns {string}
      */
     getUnitPrice() {
-        return Format.formatPrice(this.unitPrice);
+        return Format.formatPrice(this.unitPrice) + ' per unit';
     }
 
 }
@@ -216,10 +223,29 @@ export class ProductDetailParser {
 
         // grab the detail properties
         let $detail = $table.querySelector('#MainContent_PanelQty');
-        if (!$detail) {
-            console.error('could not find detail properties using selector: #MainContent_PanelQty');
-            return null;
+        if ($detail) {
+            this.#readDetailProperties(ret, $detail);
+            this.#extractPrices(ret);
         }
+        else {
+            console.error('could not find detail properties using selector: #MainContent_PanelQty');
+        }
+
+        // grab the add to cart button
+        ret.$btnAddToCart = $table.querySelector('#MainContent_BtnAddToCart');
+
+        // grab the category breadcrumbs
+        ret.category = CommonParser.getCategoryBreadcrumbs(this.sourceDocument);
+
+        return ret;
+    }
+
+    /**
+     * Reads the detail properties from #MainContent_PanelQty
+     * @param item {ProductDetailItem} object to receive the properties
+     * @param $detail {HTMLDivElement} the panel to read the properties from
+     */
+    #readDetailProperties(item, $detail) {
 
         // span labels that map to properties
         const propMap = {
@@ -237,7 +263,7 @@ export class ProductDetailParser {
         for (let i = 0; i < $spans.length; i++) {
 
             // determine if this span corresponds to a property
-            let key= $spans[i].getAttribute('id');
+            let key = $spans[i].getAttribute('id');
             if (!key || !key.toLowerCase().startsWith('MainContent_Lbl'.toLowerCase())) {
                 continue;
             }
@@ -245,55 +271,36 @@ export class ProductDetailParser {
             // grab details by span id
             key = key.substring('MainContent_Lbl'.length);
             if (key in propMap) {
-                ret[propMap[key]] = $spans[i].textContent;
+                item[propMap[key]] = $spans[i].textContent;
             }
         }
-
-        // extract prices
-        let txtPrice = ret.priceString;
-        let hasPerCase = ret.priceString.indexOf('per case') !== -1;
-        let hasPerUnit = ret.priceString.indexOf('per unit') !== -1;
-
-        if (hasPerCase) {
-            let end = ret.priceString.indexOf('per case');
-            let strPrice = ret.priceString.substring(0, end);
-            ret.casePrice = Format.parsePrice(strPrice);
-        }
-        else {
-            ret.casePrice = 0;
-        }
-
-        if (hasPerUnit) {
-            let start = ret.priceString.indexOf('[') + 1;
-            let end = ret.priceString.indexOf(']');
-            let strPrice = ret.priceString.substring(start, end);
-            ret.unitPrice = Format.parsePrice(strPrice);
-        }
-        else {
-            ret.unitPrice = 0;
-        }
-
-        // grab the category breadcrumbs
-        ret.category = CommonParser.getCategoryBreadcrumbs(this.sourceDocument);
-        /*
-        let $categories = this.sourceDocument.querySelectorAll('.Categories > a');
-        if ($categories.length > 0) {
-            ret.category = new ProductCategory();
-            ret.category.name = $categories[0].textContent;
-            ret.category.link = $categories[0].getAttribute('href');
-
-            for (let i = 1; i < $categories.length; i++) {
-                let cat = new ProductCategory();
-                cat.name = $categories[i].textContent;
-                cat.link = $categories[i].getAttribute('href');
-                cat.parent = ret.category;
-                ret.category = cat;
-            }
-        }
-*/
-
-        return ret;
-
     }
 
+    /**
+     * Updates the price properties by parsing the priceString property.
+     * @param item {ProductDetailItem}
+     */
+    #extractPrices(item) {
+        if (item.priceString) {
+            let hasPerCase = item.priceString.indexOf('per case') !== -1;
+            let hasPerUnit = item.priceString.indexOf('per unit') !== -1;
+
+            if (hasPerCase) {
+                let end = item.priceString.indexOf('per case');
+                let strPrice = item.priceString.substring(0, end);
+                item.casePrice = Format.parsePrice(strPrice);
+            } else {
+                item.casePrice = 0;
+            }
+
+            if (hasPerUnit) {
+                let start = item.priceString.indexOf('[') + 1;
+                let end = item.priceString.indexOf(']');
+                let strPrice = item.priceString.substring(start, end);
+                item.unitPrice = Format.parsePrice(strPrice);
+            } else {
+                item.unitPrice = 0;
+            }
+        }
+    }
 }

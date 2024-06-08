@@ -34,9 +34,9 @@ export class FileDetector {
         // TODO: this may need to be a custom function so we can
         // determine if it's a category page or a search result
         Category: [ 'ItemSearch.aspx', 'swwest_category.html' ],
+        ContactUs: [ 'ContactUs.aspx' ],
         ItemDetail: [ 'ItemDetail.aspx', 'swwest_detail.html'],
         Cart: [ 'ViewCart.aspx', 'swwest_cart.html' ],
-        ContactUs: [ 'ContactUs.aspx' ],
         Login: [ 'Login.aspx', 'swwest_login.html' ]
     };
 

@@ -15,9 +15,10 @@ export class ViewCartBuilder {
     /**
      * Builds the shopping cart view.
      * @param cart {ShoppingCart}
+     * @param loginStatus {LoginStatus}
      * @returns {HTMLDivElement}
      */
-    buildCartView(cart) {
+    buildCartView(cart, loginStatus) {
 
         let $cart = document.createElement('div');
         $cart.classList.add('shopping-cart', 'section');
@@ -77,15 +78,34 @@ export class ViewCartBuilder {
                     }
                 }
 
-                // cart list
-                for (let item of cart.items) {
-                    $container.appendChild(this.buildCartItemRow(cart, item));
+                // empty cart
+                if (!loginStatus || !loginStatus.loggedIn) {
+                    let $outerDiv = document.createElement('div');
+                    {
+                        $outerDiv.classList.add('cart-empty');
+                        $container.appendChild($outerDiv);
+                        let $row = document.createElement('div');
+                        {
+                            $row.classList.add('row');
+                            $outerDiv.appendChild($row);
+                            {
+                                let $cell = document.createElement('div');
+                                $cell.classList.add('col-lg-12', 'col-md-12', 'col-12');
+                                $cell.innerHTML = '<p>You must be logged in to view your cart.</p>';
+                                $row.appendChild($cell);
+                            }
+                        }
+                    }
                 }
+                else {
+                    // cart list
+                    for (let item of cart.items) {
+                        $container.appendChild(this.buildCartItemRow(cart, item));
+                    }
 
-                // cart summary
-                $container.appendChild(this.buildCartSummary(cart));
-
-
+                    // cart summary
+                    $container.appendChild(this.buildCartSummary(cart));
+                }
             }
         }
         return $cart;
@@ -574,6 +594,11 @@ export class ViewCartBuilder {
                 {
                     $ul.classList.add('shopping-list');
                     $divShopping.appendChild($ul);
+
+                    if (!loginStatus.loggedIn) {
+                        $ul.innerHTML = '<li>Please <a href="Login/Login.aspx?redirect=ViewCart.aspxa">sign in</A to view cart</li>';
+                        return $cartItems;
+                    }
 
                     for (let item of cart.items) {
                         $ul.appendChild(this.buildCartDropDownItemRow(cart, item));

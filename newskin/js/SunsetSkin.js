@@ -37,6 +37,7 @@ import {ProgressBar} from "./util/ProgressBar.js";
 import {SiteSearch} from "./util/SiteSearch.js";
 import {UrlHelper} from "./UrlHelper.js";
 import {LoginStatusBuilder} from "./builders/LoginStatusBuilder.js";
+import {ContactPageBuilder} from "./builders/ContactPageBuilder.js";
 
 /**
  * Settings constants for different aspects of the system.
@@ -72,6 +73,11 @@ export class SunsetSettings {
             newSkinUrl: 'newskin/html/Login.html',
             hasMenu: true,
             fn: 'buildLoginPageHtml'
+        },
+        'ContactUs': {
+            newSkinUrl: 'newskin/html/Contact.html',
+            hasMenu: true,
+            fn: 'buildContactPageHtml'
         }
     };
 }
@@ -305,17 +311,17 @@ export class SunsetSkin {
             this.buildMenuHtml();
         }
 
-        // run custom html generators for filetype
-        if (fileTypeSettings.fn) {
-            console.log('Running custom html generator: ' + fileTypeSettings.fn + '()');
-            this[fileTypeSettings.fn]();
-        }
-
         // setup common page controls
         SiteSearch.setupSearchControls();
         this.buildWishListDropdown();
         this.updateLoginStatus();
         this.setupLinkHandler();
+
+        // run custom html generators for filetype
+        if (fileTypeSettings.fn) {
+            console.log('Running custom html generator: ' + fileTypeSettings.fn + '()');
+            this[fileTypeSettings.fn]();
+        }
     }
 
     /**
@@ -511,28 +517,6 @@ export class SunsetSkin {
         document.title = `Sunset Wholesale West`;
     }
 
-    /**
-     * Builds the login form.
-     */
-    buildLoginPageHtml() {
-
-        let parser = new LoginPageParser(this.html.oldHtmlBody);
-        let loginForm = parser.getLoginForm();
-
-        let dom = {};
-        if (!DomHelper.addElementsByQuery(dom, {
-            $loginForm: 'form.login-form',
-            $registerForm: 'form.account-register-form'
-        })) return;
-
-        // build the form
-        let builder = new LoginPageBuilder()
-        builder.build(loginForm, dom.$loginForm, dom.$registerForm);
-
-        // set the window title
-        document.title = `Login - Sunset Wholesale West`;
-    }
-
 
     /**
      * Builds the category and search pages.
@@ -662,6 +646,9 @@ export class SunsetSkin {
         document.title = `${productItem.text} - Sunset Wholesale West`;
     }
 
+    /**
+     * Builds the shopping cart view on the cart page.
+     */
     buildCartHtml() {
 
         // find where we're going to insert the product details
@@ -678,7 +665,7 @@ export class SunsetSkin {
 
         // build the main product details area
         let builder = new ViewCartBuilder();
-        $insertionPoint.replaceWith(builder.buildCartView(cart));
+        $insertionPoint.replaceWith(builder.buildCartView(cart, this.loginStatus));
 
         // build the breadcrumbs in the header
         let breadcrumbBuilder = new ProductBreadcrumbBuilder();
@@ -687,6 +674,28 @@ export class SunsetSkin {
 
         // set the window title
         document.title = `Checkout - Sunset Wholesale West`;
+    }
+
+    /**
+     * Builds the login form.
+     */
+    buildLoginPageHtml() {
+
+        let parser = new LoginPageParser(this.html.oldHtmlBody);
+        let loginForm = parser.getLoginForm();
+
+        let dom = {};
+        if (!DomHelper.addElementsByQuery(dom, {
+            $loginForm: 'form.login-form',
+            $registerForm: 'form.account-register-form'
+        })) return;
+
+        // build the form
+        let builder = new LoginPageBuilder()
+        builder.build(loginForm, dom.$loginForm, dom.$registerForm);
+
+        // set the window title
+        document.title = `Login - Sunset Wholesale West`;
     }
 
     /**
@@ -708,4 +717,25 @@ export class SunsetSkin {
         $topEnd.replaceWith($loginStatus);
 
     }
+
+
+    /**
+     * Builds the contact us page.
+     */
+    buildContactPageHtml() {
+
+
+        let dom = {};
+        if (!DomHelper.addElementsByQuery(dom, {
+            $contactForm: 'form#Form1'
+        })) return;
+
+        // build the contact page
+        let builder = new ContactPageBuilder()
+        builder.build(this.loginStatus, dom.$contactForm);
+
+        // set the window title
+        //document.title = `Sunset Wholesale West`;
+    }
+
 }

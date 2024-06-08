@@ -336,7 +336,12 @@ export class ProductDetailBuilder {
                         $priceH3.innerHTML += casePrice + '<br>';
                     }
                     if (unitPrice) {
-                        $priceH3.innerHTML += unitPrice + '<br>';
+                        if (!casePrice) {
+                            $priceH3.innerHTML += unitPrice + '<br>';
+                        }
+                        else {
+                            $priceH3.innerHTML += '<p style="font-size: 0.7em; color #888;">' + unitPrice + '</p>';
+                        }
                     }
                     if ($priceH3.innerHTML === '') {
                         $priceH3.innerHTML = productItem.priceString;
@@ -501,6 +506,16 @@ export class ProductDetailBuilder {
                             $btn.setAttribute('style', 'width: 100%');
                             $btn.innerHTML = 'Add to cart';
                             addButton.appendChild($btn);
+
+                            $btn.addEventListener('click', () => {
+                                if (!productItem.$btnAddToCart) {
+                                    alert('Could not add item to the cart.  Please try again.');
+                                    document.location = '' + document.location;
+                                }
+                                else {
+                                    productItem.$btnAddToCart.click();
+                                }
+                            });
                         }
                     }
                 }
@@ -706,7 +721,7 @@ export class ProductDetailBuilder {
         specData.push({key: 'Size', value: productItem.size});
         specData.push({key: 'Pack', value: productItem.pack});
         specData.push({key: 'Pallet', value: productItem.pallet});
-        specData.push({key: 'Case Price', value: productItem.casePrice})
+        specData.push({key: 'Case Price', value: productItem.getCasePrice()})
 
         let $specUL = document.createElement('ul');
         {

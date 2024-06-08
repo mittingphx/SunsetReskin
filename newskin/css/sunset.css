@@ -314,3 +314,15 @@ body.popup-mode .breadcrumbs {
 .error-list {
     color: red;
 }
+
+.cart-empty {
+    font-size: 20px;
+    padding: 30px 20px;
+    background: white;
+}
+
+.cart-empty p {
+    font-size: 20px;
+    color: red;
+    text-align: center;
+}

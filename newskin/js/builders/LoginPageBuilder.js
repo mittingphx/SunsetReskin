@@ -171,7 +171,7 @@ export class LoginPageBuilder {
                         }
                     });
                     */
-                    interval = setInterval(_ => {
+                    interval = setInterval(async _ => {
                         // TODO: need to detect errors in login
                         if (wnd.location.href === oldUrl) {
                             return;
@@ -185,8 +185,8 @@ export class LoginPageBuilder {
                         // setup controls that require login information
                         SunsetSkin.getInstance().updateLoginStatus();
 
-                        //alert('TODO: need to switch the current page')
-                        document.location = UrlHelper.getDeployment() + 'Login/MyAccount.aspx';
+                        //document.location = UrlHelper.getDeployment() + 'Login/MyAccount.aspx';
+                        await SunsetSkin.getInstance().navigateTo('ViewCart.aspx');
                     });
                 }
             });
