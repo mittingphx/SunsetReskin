@@ -28,13 +28,13 @@ export class SunsetMenuParser {
 
     /**
      * The HTML document to load the menu data from.
-     * @type {Document|null}
+     * @type {Document|HTMLElement|null}
      */
     sourceDocument = null;
 
     /**
      * Constructor defaults source document to the current document.
-     * @param source {Document|null}
+     * @param source {Document|HTMLElement|null}
      */
     constructor(source) {
         this.sourceDocument = source || document;

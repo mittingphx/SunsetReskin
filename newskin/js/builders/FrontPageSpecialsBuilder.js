@@ -104,14 +104,34 @@ export class FrontPageSpecialsBuilder {
                     $title.appendChild($titleH2);
 
                     let $titleP = document.createElement('p');
-                    $titleP.innerHTML = 'There are many variations of passages of Lorem Ipsum available, but the majority have suffered '
-                        + 'alteration in some form.  <a href="' + section.link + '">View All</a>';
+                    let text = this.getSectionQuote(section);
+                    $titleP.innerHTML = text + '  <a href="' + section.link + '">View All</a>';
                     $title.appendChild($titleP);
                 }
             }
         }
 
         return $titleRow;
+    }
+
+    /**
+     * Returns the text to display under the title for a specials section.
+     * @param section {SpecialSectionItem}
+     * @returns {string}
+     */
+    getSectionQuote(section) {
+        switch (section.name) {
+            case "Popular Items":
+                return "Check out this week's most popular items.";
+            case "End-Of-Line":
+                return "These products are being discontinued.  Catch them while they last.";
+            case "Items on Special":
+                return "Check out these items on sale for a special discounted price.";
+            case "New Products":
+                return "Get ahead of the crowd and grab these new products before they hit our best sellers' list.";
+            default:
+                return "";
+        }
     }
 
     /**

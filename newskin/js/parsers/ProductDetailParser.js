@@ -161,7 +161,7 @@ export class ProductDetailParser {
 
     /**
      * Constructor defaults source document to the current document.
-     * @param source {Document|null}
+     * @param source {Document|HTMLElement|null}
      */
     constructor(source) {
         this.sourceDocument = source || document;

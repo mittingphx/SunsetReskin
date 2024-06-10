@@ -154,7 +154,7 @@ export class CommonParser {
 
     /**
      * Extracts the category breadcrumbs from the given document.
-     * @param source {Document}
+     * @param source {Document|HTMLElement}
      * @returns {ProductCategoryBreadcrumb|null}
      */
     static getCategoryBreadcrumbs(source) {
