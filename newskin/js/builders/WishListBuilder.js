@@ -1,9 +1,16 @@
-import {WishList} from "../util/WishList.js";
+import {WishListData} from "../models/WishListData.js";
+
 
 /**
  * Builds the wish list dropdown list next to the cart preview in the upper right.
  */
 export class WishListBuilder {
+
+    /**
+     * Data access object for wish list data.
+     * @type {WishListData}
+     */
+    wishListData = new WishListData();
 
     constructor() {
 
@@ -14,8 +21,8 @@ export class WishListBuilder {
      * @returns {HTMLDivElement}
      */
     build() {
-        WishList.load();
-        let wishList = WishList.wishList;
+        this.wishListData.load();
+        let wishList = this.wishListData.wishList;
 
         let $list = document.createElement('div');
         {
@@ -108,7 +115,7 @@ export class WishListBuilder {
                             $btn.appendChild($a);
 
                             $a.addEventListener('click', () => {
-                                WishList.clear();
+                                this.wishListData.clear();
                             });
                         }
                     }
@@ -134,8 +141,8 @@ export class WishListBuilder {
             $li.addEventListener('click', (e) => {
                 // close button clicked
                 if (e.target.classList.contains('lni-close')) {
-                    WishList.remove(item);
-                    WishList.rebuild();
+                    this.wishListData.remove(item);
+                    this.wishListData.rebuild();
                 }
                 // anywhere else clicked
                 else {

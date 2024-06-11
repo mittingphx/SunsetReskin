@@ -1,8 +1,11 @@
 import {Format} from "../util/Format.js";
 import { ShoppingCart, CartProductItem } from '../parsers/ViewCartParser.js';
 import {ProductCategoryBreadcrumb} from "../parsers/CommonParser.js";
-import {LoginStatus} from "../parsers/LoginStatusParser.js";
+import {LoginStatus} from "../models/LoginStatus.js";
 
+/**
+ * Builds the cart page and cart dropdown html.
+ */
 export class ViewCartBuilder {
 
     constructor() {

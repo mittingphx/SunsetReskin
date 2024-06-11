@@ -104,13 +104,13 @@ export class LoginPageParser {
 
     /**
      * The HTML document to connect to.
-     * @type {Document|null}
+     * @type {Document|HTMLElement|null}
      */
     sourceDocument = null;
 
     /**
      * Constructor defaults source document to the current document.
-     * @param source {Document|null}
+     * @param source {Document|HTMLElement|null}
      */
     constructor(source= null) {
         this.sourceDocument = source || document;

@@ -8,6 +8,14 @@
  *
  */
 
+import {BaseController} from "./controllers/BaseControllers.js";
+import {FrontPageController} from "./controllers/FrontPageControler";
+import {ProductDetailsController} from "./controllers/ProductDetailsContoller";
+import {CategoryController} from "./controllers/CategoryContoller";
+import {CartController} from "./controllers/CartController";
+import {LoginController} from "./controllers/LoginController";
+import {ContactPageController} from "./controllers/ContactPageController";
+
 
 /**
  * Settings constants for different aspects of the system.
@@ -58,5 +66,30 @@ export class SunsetSettings {
      */
     static getByFileType(fileType) {
         return this.fileTypes[fileType];
+    }
+
+    /**
+     * Returns a new instance of the controller with the given name.
+     * @param controllerName {string}
+     * @param skin {SunsetSkin}
+     * @returns {BaseController}
+     */
+    static getControllerInstanceByName(controllerName, skin) {
+        switch (controllerName) {
+            case 'FrontPageController':
+                return new FrontPageController(skin);
+            case 'ProductDetailsController':
+                return new ProductDetailsController(skin);
+            case 'CategoryController':
+                return new CategoryController(skin);
+            case 'CartController':
+                return new CartController(skin);
+            case 'LoginController':
+                return new LoginController(skin);
+            case 'ContactPageController':
+                return new ContactPageController(skin);
+            default:
+                throw new Error('Unknown controller: ' + controllerName);
+        }
     }
 }

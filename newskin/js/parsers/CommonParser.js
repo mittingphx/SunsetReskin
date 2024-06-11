@@ -1,41 +1,5 @@
-import {fixUrl, UrlHelper} from "../UrlHelper.js";
-
-
-/**
- * Interface for any class that represents a product.
- */
-export class IProductBase {
-
-    /**
-     * The text to display for this product
-     * @type {string}
-     */
-    text = '';
-
-    /**
-     * The link to use for this product
-     * @type {string}
-     */
-    link = '';
-
-    /**
-     * The image to use for this product
-     * @type {string}
-     */
-    image = '';
-
-    /**
-     * The price of the product per case.
-     * @type {string}
-     */
-    casePrice = '';
-
-    /**
-     * The price of the product per unit.
-     * @type {string}
-     */
-    unitPrice = '';
-}
+import {fixUrl} from "../UrlHelper.js";
+import {IProductBase} from "../models/BaseModels.js";
 
 /**
  * Represents the category a product belongs to, with a reference to

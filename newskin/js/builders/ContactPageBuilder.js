@@ -1,4 +1,6 @@
-
+/**
+ * Builds the HTML for the contact us page.
+ */
 export class ContactPageBuilder {
 
     build(loginStatus, $contactForm) {

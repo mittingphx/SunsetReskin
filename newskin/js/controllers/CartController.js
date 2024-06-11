@@ -53,7 +53,7 @@ export class CartController extends PageControllerBase {
         console.log({cart:cart});
 
         // build the main product details area
-        $insertionPoint.replaceWith(this.cartBuilder.buildCartView(cart, this.skin.loginStatus));
+        $insertionPoint.replaceWith(this.cartBuilder.buildCartView(cart, this.skin.loginController.status));
 
         // build the breadcrumbs in the header
         let $breadcrumbs = this.breadcrumbBuilder.build('Shopping Cart', this.cartBuilder.buildBreadCrumbs());
@@ -79,7 +79,7 @@ export class CartController extends PageControllerBase {
         // load cart in the background
         ShoppingCart.getInstanceAsync(cart => {
             $insertionPoint.replaceWith(
-                this.cartBuilder.buildCartDropdown(cart, this.skin.loginStatus)
+                this.cartBuilder.buildCartDropdown(cart, this.skin.loginController.status)
             );
         })
     }

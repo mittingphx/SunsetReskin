@@ -13,6 +13,14 @@
 import {Tween} from "./util/Tween.js";
 import {Range} from "./util/Range.js";
 
+
+/**
+ * Constants for time durations.
+ */
+export class TimeSpan {
+    static IMMEDIATE = 0;
+}
+
 /**
  * Class controlling the display of a preloader over the website until
  * it is completely loaded.
@@ -149,13 +157,6 @@ export class SunsetPreload {
         this.#setupTween();
         this.#tween.duration = time;
         this.#tween.start();
-    }
-
-    /**
-     * Removes the preloader overlay immediately.
-     */
-    static hidePreloader() {
-        SunsetPreload.getInstance().fadeOutPreloader(0);
     }
 
     /**

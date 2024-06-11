@@ -8,7 +8,6 @@
  */
 
 import {UrlHelper} from "../UrlHelper.js";
-import {WishList} from "../util/WishList.js";
 
 /**
  * Builds the breadcrumb area above the product details.
@@ -129,6 +128,20 @@ export class ProductBreadcrumbBuilder {
  * the product details page.
  */
 export class ProductDetailBuilder {
+
+    /**
+     * The controller that will handle the product details
+     * @type {ProductDetailsController|null}
+     */
+    controller = null;
+
+    /**
+     * Constructor takes parent controller
+     * @param controller {ProductDetailsController}
+     */
+    constructor(controller) {
+        this.controller = controller;
+    }
 
     /**
      * Builds the HTML for a product detail item to be placed after the
@@ -477,6 +490,15 @@ export class ProductDetailBuilder {
      */
     #buildProductInfoBottom(productItem) {
 
+        // attempt to get the wish list data
+        let wishList = null;
+        try {
+            wishList = this.controller.skin.wishListController.builder.wishListData;
+        }
+        catch (e) {
+            console.error('Could not find wish list data', e);
+        }
+
         let $bottom = document.createElement('div');
         {
             $bottom.classList.add('bottom-content');
@@ -565,18 +587,18 @@ export class ProductDetailBuilder {
                                     $btn.innerHTML = '<i class="lni lni-heart"></i> To Wishlist';
                                     $btn.classList.remove('wishlist-on');
                                 }
-                                WishList.rebuild();
+                                wishList && wishList.rebuild();
                             }
 
-                            let onWishList = WishList.has(productItem);
+                            let onWishList = wishList && wishList.has(productItem);
                             setupWishListButton(onWishList);
                             $btn.addEventListener('click', () => {
                                 if (onWishList) {
-                                    WishList.remove(productItem);
+                                    wishList && wishList.remove(productItem);
                                     onWishList = false;
                                 }
                                 else {
-                                    WishList.add(productItem);
+                                    wishList && wishList.add(productItem);
                                     onWishList = true;
                                 }
                                 setupWishListButton(onWishList);

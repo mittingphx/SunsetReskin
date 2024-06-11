@@ -9,24 +9,19 @@
  */
 
 import {FileDetector} from "./FileDetector.js";
-import {SunsetPreload} from "./SunsetPreload.js";
+import {SunsetPreload, TimeSpan} from "./SunsetPreload.js";
 import {SunsetSkinHtml} from "./SunsetSkinHtml.js";
 import {SunsetSettings} from "./SunsetSettings.js";
-import {Global} from "./util/Global.js";
 
-import {LoginStatusParser,LoginStatus} from "./parsers/LoginStatusParser.js";
-
-import {LinkHandler} from "./util/LinkHandler.js";
 import {ProgressBar} from "./util/ProgressBar.js";
-import {SiteSearch} from "./util/SiteSearch.js";
-import {UrlHelper} from "./UrlHelper.js";
 
-import {CategoryController} from "./controllers/CategoryContoller.js";
 import {CartController} from "./controllers/CartController.js";
+import {LinkController} from "./controllers/LinkController.js";
+import {MenuController} from "./controllers/MenuController.js";
 import {LoginController} from "./controllers/LoginController.js";
 import {WishListController} from "./controllers/WishListController.js";
-import {MenuController} from "./controllers/MenuController.js";
 import {SkinToggleController} from "./controllers/SkinToggleController";
+import {SiteSearchController} from "./controllers/SiteSearchController.js";
 
 /**
  * Analyzes the original HTML to figure out the contents of the menu
@@ -48,6 +43,12 @@ export class SunsetSkin {
     html = null;
 
     /**
+     * Drapes that hide the website while it is loaded.
+     * @type {SunsetPreload|null}
+     */
+    preloader = null;
+
+    /**
      * Gets set to true when a page is being loaded using fetch() instead
      * of redirecting the browser to a page directly.
      * @type {boolean}
@@ -61,18 +62,6 @@ export class SunsetSkin {
     menu = null;
 
     /**
-     * Account details for the logged-in user.
-     * @type {LoginStatus}
-     */
-    loginStatus = null;
-
-    /**
-     * Intercepts links to other pages.
-     * @type {LinkHandler}
-     */
-    linkHandler = null;
-
-    /**
      * True once the loading has completed
      * @type {boolean}
      */
@@ -80,9 +69,52 @@ export class SunsetSkin {
 
     /**
      * The controller class used to build this page.
-     * @type {BaseControllers|null}
+     * @type {BaseController|null}
      */
     controller = null;
+
+    /**
+     * Controller for login status information.
+     * @type {LoginController|null}
+     */
+    loginController = null;
+
+    /**
+     * Controller for the shopping cart
+     * @type {CartController|null}
+     */
+    cartController = null;
+
+    /**
+     * Controller for the product menu.
+     * @type {MenuController|null}
+     */
+    menuController = null;
+
+    /**
+     * Controller for the skin toggle button.
+     * @type {SkinToggleController|null}
+     */
+    skinToggleController = null;
+
+    /**
+     * Controller for the wish list dropdown
+     * @type {WishListController|null}
+     */
+    wishListController = null;
+
+    /**
+     * Controller for the link routing
+     * @type {LinkController|null}
+     */
+    linkController = null;
+
+    /**
+     * Controller for the site search bar.
+     * @type {SiteSearchController|null}
+     */
+    searchController = null;
+
 
     /**
      * Most recent instance of this object.
@@ -95,19 +127,39 @@ export class SunsetSkin {
      */
     constructor() {
         SunsetSkin.#instance = this;
-        //this.fileType = FileDetector.getPageType();
+
+        // create preloader
+        this.preloader = new SunsetPreload();
+
+        // create component controllers
+        this.loginController = new LoginController(this);
+        this.cartController = new CartController(this);
+        this.menuController = new MenuController(this);
+        this.wishListController = new WishListController(this);
+        this.skinToggleController = new SkinToggleController(this);
+        this.linkController = new LinkController(this);
+        this.searchController = new SiteSearchController(this)
+
+        // handle changes in login status
+        this.loginController.statusUpdatedEvent.addListener(_ => {
+            this.cartController.buildCartDropdown();
+            this.loginController.buildStatusInfo();
+        })
     }
+
 
     /**
      * Gets the most recent instance of this object.
      * @returns {SunsetSkin}
      */
+    /*
     static getInstance() {
         if (!SunsetSkin.#instance) {
             SunsetSkin.#instance = new SunsetSkin();
         }
         return this.#instance;
     }
+    */
 
     /**
      * Starts monitoring the page for its data and launches the
@@ -115,13 +167,18 @@ export class SunsetSkin {
      * available.
      */
     apply() {
-        console.log('apply()');
+        console.log('Sunset Warehouse West Website version 2.0 is running...');
 
         // trigger event when document.body is available
         let initInterval = setInterval(() => {
            if (document.body) {
                clearInterval(initInterval);
-               this.showLoading();
+
+               // don't show load screen if we've already finished
+               if (this.finishedLoading) return;
+
+               // show the preloader's loading screen
+               this.preloader.preload();
            }
         });
 
@@ -129,7 +186,7 @@ export class SunsetSkin {
         document.addEventListener("DOMContentLoaded", () => {
             this.loadNewSkinPage().then(_ => {
                 console.log('load webpage completed');
-                SunsetPreload.getInstance().ready();
+                this.preloader.ready();
             });
         });
 
@@ -141,9 +198,7 @@ export class SunsetSkin {
             // NOTE: this may be calling navigateTo() before calling loadNewSkinPage()
             this.navigateTo(event.state.url).then(_ => {
                 console.log('navigate finished: ' + event.state.url);
-
-                // TODO: will need make sure any loading messages are removed
-                // sunsetPreloader.ready();
+                this.preloader.ready();
             });
         });
     }
@@ -152,7 +207,7 @@ export class SunsetSkin {
      * Completely eliminates all trace of the preloader from the page.
      */
     removePreloader() {
-        SunsetPreload.hidePreloader();
+        this.preloader.fadeOutPreloader(TimeSpan.IMMEDIATE);
 
         if (this.html) {
             this.html.removeElementsFromOld('#divSunsetPreloader');
@@ -172,6 +227,23 @@ export class SunsetSkin {
 
         this.usingDynamicLoading = false;
         this.finishedLoading = true;
+    }
+
+    /**
+     * Static async version of navigateTo() call.
+     * @param url {string}
+     */
+    static async navigateToAsync(url) {
+        await SunsetSkin.#instance.navigateTo(url);
+    }
+
+    /**
+     * Static synchronous version of navigateTo() call.
+     * @param url {string} webpage to go to
+     * @param callback {function} callback called after the page is loaded
+     */
+    static navigateToUrl(url, callback) {
+        SunsetSkin.#instance.navigateTo(url).then(callback);
     }
 
     /**
@@ -253,84 +325,31 @@ export class SunsetSkin {
 
         this.html = this.html || new SunsetSkinHtml()
         await this.html.load(fileTypeSettings.newSkinUrl);
-        SunsetPreload.getInstance().transfer(this.html.newHtmlBody);
+        this.preloader.transfer(this.html.newHtmlBody);
 
         // remove any loading messages from old webpage
         this.removePreloader();
 
-        // show toggle so we can switch back and forth between
-        // the new skin and the old skin
-        new SkinToggleController(this).build();
-
-
         // insert new menu data into menu html
         if (fileTypeSettings.hasMenu) {
-            new MenuController(this).build();
+            this.menuController.build();
         }
 
         // setup common page controls
-        SiteSearch.setupSearchControls();
-        new WishListController(this).build();
-        this.updateLoginStatus();
-        this.setupLinkHandler();
+        this.searchController.build();
+        this.linkController.build();
+        this.wishListController.build();
+        this.loginController.updateLoginStatus();
+        this.skinToggleController.build();
 
         // run custom html generators for filetype via controller classes
         if (fileTypeSettings.controller) {
             console.log('Running controller: ' + fileTypeSettings.controller);
-            this.controller = Global.createInstanceByName(fileTypeSettings.controller, this);
+            this.controller = SunsetSettings.getControllerInstanceByName(fileTypeSettings.controller, this);
             this.controller.build();
         }
         else {
             console.error('No controller for filetype: ' + this.fileType);
         }
-    }
-
-    /**
-     * Sets up controls that need the login status.
-     */
-    updateLoginStatus() {
-        // TODO: this may require re-loading pages.
-        new LoginStatusParser(this.html.oldHtmlBody)
-            .readLoginStatus(status => {
-                this.loginStatus = status;
-
-
-                new CartController(this).buildCartDropdown();
-
-                // TODO: need ot deal with this being a separate function
-                // of a page controller
-                new LoginController(this).buildStatusInfo();
-            });
-    }
-
-    /**
-     * Intercept links so we can manually load new pages into the
-     * skin, allowing us to show loading messages for pages that
-     * take a while and to avoid seeing a flash of the old webpage
-     */
-    setupLinkHandler() {
-
-        // remove old handler if needed
-        if (this.linkHandler) {
-            this.linkHandler.removeEventListener();
-        }
-
-        // how to handle links and which links to handle
-        this.linkHandler = new LinkHandler(
-            async $a => { await this.navigateTo($a.href);},
-                     $a => { return UrlHelper.urlIsOnSameDomain($a);});
-        this.linkHandler.addEventListener();
-    }
-
-    /**
-     * Shows the loading message.
-     */
-    showLoading() {
-
-        // don't show load screen if we've already finished
-        if (this.finishedLoading) return;
-
-        // show the preloader's loading screen
-        SunsetPreload.getInstance().preload(); // TODO: probably not needed, as constructor calls this
     }
 }

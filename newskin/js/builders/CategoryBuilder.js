@@ -1,5 +1,6 @@
 import {ImageHelper} from "../util/ImageHelper.js";
-import {UrlHelper} from "../UrlHelper.js";
+import {CategoryProductItem} from "../models/CategoryProductItem.js";
+import {ProductCategoryItem} from "../models/ProductCategoryItem.js";
 
 /**
  * Builds the HTML for the category page.
@@ -53,7 +54,6 @@ export class CategoryBuilder {
      */
     buildSubcategoryList(categoryData, menu) {
 
-        console.log({categoryData: categoryData, menu: menu});
         if (!menu || !categoryData || !categoryData.breadcrumbs) {
             return null;
         }
@@ -114,7 +114,6 @@ export class CategoryBuilder {
             for (let i = 0; i < item.children.length; i++) {
 
                 let child = item.children[i];
-                console.log({child: child});
             }
         }
         return $widgetDiv;
@@ -125,8 +124,6 @@ export class CategoryBuilder {
      * Builds the HTML for the products in the category grid view.
      */
     buildCategoryProducts(categoryData, $insertionPoint) {
-        //console.log('buildCategoryProducts()');
-        //console.log ({categoryData:categoryData});
 
         let $tabContent = document.createElement('div');
         {

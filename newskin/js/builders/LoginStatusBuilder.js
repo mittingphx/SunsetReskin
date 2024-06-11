@@ -1,4 +1,5 @@
 import {fixUrl} from "../UrlHelper.js";
+import {LoginStatus} from "../models/LoginStatus.js";
 
 /**
  * Builds the HTML for the login status information in the upper right.

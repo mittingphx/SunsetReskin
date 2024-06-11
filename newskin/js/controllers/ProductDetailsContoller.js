@@ -12,7 +12,7 @@ export class ProductDetailsController extends PageControllerBase {
      * Builds the product detail area of the page.
      * @type {ProductDetailBuilder}
      */
-    detailBuilder = new ProductDetailBuilder();
+    detailBuilder = new ProductDetailBuilder(this);
 
     /**
      * Builds the breadcrumb area of the page.

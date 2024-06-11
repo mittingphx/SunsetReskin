@@ -182,11 +182,11 @@ export class LoginPageBuilder {
                         // redirect the main page to the home page?  or maybe my account?
                         wnd.close();
 
-                        // setup controls that require login information
-                        SunsetSkin.getInstance().updateLoginStatus();
+                        // setup controls that require login information (gets called by navigateTo() )
+                        //SunsetSkin.getInstance().loginController.updateLoginStatus();
 
                         //document.location = UrlHelper.getDeployment() + 'Login/MyAccount.aspx';
-                        await SunsetSkin.getInstance().navigateTo('ViewCart.aspx');
+                        await SunsetSkin.navigateToAsync('ViewCart.aspx');
                     });
                 }
             });

@@ -59,7 +59,7 @@ export class CategoryController extends PageControllerBase {
         // parse from the old to build the category grid
         let parser = new CategoryParser($oldBody);
         let category = parser.readNodesFromTable($table);
-        console.log({category:category});
+        //console.log({category:category});
 
         this.pageBuilder.buildCategoryProducts(category, $insertionPoint);
 
@@ -87,7 +87,7 @@ export class CategoryController extends PageControllerBase {
 
         // insert the subcategory list in the left panel
         if ($subcategoryMenu) {
-            console.log('inserting subcategory list at .sub-category-list', {$subcategoryMenu:$subcategoryMenu});
+            //console.log('inserting subcategory list at .sub-category-list', {$subcategoryMenu:$subcategoryMenu});
             document.querySelector('.sub-category-list').replaceWith($subcategoryMenu);
         }
         else {

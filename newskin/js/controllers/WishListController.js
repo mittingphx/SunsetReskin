@@ -2,7 +2,8 @@ import {ComponentControllerBase} from "./BaseControllers.js";
 import {WishListBuilder} from "../builders/WishListBuilder.js";
 
 /**
- * Builds the wishlist dropdown.
+ * Controller that both maintains the list of wishlist items in the
+ * browser cache and builds the wish list dropdown HTML.
  */
 export class WishListController extends ComponentControllerBase {
 
@@ -11,6 +12,8 @@ export class WishListController extends ComponentControllerBase {
      * @type {WishListBuilder}
      */
     builder = new WishListBuilder();
+
+
 
     /**
      * Constructor takes reference to the skin to be built.
@@ -33,4 +36,5 @@ export class WishListController extends ComponentControllerBase {
 
         $insertionPoint.replaceWith(this.builder.build());
     }
+
 }
