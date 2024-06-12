@@ -30,7 +30,7 @@ export class FileDetector {
      * a custom function to help determine which page type it belongs to.
      */
     static #PageFn = {
-        FrontPage: [ 'Default.aspx', 'swwest_copy.html', ''],
+        FrontPage: [ 'Default.aspx', 'swwest_copy.html', 'index.html', ''],
         // TODO: this may need to be a custom function so we can
         // determine if it's a category page or a search result
         Category: [ 'ItemSearch.aspx', 'swwest_category.html' ],

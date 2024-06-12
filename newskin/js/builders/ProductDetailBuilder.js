@@ -8,6 +8,7 @@
  */
 
 import {UrlHelper} from "../UrlHelper.js";
+import {ImageHelper} from "../util/ImageHelper.js";
 
 /**
  * Builds the breadcrumb area above the product details.
@@ -249,6 +250,8 @@ export class ProductDetailBuilder {
                         $img.alt = productItem.text;
                         $mainImg.appendChild($img);
                     }
+
+                    ImageHelper.addMissingImageHandler($img);
 
                     $mainImage = $img;
                 }

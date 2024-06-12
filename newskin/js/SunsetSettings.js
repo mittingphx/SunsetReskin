@@ -9,12 +9,12 @@
  */
 
 import {BaseController} from "./controllers/BaseControllers.js";
-import {FrontPageController} from "./controllers/FrontPageControler";
-import {ProductDetailsController} from "./controllers/ProductDetailsContoller";
-import {CategoryController} from "./controllers/CategoryContoller";
-import {CartController} from "./controllers/CartController";
-import {LoginController} from "./controllers/LoginController";
-import {ContactPageController} from "./controllers/ContactPageController";
+import {FrontPageController} from "./controllers/FrontPageControler.js";
+import {ProductDetailsController} from "./controllers/ProductDetailsContoller.js";
+import {CategoryController} from "./controllers/CategoryContoller.js";
+import {CartController} from "./controllers/CartController.js";
+import {LoginController} from "./controllers/LoginController.js";
+import {ContactPageController} from "./controllers/ContactPageController.js";
 
 
 /**

@@ -473,9 +473,12 @@ export class ViewCartParser {
 
         // create cart with any error received
         let cart = new ShoppingCart()
-        if (dom.$error) {
+        if (dom.$error && dom.$error.textContent) {
             console.warn('Cart error: ' + dom.$error.textContent);
             cart.errorMessage = dom.$error.textContent;
+        }
+        else {
+            cart.errorMessage = null;
         }
 
         // fill cart items and submit button

@@ -8,9 +8,16 @@ export class ImageHelper {
      */
     static addMissingImageHandler($img) {
 
+        // if no image assigned, point at missing image placeholder
+        if (!$img.getAttribute('src')) {
+            $img.src = 'newskin/images/NoImage.jpg';
+            return;
+        }
+
+        // if load fails, point at missing image placeholder
         $img.onerror = function() {
             $img.onerror = null;
-            $img.src = 'newskin/images/NoImage.png';
+            $img.src = 'newskin/images/NoImage.jpg';
         };
     }
 }

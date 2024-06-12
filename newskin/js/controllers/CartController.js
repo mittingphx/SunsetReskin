@@ -34,7 +34,7 @@ export class CartController extends PageControllerBase {
      */
     build() {
 
-        let $oldBody = this.html.oldHtmlBody;
+        let $oldBody = this.skin.html.oldHtmlBody;
         if (!$oldBody) {
             console.error('Could not find old body');
             return;

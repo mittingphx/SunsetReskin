@@ -1,6 +1,7 @@
 import {CommonParser} from "./CommonParser.js";
 import {ProductCategoryItem} from "../models/ProductCategoryItem.js";
 import {CategoryProductItem} from "../models/CategoryProductItem.js";
+import {PageControls, PageControlLink} from "../models/PageControls.js";
 
 /**
  * Parses the category and search products views.
@@ -117,4 +118,35 @@ export class CategoryParser {
 
     }
 
+    /**
+     * Reads the paging controls from the source document.
+     * @returns {PageControls}
+     */
+    readPageControls() {
+
+        let $parent = this.sourceDocument.querySelector('#MainContent_PanelPages');
+        if (!$parent) {
+            console.error('could not find paging controls using selector: #MainContent_PanelPages');
+            return null;
+        }
+        let $links = $parent.querySelectorAll('a')
+
+        let pageControls = new PageControls();
+        for (let i = 0; i < $links.length; i++) {
+            let page = new PageControlLink($links[i]);
+            if (page.type === 'prev') {
+                pageControls.prevLink = page;
+            }
+            else if (page.type === 'next') {
+                pageControls.nextLink = page;
+            }
+            else if (page.type === 'current') {
+                pageControls.currentLink = page;
+            }
+            pageControls.pages.push(page);
+        }
+
+        return pageControls;
+    }
 }
+

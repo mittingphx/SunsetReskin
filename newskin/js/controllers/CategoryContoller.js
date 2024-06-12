@@ -50,16 +50,18 @@ export class CategoryController extends PageControllerBase {
 
         // find where we're going to insert the category
         let $insertionPoint = document.querySelector('.insert-category');
-
         if (!$insertionPoint) {
             console.error('Could not find insertion point!');
             return;
         }
 
+
         // parse from the old to build the category grid
         let parser = new CategoryParser($oldBody);
         let category = parser.readNodesFromTable($table);
-        //console.log({category:category});
+        let paging = parser.readPageControls();
+
+        console.log({category:category, paging: paging});
 
         this.pageBuilder.buildCategoryProducts(category, $insertionPoint);
 
@@ -94,6 +96,17 @@ export class CategoryController extends PageControllerBase {
             // no subcategory list so remove the left panel completely
             console.error('Could not build $subcategoryMenu');
             document.querySelector('.sub-category-list').remove();
+        }
+
+        // build the paging controls
+        // find where we're going to insert paging
+        let $pagingInsert = document.querySelector('.pagination');
+        if (!$pagingInsert) {
+            console.error('Could not find insertion point! for paging controls');
+        }
+
+        if ($pagingInsert) {
+            $pagingInsert.replaceWith(this.pageBuilder.buildPagingControls(paging));
         }
 
         // build the breadcrumbs in the header

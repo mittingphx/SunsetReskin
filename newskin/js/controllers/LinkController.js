@@ -1,6 +1,6 @@
-import {BaseController} from "./BaseControllers";
-import {LinkHandler} from "../util/LinkHandler";
-import {UrlHelper} from "../UrlHelper";
+import {BaseController} from "./BaseControllers.js";
+import {LinkHandler} from "../util/LinkHandler.js";
+import {UrlHelper} from "../UrlHelper.js";
 
 /**
  * Intercept links so we can manually load new pages into the

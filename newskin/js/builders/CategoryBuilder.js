@@ -111,6 +111,8 @@ export class CategoryBuilder {
                 $widgetDiv.appendChild($ul);
             }
 
+
+            // TODO: why is this code here?!!
             for (let i = 0; i < item.children.length; i++) {
 
                 let child = item.children[i];
@@ -448,5 +450,53 @@ export class CategoryBuilder {
         }
 
         return $h3;
+    }
+
+    /**
+     * Builds the paging on the bottom of a category page from the
+     * PageControls object.
+     *
+     * @param pageControls {PageControls}
+     * @returns {HTMLElement}
+     */
+    buildPagingControls(pageControls) {
+        let $div = document.createElement('div');
+        {
+            $div.classList.add('pagination', 'left');
+            let $ul = document.createElement('ul');
+            {
+                $ul.classList.add('pagination-list');
+                $div.appendChild($ul);
+                for (let i = 0; i < pageControls.pages.length; i++) {
+                    let page = pageControls.pages[i];
+                    let $li = document.createElement('li');
+                    {
+                        $ul.appendChild($li);
+                        let $a = document.createElement('a');
+                        {
+                            $li.appendChild($a);
+                            $a.href = 'javascript:void(0)';
+                            if (page.type === 'current') {
+                                $a.innerHTML = page.text;
+                                $li.classList.add('active');
+                            } else if (page.type === 'next') {
+                                $a.innerHTML = '<i class="lni lni-chevron-right"></i>';
+                            } else if (page.type === 'prev') {
+                                $a.innerHTML = '<i class="lni lni-chevron-left"></i>';
+                            } else if (page.type === 'page') {
+                                $a.innerHTML = page.text;
+                            } else {
+                                console.error('unknown page type: ' + page.type);
+                            }
+                            $a.addEventListener('click', () => {
+                                alert('clicking page: ' + page.text + ' (' + page.pageNumber + ', type=' + page.type + ')');
+                                page.$dom.click();
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        return $div;
     }
 }

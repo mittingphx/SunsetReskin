@@ -20,7 +20,7 @@ import {LinkController} from "./controllers/LinkController.js";
 import {MenuController} from "./controllers/MenuController.js";
 import {LoginController} from "./controllers/LoginController.js";
 import {WishListController} from "./controllers/WishListController.js";
-import {SkinToggleController} from "./controllers/SkinToggleController";
+import {SkinToggleController} from "./controllers/SkinToggleController.js";
 import {SiteSearchController} from "./controllers/SiteSearchController.js";
 
 /**
