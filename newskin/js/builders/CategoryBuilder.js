@@ -1,6 +1,7 @@
 import {ImageHelper} from "../util/ImageHelper.js";
 import {CategoryProductItem} from "../models/CategoryProductItem.js";
 import {ProductCategoryItem} from "../models/ProductCategoryItem.js";
+import {MathFilter} from "../util/Tween.js";
 
 /**
  * Builds the HTML for the category page.
@@ -263,18 +264,23 @@ export class CategoryBuilder {
         let $tabListView = document.querySelector('#nav-list');
         let $tabGrid = document.querySelector('#nav-grid-tab');
         let $tabGridView = document.querySelector('#nav-grid');
+        let $sliderControl = document.querySelector('#nav-size');
 
         $tabList.addEventListener('click', () => {
             $tabGrid.classList.remove('active');
             $tabGridView.classList.remove('active', 'show');
             $tabList.classList.add('active');
             $tabListView.classList.add('active', 'show');
+
+            $sliderControl.style.display = 'none';
         });
         $tabGrid.addEventListener('click', () => {
             $tabList.classList.remove('active');
             $tabListView.classList.remove('active', 'show');
             $tabGrid.classList.add('active');
             $tabGridView.classList.add('active', 'show');
+
+            $sliderControl.style.display = 'block';
         });
 
     }
@@ -498,5 +504,59 @@ export class CategoryBuilder {
             }
         }
         return $div;
+    }
+
+
+    /**
+     * Creates an HTML range slider for customizing the grid size similar
+     * to many photo apps.
+     */
+    initSizeSlider() {
+
+        // TODO: I would like to change the width property of the CSS class 'category-cell'
+        // instead of setting each of the element's custom styles
+
+        // lets slider not select to show 3 and a half products per row, for example
+        let clampValues = [
+            12.5 / 50.0, // 8 wide
+            14.2 / 50.0, // 7 wide
+            16.6 / 50.0, // 6 wide
+            19.7 / 50.0, // 5 wide
+            25.0 / 50.0, // 4 wide
+            33.3 / 50.0, // 3 wide
+            50.0 / 50.0  // 2 wide
+        ];
+
+        let easeAmount = 2;// 2;
+
+        let $range = document.querySelector('#nav-size-range');
+        if ($range) {
+            $range.addEventListener('input', _ => {
+
+
+                // grab value with easing, treating 0.25 - 1.0 as 0.0 - 1.0
+                let rangeValue = $range.value;
+                rangeValue = MathFilter.translate(rangeValue, 0.25, 1.0, 0.0, 1.0);
+                let value = MathFilter.easeIn(rangeValue, easeAmount);
+                value = MathFilter.translate(value, 0.0, 1.0, 0.25, 1.0);
+
+                // clamp to integer number of products per row
+                value = MathFilter.distinctClamp(value, clampValues);
+
+
+                // TODO: consider replacing all this math with something that
+                // selected between 2 and 8 products per row  (current ease amount seems fine though)
+
+
+                // default settings at value = 0.5
+                // width: 33%
+                // font-size: 1.78em;
+                document.querySelectorAll('.category-cell').forEach(cell => {
+                    cell.style.width = (50 * value) + '%';
+                    cell.querySelector('h4').style.fontSize = (2.70*value)+'em';
+                    cell.querySelector('a').style.fontSize = (21*value)+'px';
+                });
+            });
+        }
     }
 }

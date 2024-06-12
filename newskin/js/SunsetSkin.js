@@ -335,6 +335,12 @@ export class SunsetSkin {
             this.menuController.build();
         }
 
+        // build the mobile menu
+        if (fileTypeSettings.hasMenu) {
+            this.menuController.buildMobileMenu();
+        }
+
+
         // setup common page controls
         this.searchController.build();
         this.linkController.build();

@@ -118,7 +118,7 @@ export class CategoryController extends PageControllerBase {
             = '1 - ' + category.items.length + ' items';
 
         // slider for custom size
-        this.initSizeSlider();
+        this.pageBuilder.initSizeSlider();
 
         // implement sorting dropdown
         this.initSortDropdown(category, $insertionPoint);
@@ -156,37 +156,4 @@ export class CategoryController extends PageControllerBase {
         });
     }
 
-    /**
-     * Creates an HTML range slider for customizing the grid size similar
-     * to many photo apps.
-     * @param $parent {HTMLElement} the HTML containing the product list
-     */
-    initSizeSlider($parent) {
-
-        // TODO: I would like to change the width property of the CSS class 'category-cell'
-        // instead of setting each of the element's custom styles
-
-
-        let $range = document.querySelector('#nav-size-range');
-        if ($range) {
-            $range.addEventListener('input', _ => {
-                let value = $range.value; // TODO: make this logarithmic
-
-                // default settings at value = 0.5
-                // width: 33%
-                // font-size: 1.78em;
-                document.querySelectorAll('.category-cell').forEach(cell => {
-                    console.log({
-                        value: value,
-                        width: (50 * value) + '%',
-                        fontSize: (2.70*value)+'em',
-                        fontSize2: (21*value)+'px',
-                    });
-                    cell.style.width = (50 * value) + '%';
-                    cell.querySelector('h4').style.fontSize = (2.70*value)+'em';
-                    cell.querySelector('a').style.fontSize = (21*value)+'px';
-                });
-            });
-        }
-    }
 }

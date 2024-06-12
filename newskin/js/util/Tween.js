@@ -1,5 +1,74 @@
 import {Range} from "./Range.js";
 
+
+/**
+ * Helper functions for easing, clamping, and resizing math values.
+ */
+export class MathFilter {
+
+    /**
+     * Converts a value within a range into a new range, for example
+     * a value between 0.25 - 1.0 could be converted to 0.0 - 1.0
+     * for some calculates and then back to 0.25 - 1.0
+     * @param t {number} value to translate
+     * @param oldMin {number} the minimum value of the old range
+     * @param oldMax {number} the maximum value of the old range
+     * @param newMin {number} the minimum value of the new range
+     * @param newMax {number} the maximum value of the new range
+     * @returns {number}
+     */
+    static translate(t, oldMin, oldMax, newMin, newMax) {
+        let oldRange = oldMax - oldMin;
+        let newRange = newMax - newMin;
+        return (((t - oldMin) * newRange) / oldRange) + newMin;
+    }
+
+    /**
+     * Takes a value and clamps it to one of the values specified in
+     * an array of allowed values.
+     * @param t {number} the value to clamp
+     * @param values {number[]} a sorted array of allowed values
+     * @returns {number}
+     */
+    static distinctClamp(t, values) {
+        let index = 0;
+        while (t > values[index] && index < values.length - 1) {
+            index++;
+        }
+        return values[index];
+    }
+
+    /**
+     * Performs the easing function on both the start and end of the range.
+     * @param t {number} between 0.0 and 1.0
+     * @param pow {number} the power of the easing (default: 3)
+     * @returns {number}
+     */
+    static easeInOut(t, pow = 3) {
+        return t < 0.5 ? 4*Math.pow((t-1),pow)+1 : 4*Math.pow(t,pow);
+    }
+
+    /**
+     * Performs the easing function on the end of the range.
+     * @param t {number} between 0.0 and 1.0
+     * @param pow {number} the power of the easing (default: 3)
+     * @returns {number}
+     */
+    static easeOut(t, pow = 3) {
+        return 1 - Math.pow(1 - t, pow);
+    }
+
+    /**
+     * Performs the easing function on the start of the range.
+     * @param t {number} between 0.0 and 1.0
+     * @param pow {number} the power of the easing (default: 3)
+     * @returns {number}
+     */
+    static easeIn(t , pow = 3) {
+        return Math.pow(t, pow);
+    }
+}
+
 /**
  * Class that handles fading between two value over a period of time.
  */
