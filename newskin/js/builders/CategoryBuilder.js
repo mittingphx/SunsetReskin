@@ -151,7 +151,7 @@ export class CategoryBuilder {
                     for (let product of categoryData.items) {
                         let $cell = document.createElement('div');
                         {
-                            $cell.classList.add('col-lg-4', 'col-md-6', 'col-12');
+                            $cell.classList.add('col-lg-4', 'col-md-6', 'col-12', 'category-cell');
                             $row.appendChild($cell);
 
                             let $productItem = this.buildCategoryProduct(product);

@@ -11,7 +11,7 @@
 
 /*** Fixes for product images ***/
 .single-product .product-image {
-    min-height: 245px;
+    /*min-height: 245px;*/
     display: flex;
     justify-content: center;
     align-items: center;
@@ -294,10 +294,14 @@ body.popup-mode .breadcrumbs {
     visibility: hidden;
 }
 
+/** Product details **/
+
 .item-details .product-info .wish-button {
     text-wrap: nowrap;
     width: 135px;
 }
+
+/** shopping cart **/
 
 .cart-items .content h4 {
     font-size: 15px
@@ -325,4 +329,82 @@ body.popup-mode .breadcrumbs {
     font-size: 20px;
     color: red;
     text-align: center;
+}
+
+/** category view **/
+.category-cell {
+
+}
+
+.category-cell h4 {
+    font-size: 1.78em;
+}
+
+.grid-size-slider {
+    padding: 5px 5px;
+}
+
+#nav-size-range {
+    padding: 0 10px;
+}
+
+
+/*********** SLIDER: Baseline, reset styles ***********/
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    width: 7rem;
+}
+
+/* Removes default focus */
+input[type="range"]:focus {
+    outline: none;
+}
+
+/******** SLIDER: Chrome, Safari, Opera and Edge Chromium styles ********/
+/* slider track */
+input[type="range"]::-webkit-slider-runnable-track {
+    background-color: #d1d1d1;
+    border-radius: 1rem;
+    height: 0.5rem;
+}
+
+/* slider thumb */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    margin-top: -8px; /* Centers thumb on the track */
+    background-color: #0166f4;
+    border-radius: 0.5rem;
+    height: 1.5rem;
+    width: 1rem;
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+    outline: 3px solid #0166f4;
+    outline-offset: 0.125rem;
+}
+
+/*********** SLIDER: Firefox styles ***********/
+/* slider track */
+input[type="range"]::-moz-range-track {
+    background-color: #d1d1d1;
+    border-radius: 1rem;
+    height: 0.5rem;
+}
+
+/* slider thumb */
+input[type="range"]::-moz-range-thumb {
+    background-color: #0166f4;
+    border: none; /*Removes extra border that FF applies*/
+    border-radius: 0.5rem;
+    height: 1.5rem;
+    width: 1rem;
+}
+
+input[type="range"]:focus::-moz-range-thumb{
+    outline: 3px solid #0166f4;
+    outline-offset: 0.125rem;
 }

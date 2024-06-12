@@ -43,7 +43,7 @@ export class FileDetector {
     /**
      * Returns the page type of the current page.
      * @param url {string|null} the url of the current page, or null to use the window.location
-     * @returns {*|string}
+     * @returns {*|string}w
      */
     static getPageType(url= null) {
         let filename = FileDetector.#getCurrentFilename(url);
