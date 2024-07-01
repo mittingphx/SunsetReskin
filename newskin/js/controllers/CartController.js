@@ -52,12 +52,15 @@ export class CartController extends PageControllerBase {
         let cart = parser.readCart();
         console.log({cart:cart});
 
-        // build the main product details area
-        $insertionPoint.replaceWith(this.cartBuilder.buildCartView(cart, this.skin.loginController.status));
+        // grab login status
+        this.skin.getLoginStatus(loginStatus => {
+            // build the main product details area
+            $insertionPoint.replaceWith(this.cartBuilder.build(cart, loginStatus));
 
-        // build the breadcrumbs in the header
-        let $breadcrumbs = this.breadcrumbBuilder.build('Shopping Cart', this.cartBuilder.buildBreadCrumbs());
-        document.querySelector('.breadcrumbs').replaceWith($breadcrumbs);
+            // build the breadcrumbs in the header
+            let $breadcrumbs = this.breadcrumbBuilder.build('Shopping Cart', this.cartBuilder.buildBreadCrumbs());
+            document.querySelector('.breadcrumbs').replaceWith($breadcrumbs);
+        })
 
         // set the window title
         document.title = `Checkout - Sunset Wholesale West`;
@@ -65,8 +68,9 @@ export class CartController extends PageControllerBase {
 
     /**
      * Builds the cart preview dropdown from the upper-right corner of the page.
+     * @param loginStatus {LoginStatus}
      */
-    buildCartDropdown() {
+    buildCartDropdown(loginStatus) {
 
         // show a spinner while the cart is being loaded
         let $insertionPoint = document.querySelector('.ddl-cart');
@@ -79,7 +83,7 @@ export class CartController extends PageControllerBase {
         // load cart in the background
         ShoppingCart.getInstanceAsync(cart => {
             $insertionPoint.replaceWith(
-                this.cartBuilder.buildCartDropdown(cart, this.skin.loginController.status)
+                this.cartBuilder.buildCartDropdown(cart, loginStatus)
             );
         })
     }

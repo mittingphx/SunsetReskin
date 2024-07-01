@@ -32,7 +32,9 @@ export class ContactPageController extends PageControllerBase {
         })) return;
 
         // build the contact page
-        this.builder.build(this.skin.loginController.status, dom.$contactForm);
+        this.skin.getLoginStatus(loginStatus => {
+            this.builder.build(loginStatus, dom.$contactForm);
+        });
 
         // set the window title
         document.title = `Sunset Wholesale West`;

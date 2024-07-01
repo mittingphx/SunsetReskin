@@ -2,6 +2,7 @@ import {ImageHelper} from "../util/ImageHelper.js";
 import {CategoryProductItem} from "../models/CategoryProductItem.js";
 import {ProductCategoryItem} from "../models/ProductCategoryItem.js";
 import {MathFilter} from "../util/Tween.js";
+import {CssHelper} from "../util/CssHelper.js";
 
 /**
  * Builds the HTML for the category page.
@@ -114,10 +115,14 @@ export class CategoryBuilder {
 
 
             // TODO: why is this code here?!!
+            /*
             for (let i = 0; i < item.children.length; i++) {
 
                 let child = item.children[i];
             }
+
+
+             */
         }
         return $widgetDiv;
     }
@@ -513,41 +518,23 @@ export class CategoryBuilder {
      */
     initSizeSlider() {
 
-        // TODO: I would like to change the width property of the CSS class 'category-cell'
-        // instead of setting each of the element's custom styles
-
-        // lets slider not select to show 3 and a half products per row, for example
-        let clampValues = [
-            12.5 / 50.0, // 8 wide
-            14.2 / 50.0, // 7 wide
-            16.6 / 50.0, // 6 wide
-            19.7 / 50.0, // 5 wide
-            25.0 / 50.0, // 4 wide
-            33.3 / 50.0, // 3 wide
-            50.0 / 50.0  // 2 wide
-        ];
-
-        let easeAmount = 2;// 2;
-
         let $range = document.querySelector('#nav-size-range');
         if ($range) {
             $range.addEventListener('input', _ => {
 
+                let value = this.#getSizeSliderValue($range);
 
-                // grab value with easing, treating 0.25 - 1.0 as 0.0 - 1.0
-                let rangeValue = $range.value;
-                rangeValue = MathFilter.translate(rangeValue, 0.25, 1.0, 0.0, 1.0);
-                let value = MathFilter.easeIn(rangeValue, easeAmount);
-                value = MathFilter.translate(value, 0.0, 1.0, 0.25, 1.0);
-
-                // clamp to integer number of products per row
-                value = MathFilter.distinctClamp(value, clampValues);
-
+                // chaining the width property of the CSS class 'category-cell'
+                // instead of setting each of the element's custom styles
+                CssHelper.changeClassProperty('.category-cell', {'width': (50 * value) + '%'});
+                CssHelper.changeClassProperty('.category-cell h4', {'font-size': (2.70*value)+'em'});
+                CssHelper.changeClassProperty('.category-cell a', {'font-size': (21*value)+'px'});
+                CssHelper.changeClassProperty('.category-cell .product-info', {'padding': (20*value)+'px'});
 
                 // TODO: consider replacing all this math with something that
                 // selected between 2 and 8 products per row  (current ease amount seems fine though)
 
-
+/*
                 // default settings at value = 0.5
                 // width: 33%
                 // font-size: 1.78em;
@@ -556,7 +543,40 @@ export class CategoryBuilder {
                     cell.querySelector('h4').style.fontSize = (2.70*value)+'em';
                     cell.querySelector('a').style.fontSize = (21*value)+'px';
                 });
+
+ */
             });
         }
+    }
+
+    /**
+     * Returns the value of the range slider adjusted for easing.
+     * @param $range {HTMLInputElement}
+     * @returns {number}
+     */
+    #getSizeSliderValue($range) {
+
+        // forces slider not select to show 3 and a half products per row, for example
+        const clampValues = [
+            12.5 / 50.0, // 8 wide
+            14.2 / 50.0, // 7 wide
+            16.6 / 50.0, // 6 wide
+            19.7 / 50.0, // 5 wide
+            25.0 / 50.0, // 4 wide
+            33.3 / 50.0, // 3 wide
+            50.0 / 50.0  // 2 wide
+        ];
+        const easeAmount = 2; // exponent of easing function
+
+        // grab value with easing, treating 0.25 - 1.0 as 0.0 - 1.0
+        let rangeValue = parseFloat($range.value);
+        rangeValue = MathFilter.translate(rangeValue, 0.25, 1.0, 0.0, 1.0);
+        let value = MathFilter.easeIn(rangeValue, easeAmount);
+        value = MathFilter.translate(value, 0.0, 1.0, 0.25, 1.0);
+
+        // clamp to integer number of products per row
+        value = MathFilter.distinctClamp(value, clampValues);
+
+        return value;
     }
 }

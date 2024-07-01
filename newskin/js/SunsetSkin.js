@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 /**
  * Project: Sunset Wholesale West Website
  * File:    SunsetSkin.js
@@ -22,6 +24,7 @@ import {LoginController} from "./controllers/LoginController.js";
 import {WishListController} from "./controllers/WishListController.js";
 import {SkinToggleController} from "./controllers/SkinToggleController.js";
 import {SiteSearchController} from "./controllers/SiteSearchController.js";
+import {LoginStatus} from "./models/LoginStatus.js";
 
 /**
  * Analyzes the original HTML to figure out the contents of the menu
@@ -141,9 +144,11 @@ export class SunsetSkin {
         this.searchController = new SiteSearchController(this)
 
         // handle changes in login status
-        this.loginController.statusUpdatedEvent.addListener(_ => {
-            this.cartController.buildCartDropdown();
-            this.loginController.buildStatusInfo();
+        this.loginController.statusUpdatedEvent.addListener(loginStatus => {
+            if (loginStatus instanceof LoginStatus) {
+                this.cartController.buildCartDropdown(loginStatus);
+                this.loginController.buildStatusInfo();
+            }
         })
     }
 
@@ -303,16 +308,18 @@ export class SunsetSkin {
         // determine settings by file type
         let fileTypeSettings = SunsetSettings.getByFileType(this.fileType);
         if (!fileTypeSettings) {
-            alert('unknown page type: ' + this.fileType);
-            console.error('unknown page type: ' + this.fileType);
+            //alert('unknown page type: ' + this.fileType);
+            console.error('unknown page type: ' + this.fileType + ' newUrl=' + newUrl);
 
             // hide the loading screen for unknown file types
             this.removePreloader();
 
             // just redirect when using dynamic js loading.
-            if (this.usingDynamicLoading && newUrl) {
-                document.location = newUrl;
-            }
+            //if (this.usingDynamicLoading) {
+                 if (newUrl) {
+                    document.location = newUrl;
+                }
+            //}
             return;
         }
         console.log('loadNewSkinPage()',{fileType:this.fileType, fileTypeSettings:fileTypeSettings});
@@ -340,7 +347,6 @@ export class SunsetSkin {
             this.menuController.buildMobileMenu();
         }
 
-
         // setup common page controls
         this.searchController.build();
         this.linkController.build();
@@ -358,4 +364,26 @@ export class SunsetSkin {
             console.error('No controller for filetype: ' + this.fileType);
         }
     }
+
+    /**
+     * Gets the login status using a callback.
+     * @param fnCallback {function(LoginStatus)}
+     */
+    getLoginStatus(fnCallback) {
+        this.loginController.getStatus(loginStatus => {
+            fnCallback(loginStatus);
+        });
+    }
+
+    /**
+     * Gets the login status using an async promise.
+     * @returns {LoginStatus}
+     */
+    async getLoginStatusAsync() {
+        const promise = new Promise((resolve, reject) => {
+            this.getLoginStatus(resolve);
+        });
+        return await promise;
+    }
+
 }

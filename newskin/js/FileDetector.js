@@ -31,7 +31,6 @@ export class FileDetector {
      */
     static #PageFn = {
         FrontPage: [ 'Default.aspx', 'swwest_copy.html', 'index.html', ''],
-        // TODO: this may need to be a custom function so we can
         // determine if it's a category page or a search result
         Category: [ 'ItemSearch.aspx', 'swwest_category.html' ],
         ContactUs: [ 'ContactUs.aspx' ],
@@ -46,7 +45,14 @@ export class FileDetector {
      * @returns {*|string}w
      */
     static getPageType(url= null) {
-        let filename = FileDetector.#getCurrentFilename(url);
+        let filename;
+        try {
+            filename = FileDetector.#getCurrentFilename(url);
+        }
+        catch (e) {
+            console.error(e);
+            return FileDetector.Pages.Unknown;
+        }
         for (let key in FileDetector.#PageFn) {
             let fn = FileDetector.#PageFn[key];
             if (typeof fn === 'function') {
@@ -64,9 +70,25 @@ export class FileDetector {
      */
     static #getCurrentFilename(currentUrl = null) {
         let url = window.location.pathname;
-        if (currentUrl) url = new URL(currentUrl).pathname;
-        let lastSlash = url.lastIndexOf('/');
-        return lastSlash === -1 ? '' : url.substring(lastSlash + 1);
+        if (currentUrl) {
+            try {
+                if (url.indexOf('/') > -1) {
+                    url = new URL(currentUrl).pathname;
+                }
+                else {
+                    url = currentUrl;
+                }
+            } catch {
+                url = currentUrl;
+            }
+        }
+        if (url.indexOf('/') > -1) {
+            let lastSlash = url.lastIndexOf('/');
+            return lastSlash === -1 ? '' : url.substring(lastSlash + 1);
+        }
+        else {
+            return url;
+        }
     }
 
     /**

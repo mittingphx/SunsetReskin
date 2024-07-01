@@ -1,3 +1,5 @@
+// noinspection HtmlUnknownTarget
+
 import {Format} from "../util/Format.js";
 import { ShoppingCart, CartProductItem } from '../parsers/ViewCartParser.js';
 import {ProductCategoryBreadcrumb} from "../parsers/CommonParser.js";
@@ -8,11 +10,10 @@ import {LoginStatus} from "../models/LoginStatus.js";
  */
 export class ViewCartBuilder {
 
+    /**
+     * Constructor
+     */
     constructor() {
-    }
-
-    build() {
-        // TODO: make this the function the main code calls.
     }
 
     /**
@@ -21,7 +22,7 @@ export class ViewCartBuilder {
      * @param loginStatus {LoginStatus}
      * @returns {HTMLDivElement}
      */
-    buildCartView(cart, loginStatus) {
+    build(cart, loginStatus) {
 
         let $cart = document.createElement('div');
         $cart.classList.add('shopping-cart', 'section');
@@ -81,7 +82,7 @@ export class ViewCartBuilder {
                     }
                 }
 
-                // empty cart
+                // empty cart because not logged in
                 if (!loginStatus || !loginStatus.loggedIn) {
                     let $outerDiv = document.createElement('div');
                     {
@@ -599,7 +600,7 @@ export class ViewCartBuilder {
                     $divShopping.appendChild($ul);
 
                     if (!loginStatus.loggedIn) {
-                        $ul.innerHTML = '<li>Please <a href="Login/Login.aspx?redirect=ViewCart.aspxa">sign in</A to view cart</li>';
+                        $ul.innerHTML = '<li>Please <a href="Login/Login.aspx?redirect=ViewCart.aspx">sign in</A to view cart</li>';
                         return $cartItems;
                     }
 

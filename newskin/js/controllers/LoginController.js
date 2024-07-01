@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import {PageControllerBase} from "./BaseControllers.js";
 import {LoginPageParser} from "../parsers/LoginPageParser.js";
 import {LoginPageBuilder} from "../builders/LoginPageBuilder.js";
@@ -13,10 +15,12 @@ import {EventListener} from "../util/EventListener.js";
 export class LoginController extends PageControllerBase {
 
     /**
-     * Last login status read from the web page.
+     * Last login status read from the web page.  Use getStatus()
+     * order the statusUpdatedEvent to access this value, otherwise
+     * it might not yet be populated.
      * @type {LoginStatus|null}
      */
-    status = null;
+    #status = null;
 
     /**
      * Builder for the html elements in the login page.
@@ -43,17 +47,11 @@ export class LoginController extends PageControllerBase {
     statusParser = null;
 
     /**
-     * Where to insert the login status info
-     * @type {HTMLElement|null}
-     */
-    $insertStatusInfo = null;
-
-    /**
      * Handles event when the login status changes.
      * @type {EventListener}
      */
     statusUpdatedEvent = new EventListener('LoginStatusUpdated', _ => {
-        return this.status;
+        return this.#status;
     });
 
 
@@ -90,26 +88,45 @@ export class LoginController extends PageControllerBase {
 
     /**
      * Builds the login status area at the top of the page.
+     * @param loginStatus {LoginStatus|null} optionally allows status to be passed in instead of using #status
      */
-    buildStatusInfo() {
+    buildStatusInfo(loginStatus = null) {
+
+        if (!loginStatus) {
+            loginStatus = this.#status;
+        }
 
         // make sure we've got a status
-        if (!this.status) {
+        if (!loginStatus) {
             console.error('Call to buildStatusInfo() before updateLoginStatus()');
             return;
         }
 
         // make sure we've got a place to put it
-        if (!this.$insertStatusInfo) {
-            this.$insertStatusInfo = document.querySelector('.top-end');
-            if (!this.$insertStatusInfo) {
+        //if (!this.$insertStatusInfo) {   // this was pointing at prior pages when we saved the reference
+            let $insertStatusInfo = document.querySelector('.top-end');
+            if (!$insertStatusInfo) {
                 console.error('Could not find .top-end');
                 return;
             }
-        }
+        //}
 
         // build the status area
-        this.$insertStatusInfo.replaceWith(this.statusBuilder.build(this.status));
+        let $newStatusInfo = this.statusBuilder.build(loginStatus);
+        $insertStatusInfo.replaceWith($newStatusInfo);
+    }
+
+    /**
+     * Immediately returns the login status if it's available, otherwise
+     * the status is requested and a new event is registered to call the
+     * callback as soon as the status is available.
+     * @param fnCallback {function(LoginStatus)}
+     */
+    getStatus(fnCallback) {
+        if (this.#status) {
+            fnCallback(this.#status);
+        }
+        this.statusUpdatedEvent.addListener(fnCallback);
     }
 
     /**
@@ -118,9 +135,8 @@ export class LoginController extends PageControllerBase {
     updateLoginStatus() {
         if (!this.#initParsers()) return;
 
-        // TODO: this may require re-loading pages.
         this.statusParser.readLoginStatus(status => {
-            this.status = status;
+            this.#status = status;
             this.statusUpdatedEvent.trigger();
         })
     }

@@ -283,13 +283,20 @@ export class SunsetSkinHtml {
         // if we're on the dev server, add a bunch of test links
         if (UrlHelper.isLocalhost) {
             let testLinks = document.createElement('div');
-            testLinks.innerHTML = `
-                <a href="swwest_detail.html">test detail</a>
-                <a href="swwest_category.html">test category</a>
-                <a href="swwest_cart.html">test cart</a>
-                <a href="swwest_copy.html">test front page</a>
-                <a href="swwest_login.html">test login</a>
-            `;
+            let testLinkList = [
+                'swwest_detail.html', 'test detail',
+                'swwest_category.html', 'test category',
+                'swwest_cart.html', 'test cart',
+                'swwest_copy.html', 'test front page',
+                'swwest_login.html', 'test login',
+                'swwest_myaccount.html', 'test my account'
+            ];
+            for (let i = 0; i < testLinkList.length; i += 2) {
+                let a = document.createElement('a');
+                a.href = testLinkList[i];
+                a.textContent = testLinkList[i + 1];
+                testLinks.appendChild(a);
+            }
             document.querySelector('.nav-social').appendChild(testLinks);
             UrlHelper.mapLinks(testLinks);
         }
@@ -322,62 +329,6 @@ export class SunsetSkinHtml {
         else {
             console.error('unknown set: ' + set);
         }
-    }
-
-    /**
-     * Executes all javascript <script> tags within the given element.
-     *
-     * In order to get this to work, we will be loading each of the
-     * <script> tags with src using fetch and then eval()ing the content.
-     * Embedded javascript content will be executed directly as well and
-     * both will be executed in the order it appears.  The source will
-     * not contain any <script> tags.
-     *
-     * @param element {HTMLElement}
-     */
-    async runScripts(element) {
-        // NOTE: this is currently disabled
-
-        // get all the javascript that needs loaded
-        let loadPlan = [];
-        let references = [];
-        let scripts = element.querySelectorAll('script');
-        for (let i = 0; i < scripts.length; i++) {
-            if (scripts[i].src) {
-                let obj = {url: scripts[i].src};
-                loadPlan.push(obj);
-                references.push(obj);
-            }
-            else {
-                loadPlan.push({content: scripts[i].innerHTML});
-            }
-        }
-
-        // fetch each of the javascript files asynchronously
-        await Promise.all(
-            references.map(script => fetch(script.url)
-                .then(response => response.text())
-                .then(text => script.content = text))
-            );
-
-        // execute the javascript in the order it appears
-        for (let i = 0; i < loadPlan.length; i++) {
-            if (loadPlan[i].content) {
-                try {
-                    if (loadPlan[i].url) {
-                        console.log('running src=' + loadPlan[i].url);
-                    }
-                    else {
-                        console.log('running inline script');
-                    }
-                    eval(loadPlan[i].content);
-                }
-                catch (ex) {
-                    console.error('failed to run script\nexception: ' + ex + '\nscript: ' + loadPlan[i].content);
-                }
-            }
-        }
-
     }
 
     /**
