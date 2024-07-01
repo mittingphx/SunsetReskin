@@ -4,6 +4,7 @@ import {Format} from "../util/Format.js";
 import { ShoppingCart, CartProductItem } from '../parsers/ViewCartParser.js';
 import {ProductCategoryBreadcrumb} from "../parsers/CommonParser.js";
 import {LoginStatus} from "../models/LoginStatus.js";
+import {SunsetSkin} from "../SunsetSkin.js";
 
 /**
  * Builds the cart page and cart dropdown html.
@@ -486,8 +487,8 @@ export class ViewCartBuilder {
                                         $a2.innerHTML = 'Continue Shopping';
                                         $divButton.appendChild($a2);
 
-                                        $a2.addEventListener('click', () => {
-                                            alert('continue shopping clicked');
+                                        $a2.addEventListener('click', async () => {
+                                            await SunsetSkin.getInstance().navigateTo('Default.aspx');
                                         });
                                     }
                                 } // end buttons

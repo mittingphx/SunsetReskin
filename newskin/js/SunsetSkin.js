@@ -157,14 +157,10 @@ export class SunsetSkin {
      * Gets the most recent instance of this object.
      * @returns {SunsetSkin}
      */
-    /*
     static getInstance() {
-        if (!SunsetSkin.#instance) {
-            SunsetSkin.#instance = new SunsetSkin();
-        }
         return this.#instance;
     }
-    */
+
 
     /**
      * Starts monitoring the page for its data and launches the

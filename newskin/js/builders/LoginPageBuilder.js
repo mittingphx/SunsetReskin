@@ -198,7 +198,8 @@ export class LoginPageBuilder {
                     //SunsetSkin.getInstance().loginController.updateLoginStatus();
 
                     //document.location = UrlHelper.getDeployment() + 'Login/MyAccount.aspx';
-                    await SunsetSkin.navigateToAsync('ViewCart.aspx');
+                    //await SunsetSkin.navigateToAsync('ViewCart.aspx');
+                    await SunsetSkin.navigateToAsync('Login/MyAccount.aspx');
 
                 });
             });

@@ -221,6 +221,17 @@ export class ProductDetailParser {
             console.log({image:ret.image, images:ret.images, thumbs:ret.thumbs});
         }
 
+        // detect that we're viewing an 'item added to cart' message on the old skin
+        let $btnKeepShopping = $table.querySelector('#MainContent_BtnKeepShopping');
+        if ($btnKeepShopping) {
+            // we need to display the last copy of this product when this happens.
+            alert('Item added to cart');
+
+            // we need to press the button to keep shopping
+            $btnKeepShopping.click();
+            return null;
+        }
+
         // grab the detail properties
         let $detail = $table.querySelector('#MainContent_PanelQty');
         if ($detail) {
