@@ -22,6 +22,7 @@ export class FileDetector {
         ContactUs:  'ContactUs',
         Cart: 'Cart',
         Login: 'Login',
+        MyAccount: 'MyAccount',
         Unknown: 'Unknown'
     };
 
@@ -36,13 +37,14 @@ export class FileDetector {
         ContactUs: [ 'ContactUs.aspx' ],
         ItemDetail: [ 'ItemDetail.aspx', 'swwest_detail.html'],
         Cart: [ 'ViewCart.aspx', 'swwest_cart.html' ],
-        Login: [ 'Login.aspx', 'swwest_login.html' ]
+        Login: [ 'Login.aspx', 'swwest_login.html' ],
+        MyAccount: [ 'MyAccount.aspx', 'swwest_myaccount.html' ]
     };
 
     /**
      * Returns the page type of the current page.
      * @param url {string|null} the url of the current page, or null to use the window.location
-     * @returns {*|string}w
+     * @returns {*|string}
      */
     static getPageType(url= null) {
         let filename;

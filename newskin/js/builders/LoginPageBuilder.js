@@ -1,8 +1,11 @@
+// noinspection HtmlUnknownTarget,JSUnusedLocalSymbols
+
 import { LoginPageForm} from "../parsers/LoginPageParser.js";
 import {DomHelper} from "../util/DomHelper.js";
 import {Format} from "../util/Format.js";
 import {UrlHelper} from "../UrlHelper.js";
 import {SunsetSkin} from "../SunsetSkin.js";
+import {PageLoadHelper} from "../util/PageLoadHelper.js";
 
 /**
  * Connects the new skin's login page to the old skin's functionality.
@@ -177,8 +180,7 @@ export class LoginPageBuilder {
         fetch(loginUrl)
             .then(response => response.text())
             .then(html => {
-                console.log(html);
-
+                //console.log(html);
 
                 let newScript = this.#getLoginInjectionScript(user, pass);
                 html = html.replace('</body>', newScript.outerHTML + "</body>");
@@ -191,55 +193,11 @@ export class LoginPageBuilder {
                 wnd.document.close();
 
                 // close hidden page and redirect once login is complete
-                this.#waitUntilPageChange(wnd, async wnd => {
-
-                    console.log('page change detected!');
-                    // setup controls that require login information (gets called by navigateTo() )
-                    //SunsetSkin.getInstance().loginController.updateLoginStatus();
-
-                    //document.location = UrlHelper.getDeployment() + 'Login/MyAccount.aspx';
-                    //await SunsetSkin.navigateToAsync('ViewCart.aspx');
+                PageLoadHelper.waitUntilPageChange(wnd, async _ => {
                     await SunsetSkin.navigateToAsync('Login/MyAccount.aspx');
-
                 });
             });
-
-/*
-        // wait until window can receive an injected script
-        this.#waitUntilPageReady(wnd, wnd => {
-            // create the login script
-            let newScript = this.#getLoginInjectionScript(user, pass);
-
-            // create new html with injected script
-            let head = wnd.document.head.outerHTML;
-            let body = wnd.document.body.outerHTML;
-            body = body.replace('</body>', newScript.outerHTML + "</body>");
-            body = body.replace('<script type="module" src="/reskin/NewSkin.js"></script>', '');
-            body = body.replace('<script type="module" src="NewSkin.js"></script>', '');
-
-            let html = '<html lang="en">' + head + body + '</html>';
-            console.log(html);
-
-            // write to the new window
-            wnd.document.open();
-            wnd.document.write(html);
-            wnd.document.close();
-
-            // close hidden page and redirect once login is complete
-            this.#waitUntilPageChange(wnd, async wnd => {
-
-                // setup controls that require login information (gets called by navigateTo() )
-                //SunsetSkin.getInstance().loginController.updateLoginStatus();
-
-                //document.location = UrlHelper.getDeployment() + 'Login/MyAccount.aspx';
-                await SunsetSkin.navigateToAsync('ViewCart.aspx');
-
-            });
-        });
-        */
-
     }
-
 
     /**
      * Gets the javascript to inject into the hidden login page
@@ -296,66 +254,5 @@ export class LoginPageBuilder {
         newScript.innerHTML = js + ' injectScript();';
 
         return newScript;
-    }
-
-    /**
-     * Sets an interval that keeps checking if a page has loaded
-     * and calls a callback once it's ready.
-     * @param wnd {Window} window to wait for
-     * @param callback {function} callback to call once the page is ready
-     */
-    #waitUntilPageReady(wnd, callback) {
-
-        // wait until window can receive an injected script
-        let interval = setInterval(_ => {
-
-            // wait for window to load
-            if (!wnd || !wnd.document || !wnd.document.body) {
-                return;
-            }
-
-            // wait until there's actually something in the body;
-            if (wnd.document.body.innerText.length === 0) {
-                return;
-            }
-
-            // stop waiting
-            clearInterval(interval);
-
-            // do callback
-            callback(wnd);
-        });
-    }
-
-    /**
-     * Waits until the page changes and calls a callback when it does.
-     * @param wnd {Window} window to wait for
-     * @param callback {function} callback to call once the page is ready
-     */
-    #waitUntilPageChange(wnd, callback) {
-
-        let oldUrl = wnd.location.href;
-        let oldTitle = wnd.document.title;
-
-        let interval = setInterval(async _ => {
-            // TODO: need to detect errors in login
-            if (wnd.location.href === oldUrl) {
-                return;
-            }
-            console.log('window title = ' + wnd.document.title
-                + ' location=' + wnd.location.href
-                + ' old=' + oldUrl
-                + ' oldTitle=' + oldTitle
-            );
-            clearInterval(interval);
-
-            // close the temporary window
-            wnd.close(); // TODO: is this needed?  maybe remove iframe?
-
-            // do callback
-            callback(wnd);
-
-        });
-
     }
 }

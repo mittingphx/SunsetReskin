@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html class="no-js" lang="zxx">
+
+<head>
+  <base href="/">
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <title>Sunset Wholesale West - Fine Tobaccos and Products</title>
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="shortcut icon" type="image/x-icon" href="assets/images/favicon.svg" />
+
+  <!-- ========================= CSS here ========================= -->
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="assets/css/LineIcons.3.0.css" />
+  <link rel="stylesheet" href="assets/css/tiny-slider.css" />
+  <link rel="stylesheet" href="assets/css/glightbox.min.css" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <link rel="stylesheet" href="newskin/css/sunset.css" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+
+<body>
+<!--[if lte IE 9]>
+<p class="browserupgrade">
+  You are using an <strong>outdated</strong> browser. Please
+  <a href="https://browsehappy.com/">upgrade your browser</a> to improve
+  your experience and security.
+</p>
+<![endif]-->
+
+<!-- Preloader -->
+<!--
+<div class="preloader">
+    <div class="preloader-inner">
+        <div class="preloader-icon">
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</div>
+-->
+<!-- /End Preloader -->
+<div class="newskin-toggle">
+  <i class="fa-solid fa-toggle-on" id="toggleSkin"></i>
+  <b>New Skin Enabled</b>
+</div>
+
+<!-- Start Header Area -->
+<header class="header navbar-area"></header>
+<!-- End Header Area -->
+
+<!-- Start Breadcrumbs -->
+<div class="breadcrumbs">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-md-6 col-12">
+        <div class="breadcrumbs-content">
+          <h1 class="page-title"></h1>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-6 col-12">
+        <ul class="breadcrumb-nav">
+          <li><a href="index.html"><i class="lni lni-home"></i> Home</a></li>
+          <li>My Account</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Breadcrumbs -->
+
+<section class="checkout-wrapper section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+
+        <div class="my-account-section">
+          <div class="title">
+            <i class="lni lni-package"></i>
+            <h3>My Orders</h3>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="order-history-insertion-point"></div>
+
+
+              <div class="page-buttons">
+                <button class="btn bg-primary" id="btnFirst" title="first"><i class="lni lni-shift-left"></i></button>
+                <button class="btn bg-primary" id="btnPrev" title="previous"><i class="lni lni-arrow-left"></i></button>
+                <button class="btn bg-primary" id="btnNext" title="next"><i class="lni lni-arrow-right"></i></button>
+                <button class="btn bg-primary" id="btnLast" title="last"><i class="lni lni-shift-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="my-account-section">
+          <div class="title">
+            <i class="lni lni-map"></i>
+            <h3>Shipping Addresses</h3>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="shipping-addresses-insertion-point"></div>
+
+              <div class="title-buttons">
+                <button class="btn bg-primary" id="btnAddShipping">Add Shipping Address</button>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+        <style>
+          .my-account-section {
+            background-color: white;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+          }
+          .my-account-section .title {
+            border-bottom: 1px dotted #ccc;
+            padding: 5px;
+            margin-bottom: 10px;
+          }
+          .my-account-section .title h3 {
+            display: inline-block;
+            position: relative;
+            top: -5px;
+            left: 5px;
+          }
+          .my-account-section .title i {
+            font-size: 3em;
+            color: dodgerblue;
+            display: inline-block;
+          }
+        </style>
+
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+
+
+      <div class="col-lg-4">
+        <div class="my-account-section">
+          <div class="title">
+            <i class="lni lni-apartment"></i>
+            <h3>My Account</h3>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+
+              <div class="field">
+                <p class="label">Name</p>
+                <p class="value" id="txtName"></p>
+              </div>
+              <div class="field">
+                <p class="label">Company</p>
+                <p class="value" id="txtCompany"></p>
+              </div>
+              <div class="field">
+                <p class="label">Account Number</p>
+                <p class="value" id="txtAcctNo"></p>
+              </div>
+
+
+              <div class="title-buttons">
+                <button class="btn bg-warning" id="btnLogout">Logout</button>
+                <button class="btn bg-primary" id="btnChangePassword">Change Password</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <style>
+        .page-buttons button {
+          float: left;
+          font-size: 1em;
+          font-weight: bold;
+          margin-top: 15px;
+          margin-right: 10px;
+          color:white;
+        }
+        .page-buttons button:hover {
+          color: black;
+          background-color: #eee2cf !important;
+        }
+        .title-buttons {
+
+        }
+        .title-buttons button {
+          float: left;
+          font-size: 0.9em;
+          font-weight: bold;
+          margin-top: 15px;
+          margin-right: 10px;
+        }
+        .title-buttons button.bg-primary {
+          color:white;
+        }
+        .title-buttons button:hover {
+          color: black;
+          background-color: #eee2cf !important;
+        }
+        .my-account-section .label {
+          color: black;
+          font-weight: bold;
+        }
+        .my-account-section .value {
+
+        }
+      </style>
+      <!-- END RIGHT SIDEBAR -->
+    </div>
+  </div>
+</section>
+
+
+<style>
+  table.admin-table {
+    width: 100%;
+  }
+
+  table.admin-table thead {
+    background: #777;
+    color: white;
+  }
+
+  table.admin-table th {
+    border: none;
+  }
+
+  table.admin-table td {
+    border: 1px solid #ccc;
+  }
+
+  table.admin-table tr {
+    border-bottom: 1px solid #ccc;
+  }
+
+  table.admin-table tr:hover {
+    background-color: #ccc;
+    cursor: pointer;
+  }
+
+    table.admin-table tr:last-child {
+    border-bottom: none;
+  }
+
+  table.admin-table tr:nth-child(even) {
+    background-color: #eee;
+  }
+
+  table.admin-table th,
+  table.admin-table td {
+    padding: 10px;
+  }
+
+  table.admin-table th {
+    text-align: left;
+  }
+
+  table.admin-table td {
+    text-align: left;
+  }
+
+  table.admin-table td.money {
+    text-align: right;
+    padding-right: 20px;
+  }
+
+  table.admin-table i {
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  table.admin-table i:hover {
+    color: orange;
+    text-shadow: 0 1px 5px rgba(0,0,0,0.4);
+    font-size: 2em;
+    transition: 0.3s;
+  }
+
+</style>
+
+
+<!-- Start Footer Area -->
+<footer class="footer"></footer>
+<!--/ End Footer Area -->
+
+<!-- ========================= scroll-top ========================= -->
+<a href="#" class="scroll-top">
+  <i class="lni lni-chevron-up"></i>
+</a>
+
+<!-- ========================= JS here ========================= -->
+<script src="assets/js/bootstrap.min.js"></script>
+<script src="assets/js/tiny-slider.js"></script>
+<script src="assets/js/glightbox.min.js"></script>
+<script src="assets/js/main.js"></script>
+<script type="text/javascript">
+  const current = document.getElementById("current");
+  const opacity = 0.6;
+  const imgs = document.querySelectorAll(".img");
+  imgs.forEach(img => {
+    img.addEventListener("click", (e) => {
+      //reset opacity
+      imgs.forEach(img => {
+        img.style.opacity = 1;
+      });
+      current.src = e.target.src;
+      //adding class
+      //current.classList.add("fade-in");
+      //opacity
+      e.target.style.opacity = opacity;
+    });
+  });
+</script>
+</body>
+
+</html>

@@ -15,6 +15,7 @@ import {CategoryController} from "./controllers/CategoryContoller.js";
 import {CartController} from "./controllers/CartController.js";
 import {LoginController} from "./controllers/LoginController.js";
 import {ContactPageController} from "./controllers/ContactPageController.js";
+import {MyAccountController} from "./controllers/MyAccountController.js";
 
 
 /**
@@ -56,6 +57,11 @@ export class SunsetSettings {
             newSkinUrl: 'newskin/html/Contact.html',
             hasMenu: true,
             controller: 'ContactPageController'
+        },
+        'MyAccount': {
+            newSkinUrl: 'newskin/html/MyAccount.html',
+            hasMenu: true,
+            controller: 'MyAccountController'
         }
     };
 
@@ -75,6 +81,20 @@ export class SunsetSettings {
      * @returns {BaseController}
      */
     static getControllerInstanceByName(controllerName, skin) {
+
+        // TODO: use this other method to instantiate controllers
+        /*
+        // testing creating instance by name
+        let ref = eval('new ' + controllerName + '(skin)');
+        if (ref.prototype instanceof BaseController) {
+            return ref;
+        }
+        else {
+            console.log('Not a BaseController: ' + controllerName);
+            return null;
+        }
+                                                           */
+
         switch (controllerName) {
             case 'FrontPageController':
                 return new FrontPageController(skin);
@@ -88,6 +108,8 @@ export class SunsetSettings {
                 return new LoginController(skin);
             case 'ContactPageController':
                 return new ContactPageController(skin);
+            case 'MyAccountController':
+                return new MyAccountController(skin);
             default:
                 throw new Error('Unknown controller: ' + controllerName);
         }

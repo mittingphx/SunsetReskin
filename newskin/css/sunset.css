@@ -5,6 +5,7 @@
     padding-bottom: 30px;
 }
 
+/*noinspection CssInvalidPropertyValue*/
 .single-product .product-image .button .btn {
     text-wrap: nowrap;
 }
@@ -127,9 +128,6 @@ body.popup-mode .breadcrumbs {
     box-sizing: content-box;
 
     .ticker {
-
-        display: inline-block;
-
         display: inline-flex;
 
         height: 4rem;
@@ -142,6 +140,8 @@ body.popup-mode .breadcrumbs {
         animation-timing-function: linear;
         animation-name: ticker;
         animation-duration: 35s;
+
+        /*noinspection CssInvalidHtmlTagReference*/
 
         &__item {
 
@@ -177,7 +177,7 @@ body.popup-mode .breadcrumbs {
 /*** Shopping Cart Preview ***/
 .header .navbar-cart .cart-items .shopping-item {
     top: 50px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.537);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.537);
 }
 
 .btn-update-cart {
@@ -293,14 +293,15 @@ body.popup-mode .breadcrumbs {
     transition: all 0.3s ease 0s;
     z-index: 99;
     border-radius: 4px;
-    -webkit-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.137);
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.137);
+    -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.137);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.137);
     opacity: 0;
     visibility: hidden;
 }
 
 /** Product details **/
 
+/*noinspection ALL*/
 .item-details .product-info .wish-button {
     text-wrap: nowrap;
     width: 135px;
@@ -317,7 +318,7 @@ body.popup-mode .breadcrumbs {
 }
 
 .shopping-list li:hover {
-    box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
 }
 
 .error-list {
@@ -416,8 +417,8 @@ input[type="range"]:focus::-moz-range-thumb{
 
 .login-iframe {
     position: fixed;
-    top: 0px;
-    left: 0px;
+    top: 0;
+    left: 0;
     width: 500px;
     height: 400px;
     z-index: 1000;

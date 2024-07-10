@@ -278,7 +278,6 @@ export class SunsetSkin {
             return;
         }
 
-
         // update history api
         history.pushState({ url: url }, '', url);
 
@@ -376,10 +375,19 @@ export class SunsetSkin {
      * @returns {LoginStatus}
      */
     async getLoginStatusAsync() {
-        const promise = new Promise((resolve, reject) => {
+        const promise = new Promise((resolve, _) => {
             this.getLoginStatus(resolve);
         });
         return await promise;
+    }
+
+    /**
+     * Signs out the user from the site.
+     */
+    signOut() {
+        this.getLoginStatus(loginStatus => {
+            loginStatus.$btnSignOut.click()
+        });
     }
 
 }

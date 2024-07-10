@@ -1,10 +1,11 @@
 // noinspection HtmlUnknownTarget
 
 import {Format} from "../util/Format.js";
-import { ShoppingCart, CartProductItem } from '../parsers/ViewCartParser.js';
 import {ProductCategoryBreadcrumb} from "../parsers/CommonParser.js";
 import {LoginStatus} from "../models/LoginStatus.js";
 import {SunsetSkin} from "../SunsetSkin.js";
+import {ShoppingCart} from "../models/ShoppingCart.js";
+import {CartProductItem} from "../models/CartProductItem.js";
 
 /**
  * Builds the cart page and cart dropdown html.
@@ -304,41 +305,6 @@ export class ViewCartBuilder {
                                     }
                                 } // end buttons
 
-/*
-                                // disabled because we don't do coupons
-                                let $coupon = document.createElement('div');
-                                {
-                                    $coupon.classList.add('coupon');
-                                    $left.appendChild($coupon);
-
-                                    let $form = document.createElement('form');
-                                    {
-                                        $form.action = '#';
-                                        $form.target = '_blank';
-                                        $coupon.appendChild($form);
-
-                                        let $input = document.createElement('input');
-                                        {
-                                            $input.type = 'text';
-                                            $input.placeholder = 'Enter Your Coupon';
-                                            $form.appendChild($input);
-
-                                            let $divButton = document.createElement('div');
-                                            {
-                                                $divButton.classList.add('button');
-                                                $form.appendChild($divButton);
-
-                                                let $button = document.createElement('button');
-                                                {
-                                                    $button.classList.add('btn');
-                                                    $button.innerHTML = 'Apply Coupon';
-                                                    $divButton.appendChild($button);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
- */
                             }
                         }
 
@@ -694,8 +660,8 @@ export class ViewCartBuilder {
                 $removeA.title = 'Remove this item';
                 $removeA.innerHTML = '<i class="lni lni-close"></i>';
                 $removeA.addEventListener('click', () => {
-                    alert('TODO: implement shopping cart remove here');
-                    //cart.remove(item);
+                    //alert('TODO: implement shopping cart remove here');
+                    cart.remove(item);
                 });
 
                 $li.appendChild($removeA);

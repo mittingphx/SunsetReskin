@@ -223,7 +223,7 @@ export class UrlHelper {
      * @param $parent
      */
     static mapLinks($parent) {
-        console.log('mapLinks', $parent);
+        // console.log('mapLinks', $parent);
         $parent.querySelectorAll('a').forEach((a) => {
             let oldHref = a.href
             a.href = UrlHelper.makeAbsoluteUrl(oldHref);

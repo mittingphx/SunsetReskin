@@ -40,7 +40,7 @@ export class DomHelper {
                 data[selector] = $element;
             }
             else {
-                console.error('Could not find element with selector ' + selectors[selector]);
+                console.log('Could not find element with selector ' + selectors[selector]);
                 ret = false;
             }
         }

@@ -1,8 +1,8 @@
 import {PageControllerBase} from "./BaseControllers.js";
-import {ShoppingCart, ViewCartParser} from "../parsers/ViewCartParser.js";
+import {ViewCartParser} from "../parsers/ViewCartParser.js";
 import {ViewCartBuilder} from "../builders/ViewCartBuilder.js";
 import {ProductBreadcrumbBuilder} from "../builders/ProductDetailBuilder.js";
-
+import {ShoppingCart} from "../models/ShoppingCart.js";
 
 /**
  * Controller for the shopping cart page and dropdown view.
@@ -54,16 +54,90 @@ export class CartController extends PageControllerBase {
 
         // grab login status
         this.skin.getLoginStatus(loginStatus => {
+
             // build the main product details area
-            $insertionPoint.replaceWith(this.cartBuilder.build(cart, loginStatus));
+            let $cartHtml = this.cartBuilder.build(cart, loginStatus);
+            $insertionPoint.replaceWith($cartHtml);
+
+            console.log('getLoginStatus() completed');
+            console.log({loginStatus:loginStatus, $insertionPoint:$insertionPoint, $cartHtml:$cartHtml});
 
             // build the breadcrumbs in the header
             let $breadcrumbs = this.breadcrumbBuilder.build('Shopping Cart', this.cartBuilder.buildBreadCrumbs());
-            document.querySelector('.breadcrumbs').replaceWith($breadcrumbs);
+            let breadcrumbInsert = document.querySelector('.breadcrumbs');
+            if (breadcrumbInsert) {
+                breadcrumbInsert.replaceWith($breadcrumbs);
+            }
+
+            // look for commands on the url
+            let urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('remove')) {
+                let itemId = parseInt(urlParams.get('remove'));
+                if (itemId) {
+
+                    // wait until cart is displayed to start confirming the remove process
+                    let startTime = new Date().getTime();
+                    let waitInterval = setTimeout(_ => {
+
+                        // give up after 15 seconds
+                        if (new Date().getTime() - startTime > 15000) {
+                            clearInterval(waitInterval);
+                            return;
+                        }
+
+                        // confirm cart has been displayed
+                        if (!this.#cartIsDisplayingItem(itemId)) {
+                            return;
+                        }
+
+                        // confirm remove process
+                        clearInterval(waitInterval);
+                        cart.confirmRemove(itemId);
+                    }, 250);
+                }
+            }
+
         })
 
         // set the window title
         document.title = `Checkout - Sunset Wholesale West`;
+    }
+
+    /**
+     * Returns true if the shopping cart is displaying the item
+     * @param itemId {number} the id of the item
+     * @returns {boolean}
+     */
+    #cartIsDisplayingItem(itemId) {
+
+        // confirm cart has been displayed
+        let $cart = document.querySelector('.shopping-cart');
+        if (!$cart) {
+            console.error('Could not find cart! (.shopping-cart)');
+            return false;
+        }
+
+        let $name = $cart.querySelector('.product-name');
+        if (!$name) {
+            console.error('Could not find product description! (.shopping-cart > .product-name)');
+            return false;
+        }
+
+        let $aList = $name.querySelectorAll('a');
+        if (!$aList) {
+            console.error('Could not find product link! (.shopping-cart > a)');
+            return false;
+        }
+
+        for (let i = 0; i < $aList.length; i++) {
+            let $a = $aList[i];
+            if ($a.href.indexOf(itemId)) {
+                return true;
+            }
+        }
+
+        console.error('Could not find product #' + itemId + '! (.shopping-cart > a)');
+        return false;
     }
 
     /**
