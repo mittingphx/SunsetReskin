@@ -2,6 +2,8 @@ import {MyAccountForm} from "../models/MyAccountForm.js";
 import {SunsetSkin} from "../SunsetSkin.js";
 import {SplitUrl} from "../UrlHelper.js";
 import {MyAccountController} from "../controllers/MyAccountController.js";
+import {PageLoadHelper} from "../util/PageLoadHelper.js";
+import {DomHelper} from "../util/DomHelper.js";
 
 /**
  * Builds the HTML for the account page.
@@ -19,12 +21,6 @@ export class MyAccountBuilder {
      * @type {MyAccountController|null}
      */
     controller = null;
-
-    /**
-     * When true, all orders are shown instead of just the first page
-     * @type {boolean}
-     */
-    showAllOrders = false;
 
     /**
      * Constructor takes reference to the skin to be built.
@@ -65,52 +61,35 @@ export class MyAccountBuilder {
         });
 
 
-        // paging buttons - depending on if we want to show all orders or not
-        if (this.showAllOrders) {
-            document.querySelector('#btnFirst').disabled = $myAccountForm.$orderPaging.$btnFirst === null;
-            document.querySelector('#btnPrev').disabled = $myAccountForm.$orderPaging.$btnPrev === null;
-            document.querySelector('#btnNext').disabled = $myAccountForm.$orderPaging.$btnNext === null;
-            document.querySelector('#btnLast').disabled = $myAccountForm.$orderPaging.$btnLast === null;
+        // paging buttons
+        /*
+        let $btnFirst = document.querySelector('#btnFirst');
+        let $btnPrev = document.querySelector('#btnPrev');
+        let $btnNext = document.querySelector('#btnNext');
+        let $btnLast = document.querySelector('#btnLast');
+
+        if ($btnFirst) {
+            $btnFirst.addEventListener('click', () => {
+                this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnFirst);
+            });
         }
-        else {
-            // this won't normally be used since we'll be showing all orders from cache
-
-            let $btnFirst = document.querySelector('#btnFirst');
-            let $btnPrev = document.querySelector('#btnPrev');
-            let $btnNext = document.querySelector('#btnNext');
-            let $btnLast = document.querySelector('#btnLast');
-
-            if ($btnFirst) {
-                $btnFirst.addEventListener('click', () => {
-                    this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnFirst);
-                });
-            }
-            if ($btnPrev) {
-                $btnPrev.addEventListener('click', () => {
-                    this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnPrev);
-                });
-            }
-            if ($btnNext) {
-                $btnNext.addEventListener('click', () => {
-                    this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnNext);
-                });
-            }
-            if ($btnLast) {
-                $btnLast.addEventListener('click', () => {
-                    this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnLast);
-                });
-            }
-            /*
-            document.querySelector('#btnAll').addEventListener('click', () => {
-
-                // start loading
-                alert('loading all pages');
-
-                this.controller.parser.loadAllOrderPagesInBackground();
-            })
-            */
-
+        if ($btnPrev) {
+            $btnPrev.addEventListener('click', () => {
+                this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnPrev);
+            });
         }
+        if ($btnNext) {
+            $btnNext.addEventListener('click', () => {
+                this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnNext);
+            });
+        }
+        if ($btnLast) {
+            $btnLast.addEventListener('click', () => {
+                this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnLast);
+            });
+        }
+    */
+
 
 
         // shipping addresses
@@ -120,14 +99,26 @@ export class MyAccountBuilder {
         // TODO: add shipping buttons
 
         // my account page buttons
-        document.querySelector('#btnChangePassword').addEventListener('click', () => {
-            // TODO: click the change password button?
-            // load the change password page in the background
-            // show a form for the user to enter their new password twice
-            // write the new password to the page in the background and hit submit
-
-            alert('TODO: not implemented');
+        let form = {};
+        DomHelper.addElementsByQuery(form, {
+            $btnChangePassword: '#btnChangePassword',
+            $panelChangePassword: '.change-password-panel',
+            $btnCancelChangePassword: '#btnCancelChangePassword',
+            $btnSaveChangePassword: '#btnSaveChangePassword',
+            $btnLogout: '#btnLogout'
         });
+
+        form.$btnChangePassword.addEventListener('click', () => {
+            form.$panelChangePassword.style.display = 'block';
+        });
+        form.$btnCancelChangePassword.addEventListener('click', () => {
+            form.$panelChangePassword.style.display = 'none';
+        });
+        form.$btnSaveChangePassword.addEventListener('click', () => {
+            form.$panelChangePassword.style.display = 'none';
+            this.#doChangePasswordInBackground();
+        });
+
         document.querySelector('#btnLogout').addEventListener('click', () => {
             SunsetSkin.getInstance().signOut();
         });
@@ -139,6 +130,125 @@ export class MyAccountBuilder {
     }
 
     /**
+     * Shows an error message for an attempt to change the password.
+     * @param msg {string}
+     */
+    #showChangePasswordError(msg) {
+        alert('Error changing password: ' + msg);
+    }
+
+    /**
+     * Attempts to change the password using the old site in a hidden iframe.
+     */
+    #doChangePasswordInBackground() {
+
+        // get passwords and make sure they match
+        let pass1 = document.querySelector('#txtPassword').value;
+        let pass2 = document.querySelector('#txtPassword2').value;
+        if (pass1 !== pass2) {
+            this.#showChangePasswordError('Passwords do not match!');
+            return;
+        }
+
+        // use old site's form to change the password, detecting errors
+        const changePassUrl = '/Login/Login.aspx?ChangePassword=1&reskin=no'
+        PageLoadHelper.fetchIntoHiddenIframe(changePassUrl, (wnd, html, iframe) => {
+
+            // inject password change script
+            let newScript = this.#getChangePasswordInjectionScript(pass1, pass2);
+            html = html.replace('</body>', newScript.outerHTML + "</body>");
+            html = PageLoadHelper.removeNewSkinScripts(html);
+
+            // write to the new window
+            wnd.document.open();
+            wnd.document.write(html);
+            wnd.document.close();
+
+            // close hidden page and redirect once password change is complete
+            PageLoadHelper.waitUntilPageChange(wnd, async _ => {
+
+                // check response for errors
+                let $lblError = wnd.document.querySelector('#MainContent_LblChangePasswordError');
+                if (!$lblError) {
+                    console.error('Could not find lblError in change password response');
+                }
+                else if ($lblError.innerHTML !== '') {
+                    this.#showChangePasswordError($lblError.innerHTML);
+                    iframe.remove();
+                    return;
+                }
+
+                // show success or error
+                alert('Password changed successfully!');
+                iframe.remove();
+            });
+        });
+    }
+
+
+    /**
+     * Gets the javascript to inject into the hidden iframe to
+     * perform the change password operation.
+     * @param pass1 {string} the new password
+     * @param pass2 {string} the confirmed password
+     * @returns {HTMLScriptElement}
+     */
+    #getChangePasswordInjectionScript(pass1, pass2) {
+
+        // code to inject into new window
+        function injectScript() {
+
+            let $txtPass1 = document.querySelector('#MainContent_TxtChangePassword');
+            let $txtPass2 = document.querySelector('#MainContent_TxtChangePassword2');
+            let $btnChangePassword = document.querySelector('#MainContent_BtnChangePassword');
+            let $lblError = document.querySelector('#MainContent_LblChangePasswordError');
+            console.log({
+                txtPass1: $txtPass1,
+                txtPass2: $txtPass2,
+                btnChangePassword: $btnChangePassword,
+                lblError: $lblError
+            })
+
+            if (!$txtPass1) {
+                console.error('could not find password field! (#MainContent_TxtChangePassword)');
+                return;
+            }
+            if (!$txtPass2) {
+                console.error('could not find password field! (#MainContent_TxtChangePassword2)');
+                return;
+            }
+            if (!$btnChangePassword) {
+                console.error('could not find login button! (#MainContent_BtnChangePassword)');
+                return;
+            }
+            if (!$lblError) {
+                console.error('could not find error label! (#MainContent_LblChangePasswordError)');
+                return;
+            }
+
+            $txtPass1.value = '%%PASS1%%';
+            $txtPass2.value = '%%PASS2%%';
+
+            let errorMessage = $lblError.innerHTML;
+            if (errorMessage.length > 0) {
+                alert($lblError.innerHTML);
+            }
+            else if ($btnChangePassword) {
+                $btnChangePassword.click();
+            }
+        }
+
+        // inject code into new script tag
+        let newScript = document.createElement('script');
+        let js = injectScript.toString();
+        js = js.replace('%%PASS1%%', pass1);
+        js = js.replace('%%PASS2%%', pass2);
+        newScript.innerHTML = js + ' injectScript();';
+
+        return newScript;
+    }
+
+    /**
      * Creates the <table> for the order history table while its loading
      *
      * @return {HTMLTableElement}
@@ -147,15 +257,7 @@ export class MyAccountBuilder {
         let $table = document.createElement('table');
         {
             $table.classList.add('admin-table');
-            let $thead = document.createElement('thead');
-            {
-                let $trHead = document.createElement('tr');
-                {
-                    $trHead.innerHTML = '<th>&nbsp;</th><th>Order No</th><th>Order Date</th><th>Invoice No</th><th>Status</th><th>Total</th>';
-                    $thead.appendChild($trHead);
-                }
-                $table.appendChild($thead);
-            }
+            $table.appendChild(this.#buildOrderTableHead());
             let $tbody = document.createElement('tbody');
             {
                 $tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
@@ -174,15 +276,7 @@ export class MyAccountBuilder {
         let $table = document.createElement('table');
         {
             $table.classList.add('admin-table');
-            let $thead = document.createElement('thead');
-            {
-                let $trHead = document.createElement('tr');
-                {
-                    $trHead.innerHTML = '<th>&nbsp;</th><th>Order No</th><th>Order Date</th><th>Invoice No</th><th>Status</th><th>Total</th>';
-                    $thead.appendChild($trHead);
-                }
-                $table.appendChild($thead);
-            }
+            $table.appendChild(this.#buildOrderTableHead());
             let $tbody = document.createElement('tbody');
             {
                 for (let order of orders) {
@@ -192,6 +286,22 @@ export class MyAccountBuilder {
             }
         }
         return $table;
+    }
+
+    /**
+     * Created the <thead> for the orders table.
+     * @return {HTMLTableSectionElement}
+     */
+    #buildOrderTableHead() {
+        let $thead = document.createElement('thead');
+        {
+            let $trHead = document.createElement('tr');
+            {
+                $trHead.innerHTML = '<th>&nbsp;</th><th>Order No</th><th>Order Date</th><th>Invoice No</th><th>Status</th><th>Total</th>';
+                $thead.appendChild($trHead);
+            }
+        }
+        return $thead;
     }
 
     /**

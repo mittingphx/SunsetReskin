@@ -1,8 +1,6 @@
 import {PageControllerBase} from "./BaseControllers.js";
 import {MyAccountBuilder} from "../builders/MyAccountBuilder.js";
 import {MyAccountParser} from "../parsers/MyAccountParser.js";
-import {DomHelper} from "../util/DomHelper.js";
-import {SplitUrl, UrlHelper} from "../UrlHelper.js";
 
 /**
  * Controller for the account page.
@@ -39,6 +37,6 @@ export class MyAccountController extends PageControllerBase {
         this.builder.build(accountForm);
 
         // set the window title
-        document.title = `Sunset Wholesale West`;
+        document.title = `Sunset Wholesale West - My Account`;
     }
 }

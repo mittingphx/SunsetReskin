@@ -117,32 +117,6 @@
 
         </div>
 
-        <style>
-          .my-account-section {
-            background-color: white;
-            padding: 10px;
-            margin: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-          }
-          .my-account-section .title {
-            border-bottom: 1px dotted #ccc;
-            padding: 5px;
-            margin-bottom: 10px;
-          }
-          .my-account-section .title h3 {
-            display: inline-block;
-            position: relative;
-            top: -5px;
-            left: 5px;
-          }
-          .my-account-section .title i {
-            font-size: 3em;
-            color: dodgerblue;
-            display: inline-block;
-          }
-        </style>
-
       </div>
 
       <!-- RIGHT SIDEBAR -->
@@ -176,51 +150,27 @@
                 <button class="btn bg-warning" id="btnLogout">Logout</button>
                 <button class="btn bg-primary" id="btnChangePassword">Change Password</button>
               </div>
+
+              <div class="change-password-panel">
+                <div class="form-group">
+                  <label for="txtPassword">Password</label>
+                  <input type="password" placeholder="Enter new password" id="txtPassword">
+                </div>
+
+                <div class="form-group">
+                  <label for="txtPassword2">Confirm Password</label>
+                  <input type="password" placeholder="Confirm new password" id="txtPassword2">
+                </div>
+
+                <div class="form-group">
+                  <button class="btn bg-primary" id="btnSaveChangePassword">Save Changes</button>
+                  <button class="btn bg-secondary" id="btnCancelChangePassword">Cancel</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-
-
-      <style>
-        .page-buttons button {
-          float: left;
-          font-size: 1em;
-          font-weight: bold;
-          margin-top: 15px;
-          margin-right: 10px;
-          color:white;
-        }
-        .page-buttons button:hover {
-          color: black;
-          background-color: #eee2cf !important;
-        }
-        .title-buttons {
-
-        }
-        .title-buttons button {
-          float: left;
-          font-size: 0.9em;
-          font-weight: bold;
-          margin-top: 15px;
-          margin-right: 10px;
-        }
-        .title-buttons button.bg-primary {
-          color:white;
-        }
-        .title-buttons button:hover {
-          color: black;
-          background-color: #eee2cf !important;
-        }
-        .my-account-section .label {
-          color: black;
-          font-weight: bold;
-        }
-        .my-account-section .value {
-
-        }
-      </style>
       <!-- END RIGHT SIDEBAR -->
     </div>
   </div>

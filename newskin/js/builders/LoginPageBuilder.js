@@ -1,11 +1,11 @@
 // noinspection HtmlUnknownTarget,JSUnusedLocalSymbols
 
-import { LoginPageForm} from "../parsers/LoginPageParser.js";
 import {DomHelper} from "../util/DomHelper.js";
 import {Format} from "../util/Format.js";
 import {UrlHelper} from "../UrlHelper.js";
 import {SunsetSkin} from "../SunsetSkin.js";
 import {PageLoadHelper} from "../util/PageLoadHelper.js";
+import {LoginPageForm} from "../models/LoginPageForm.js";
 
 /**
  * Connects the new skin's login page to the old skin's functionality.
@@ -163,40 +163,23 @@ export class LoginPageBuilder {
         let user = data.$newUsername.value;
         let pass = data.$newPassword.value;
 
-        // open the login page in a new window
-        let loginUrl = new URL('Login/Login.aspx?reskin=0', UrlHelper.getDeployment()).href
-        //let wnd = window.open(loginUrl, '_blank', 'width=1,height=1');
+        PageLoadHelper.fetchIntoHiddenIframe('Login/Login.aspx?reskin=0', (wnd, html) => {
 
+            let newScript = this.#getLoginInjectionScript(user, pass);
+            html = html.replace('</body>', newScript.outerHTML + "</body>");
+            html = PageLoadHelper.removeNewSkinScripts(html);
 
-        let iframe = document.createElement('iframe');
-        iframe.classList.add('login-iframe');
+            // write to the new window
+            wnd.document.open();
+            wnd.document.write(html);
+            wnd.document.close();
 
-        // load the login page into the iframe
-        iframe.src = loginUrl;
-        document.body.appendChild(iframe);
-        let wnd = iframe.contentWindow;
-
-        // testing using fetch instead of iframe src
-        fetch(loginUrl)
-            .then(response => response.text())
-            .then(html => {
-                //console.log(html);
-
-                let newScript = this.#getLoginInjectionScript(user, pass);
-                html = html.replace('</body>', newScript.outerHTML + "</body>");
-                html = html.replace('<script type="module" src="/reskin/NewSkin.js"></script>', '');
-                html = html.replace('<script type="module" src="NewSkin.js"></script>', '');
-
-                // write to the new window
-                wnd.document.open();
-                wnd.document.write(html);
-                wnd.document.close();
-
-                // close hidden page and redirect once login is complete
-                PageLoadHelper.waitUntilPageChange(wnd, async _ => {
-                    await SunsetSkin.navigateToAsync('Login/MyAccount.aspx');
-                });
+            // close hidden page and redirect once login is complete
+            PageLoadHelper.waitUntilPageChange(wnd, async _ => {
+                await SunsetSkin.navigateToAsync('Login/MyAccount.aspx');
             });
+        });
+
     }
 
     /**
