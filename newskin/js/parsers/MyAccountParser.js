@@ -34,7 +34,7 @@ export class MyAccountParser {
      * @type {OrderLoadedEvent}
      */
     onOrdersLoaded = new OrderLoadedEvent();
-ß
+
     /**
      * The cache of loaded order numbers
      * @type {OrderCache|null}

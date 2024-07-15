@@ -2,7 +2,6 @@
 
 import {DomHelper} from "../util/DomHelper.js";
 import {Format} from "../util/Format.js";
-import {UrlHelper} from "../UrlHelper.js";
 import {SunsetSkin} from "../SunsetSkin.js";
 import {PageLoadHelper} from "../util/PageLoadHelper.js";
 import {LoginPageForm} from "../models/LoginPageForm.js";

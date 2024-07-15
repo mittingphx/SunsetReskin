@@ -2,7 +2,6 @@ import {UrlHelper} from "../UrlHelper.js";
 import {ViewCartParser} from "../parsers/ViewCartParser.js";
 import {CartProductItem} from "./CartProductItem.js";
 import {SunsetSkin} from "../SunsetSkin.js";
-import {PageLoadHelper} from "../util/PageLoadHelper.js";
 
 /**
  * The contents of the customer's shopping cart.

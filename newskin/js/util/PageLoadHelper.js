@@ -1,5 +1,6 @@
+// noinspection HtmlUnknownTarget,JSUnusedGlobalSymbols
+
 import {UrlHelper} from "../UrlHelper.js";
-import {SunsetSkin} from "../SunsetSkin.js";
 
 /**
  * Utility functions for detecting when the hidden page is ready to be used.
@@ -102,7 +103,7 @@ export class PageLoadHelper {
 
             // close the temporary window
             if (wnd) {
-                wnd.close(); // TODO: is this needed?  maybe remove iframe?
+                wnd.close();
             }
 
             // do callback
