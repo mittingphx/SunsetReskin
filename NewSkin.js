@@ -35,8 +35,15 @@ switch (search.get("reskin")) {
 
 // show the skin
 if (options.showSkin) {
-    let skin = new SunsetSkin();
-    skin.apply();
+
+    // skip if we're in an iframe
+    if (window.self !== window.top) {
+        console.log('Skipping reskin because we are in an iframe...');
+    }
+    else {
+        let skin = new SunsetSkin();
+        skin.apply();
+    }
 }
 
 

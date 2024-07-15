@@ -56,7 +56,7 @@ export class LoginStatusParser {
                 ret.company = results.company;
                 ret.acctNo = results.acctNo;
 
-                console.log('readLoginStatus() results', ret);
+                //console.log('readLoginStatus() results', ret);
                 if (typeof callback === 'function') {
                     callback(ret);
                 }

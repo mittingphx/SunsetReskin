@@ -122,7 +122,7 @@ export class ShoppingCart {
      */
     static getInstanceAsync(fnCallback) {
         let loaded = false;
-        console.log('Call to getInstanceAsync()');
+        //console.log('Call to getInstanceAsync()');
 
         // check for singleton instance first
         if (ShoppingCart.#instance) {

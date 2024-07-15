@@ -2,6 +2,7 @@ import {PageControllerBase} from "./BaseControllers.js";
 import {MyAccountBuilder} from "../builders/MyAccountBuilder.js";
 import {MyAccountParser} from "../parsers/MyAccountParser.js";
 import {DomHelper} from "../util/DomHelper.js";
+import {SplitUrl, UrlHelper} from "../UrlHelper.js";
 
 /**
  * Controller for the account page.
@@ -12,7 +13,7 @@ export class MyAccountController extends PageControllerBase {
      * Builds the HTML for the account page
      * @type {MyAccountBuilder}
      */
-    builder = new MyAccountBuilder();
+    builder = null;
 
     /**
      * Parses the HTML for the account page
@@ -26,6 +27,7 @@ export class MyAccountController extends PageControllerBase {
      */
     constructor(skin) {
         super(skin);
+        this.builder = new MyAccountBuilder(skin, this);
     }
 
     /**

@@ -1,5 +1,7 @@
-import {MyAccountForm} from "../parsers/MyAccountParser.js";
+import {MyAccountForm} from "../models/MyAccountForm.js";
 import {SunsetSkin} from "../SunsetSkin.js";
+import {SplitUrl} from "../UrlHelper.js";
+import {MyAccountController} from "../controllers/MyAccountController.js";
 
 /**
  * Builds the HTML for the account page.
@@ -7,12 +9,40 @@ import {SunsetSkin} from "../SunsetSkin.js";
 export class MyAccountBuilder {
 
     /**
+     * The main program reference.
+     * @type {SunsetSkin}
+     */
+    skin = null;
+
+    /**
+     * The controller for the MyAccount page.
+     * @type {MyAccountController|null}
+     */
+    controller = null;
+
+    /**
+     * When true, all orders are shown instead of just the first page
+     * @type {boolean}
+     */
+    showAllOrders = false;
+
+    /**
+     * Constructor takes reference to the skin to be built.
+     * @param skin
+     * @param controller {MyAccountController}
+     */
+    constructor(skin, controller) {
+        this.skin = skin;
+        this.controller = controller;
+    }
+
+    /**
      * Builds the HTML for the account page.
      * @param $myAccountForm {MyAccountForm}
      */
     build($myAccountForm) {
 
-        console.log('build(myAccountForm)', $myAccountForm);
+        //console.log('build(myAccountForm)', $myAccountForm);
 
         // my account section (right sidebar)
         document.querySelector('#txtName').innerHTML = $myAccountForm.$spanName.innerHTML;
@@ -20,28 +50,68 @@ export class MyAccountBuilder {
         document.querySelector('#txtAcctNo').innerHTML = $myAccountForm.acctNo;
 
         // order history
-        let $orderHistoryTable = this.#buildOrderHistoryTable($myAccountForm.orders);
+        //let $orderHistoryTable = this.#buildOrderHistoryTable($myAccountForm.orders);
+        let $orderHistoryTable = this.#buildLoadingTable();
         document.querySelector('.order-history-insertion-point').after($orderHistoryTable);
 
-        // paging buttons
-        // TODO: we might want to load this data offscreen instead of loading a new page
 
-        document.querySelector('#btnFirst').disabled = $myAccountForm.$orderPaging.$btnFirst === null;
-        document.querySelector('#btnPrev').disabled = $myAccountForm.$orderPaging.$btnPrev === null;
-        document.querySelector('#btnNext').disabled = $myAccountForm.$orderPaging.$btnNext ===  null;
-        document.querySelector('#btnLast').disabled = $myAccountForm.$orderPaging.$btnLast === null;
-        document.querySelector('#btnFirst').addEventListener('click', () => {
-            $myAccountForm.$orderPaging.$btnFirst.click();
+        // set up the order loading event listener.  show the full order history once it's loaded
+        this.controller.parser.onOrdersLoaded.addListener((orders, allPages) => {
+            console.log('onOrdersLoaded', orders, allPages);
+            $orderHistoryTable.remove(); // remove old one
+            $orderHistoryTable = this.#buildOrderHistoryTable(orders);
+            document.querySelector('.order-history-insertion-point').after($orderHistoryTable);
+            document.querySelector('.page-buttons').remove();
         });
-        document.querySelector('#btnPrev').addEventListener('click', () => {
-            $myAccountForm.$orderPaging.$btnPrev.click();
-        });
-        document.querySelector('#btnNext').addEventListener('click', () => {
-            $myAccountForm.$orderPaging.$btnNext.click();
-        });
-        document.querySelector('#btnLast').addEventListener('click', () => {
-            $myAccountForm.$orderPaging.$btnLast.click();
-        });
+
+
+        // paging buttons - depending on if we want to show all orders or not
+        if (this.showAllOrders) {
+            document.querySelector('#btnFirst').disabled = $myAccountForm.$orderPaging.$btnFirst === null;
+            document.querySelector('#btnPrev').disabled = $myAccountForm.$orderPaging.$btnPrev === null;
+            document.querySelector('#btnNext').disabled = $myAccountForm.$orderPaging.$btnNext === null;
+            document.querySelector('#btnLast').disabled = $myAccountForm.$orderPaging.$btnLast === null;
+        }
+        else {
+            // this won't normally be used since we'll be showing all orders from cache
+
+            let $btnFirst = document.querySelector('#btnFirst');
+            let $btnPrev = document.querySelector('#btnPrev');
+            let $btnNext = document.querySelector('#btnNext');
+            let $btnLast = document.querySelector('#btnLast');
+
+            if ($btnFirst) {
+                $btnFirst.addEventListener('click', () => {
+                    this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnFirst);
+                });
+            }
+            if ($btnPrev) {
+                $btnPrev.addEventListener('click', () => {
+                    this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnPrev);
+                });
+            }
+            if ($btnNext) {
+                $btnNext.addEventListener('click', () => {
+                    this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnNext);
+                });
+            }
+            if ($btnLast) {
+                $btnLast.addEventListener('click', () => {
+                    this.skin.aspNet.serverClick($myAccountForm.$orderPaging.$btnLast);
+                });
+            }
+            /*
+            document.querySelector('#btnAll').addEventListener('click', () => {
+
+                // start loading
+                alert('loading all pages');
+
+                this.controller.parser.loadAllOrderPagesInBackground();
+            })
+            */
+
+        }
+
 
         // shipping addresses
         let $shippingAddressTable = this.#buildShippingAddressTable($myAccountForm.shippingAddresses);
@@ -68,6 +138,32 @@ export class MyAccountBuilder {
 
     }
 
+    /**
+     * Creates the <table> for the order history table while its loading
+     *
+     * @return {HTMLTableElement}
+     */
+    #buildLoadingTable() {
+        let $table = document.createElement('table');
+        {
+            $table.classList.add('admin-table');
+            let $thead = document.createElement('thead');
+            {
+                let $trHead = document.createElement('tr');
+                {
+                    $trHead.innerHTML = '<th>&nbsp;</th><th>Order No</th><th>Order Date</th><th>Invoice No</th><th>Status</th><th>Total</th>';
+                    $thead.appendChild($trHead);
+                }
+                $table.appendChild($thead);
+            }
+            let $tbody = document.createElement('tbody');
+            {
+                $tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+                $table.appendChild($tbody);
+            }
+        }
+        return $table;
+    }
 
     /**
      * Creates the <table> for the order history table.
@@ -75,7 +171,6 @@ export class MyAccountBuilder {
      * @returns {HTMLTableElement}
      */
     #buildOrderHistoryTable(orders) {
-
         let $table = document.createElement('table');
         {
             $table.classList.add('admin-table');
@@ -121,11 +216,12 @@ export class MyAccountBuilder {
                     let $view = document.createElement('a');
                     {
                         $view.href = '#';
-                        $view.title = 'View Details';
-                        $view.innerHTML = '<i class="lni lni-tag"></i>';
+                        $view.title = 'View Order';
+                        $view.innerHTML = '<i class="lni lni-tag"></i> View Order';
                         $view.addEventListener('click', (event) => {
                             event.preventDefault();
-                            order.$link.click();
+                            // order.$link.click();
+                            document.location = SplitUrl.findDeployment(null) + 'ViewOrder.aspx?OrderNo=' + order.orderNo;
                         });
                     }
                     $td.appendChild($view);
@@ -220,7 +316,7 @@ export class MyAccountBuilder {
                     let $edit = document.createElement('a');
                     {
                         $edit.href = '#';
-                        $edit.innerHTML = '<i class="lni lni-pencil"></i>';
+                        $edit.innerHTML = '<i class="lni lni-pencil"></i> Edit';
                         $edit.addEventListener('click', (event) => {
                             event.preventDefault();
                             console.log('edit clicked');
@@ -234,7 +330,7 @@ export class MyAccountBuilder {
                     let $delete = document.createElement('a');
                     {
                         $delete.href = '#';
-                        $delete.innerHTML = '<i class="lni lni-trash-can"></i>';
+                        $delete.innerHTML = '<i class="lni lni-trash-can"></i> Delete';
                         $delete.addEventListener('click', (event) => {
                             event.preventDefault();
                             console.log('delete clicked');
@@ -254,7 +350,7 @@ export class MyAccountBuilder {
                     html += formatPhone('Cell', shippingAddress['cellNumber']);
                     html += formatPhone('Fax', shippingAddress['faxNumber']);
                     $td.innerHTML = html;
-                    $td.style = 'font-family: monospace';
+                    $td.style.fontFamily = 'monospace';
                 }
                 else {
                     $td.innerHTML = shippingAddress[field];

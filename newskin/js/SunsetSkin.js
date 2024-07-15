@@ -25,6 +25,7 @@ import {WishListController} from "./controllers/WishListController.js";
 import {SkinToggleController} from "./controllers/SkinToggleController.js";
 import {SiteSearchController} from "./controllers/SiteSearchController.js";
 import {LoginStatus} from "./models/LoginStatus.js";
+import {AspNetIntercept} from "./util/AspNetIntercept.js";
 
 /**
  * Analyzes the original HTML to figure out the contents of the menu
@@ -118,6 +119,12 @@ export class SunsetSkin {
      */
     searchController = null;
 
+    /**
+     * Provides interaction with server-side components of the old
+     * website from javascript classes on the new website.
+     * @type {AspNetIntercept|null}
+     */
+    aspNet = null;
 
     /**
      * Most recent instance of this object.
@@ -142,6 +149,9 @@ export class SunsetSkin {
         this.skinToggleController = new SkinToggleController(this);
         this.linkController = new LinkController(this);
         this.searchController = new SiteSearchController(this)
+
+        // asp.net server-side postback handlers
+        this.aspNet = new AspNetIntercept();
 
         // handle changes in login status
         this.loginController.statusUpdatedEvent.addListener(loginStatus => {
@@ -186,7 +196,7 @@ export class SunsetSkin {
         // trigger document.ready event
         document.addEventListener("DOMContentLoaded", () => {
             this.loadNewSkinPage().then(_ => {
-                console.log('load webpage completed');
+                //console.log('load webpage completed');
                 this.preloader.ready();
             });
         });
@@ -198,7 +208,7 @@ export class SunsetSkin {
 
             // NOTE: this may be calling navigateTo() before calling loadNewSkinPage()
             this.navigateTo(event.state.url).then(_ => {
-                console.log('navigate finished: ' + event.state.url);
+                //console.log('navigate finished: ' + event.state.url);
                 this.preloader.ready();
             });
         });
