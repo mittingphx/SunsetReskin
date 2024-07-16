@@ -6,7 +6,7 @@ import {PageLoadHelper} from "../util/PageLoadHelper.js";
 import {DomHelper} from "../util/DomHelper.js";
 import {AspNetPostback} from "../util/AspNetPostback.js";
 
-let DEBUG_MODE = true; // shows the iframe for testing background calls
+let DEBUG_MODE = false; // shows the iframe for testing background calls
 
 /**
  * Builds the HTML for the account page.
@@ -376,7 +376,7 @@ export class MyAccountBuilder {
      * @param $link {HTMLAnchorElement}
      */
     #deleteShippingAddress($link) {
-        AspNetPostback.runInBackground('Login/MyAccount.aspx?reskin=no', $link, (wnd, iframe) => {
+        AspNetPostback.runInBackground('Login/MyAccount.aspx?reskin=no', $link, (_, __) => {
 
             alert('Address deleted');
             location.reload();
