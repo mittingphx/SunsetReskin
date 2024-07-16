@@ -50,6 +50,12 @@ export class AspNetIntercept {
      */
     backgroundPostback(element, callback, allowNestedPostback = false) {
 
+        // ignore these calls on localhost as CORS freaks out
+        if (window.origin.indexOf('localhost') > -1) {
+            return;
+        }
+
+
         // detect and cancel nested post-backs
         if (window.name === this.hiddenIframeName) {
             if (allowNestedPostback) {
@@ -75,7 +81,19 @@ export class AspNetIntercept {
             this.#postbackForm.target = oldTarget;
 
             // get the iframe's document
-            let iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            let iframeDoc = iframe.contentDocument;
+            if (!iframeDoc) {
+                if (iframe.contentWindow) {
+                    // a CORS error may occur here, especially on localhost
+                    iframeDoc = iframe.contentWindow.document;
+                }
+            }
+
+            // send back null if we couldn't load page
+            if (!iframeDoc) {
+                callback(null);
+                return;
+            }
 
             // wait for the page to load
             let interval = setInterval(() => {

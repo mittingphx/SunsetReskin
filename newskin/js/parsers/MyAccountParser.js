@@ -113,12 +113,17 @@ export class MyAccountParser {
 
         // attempt to load all pages of the order history in the background
         if (loadNextPage) {
-            this.loadNextPageInBackground(ret.$orderPaging.$btnNext, 1, (newOrders) => {
-                // add to cache and alert order listeners
-                this.#cache.addRows(newOrders);
-                this.#cache.save();
-                this.onOrdersLoaded.fire(this.#cache.orders, true);
-            });
+            try {
+                this.loadNextPageInBackground(ret.$orderPaging.$btnNext, 1, (newOrders) => {
+                    // add to cache and alert order listeners
+                    this.#cache.addRows(newOrders);
+                    this.#cache.save();
+                    this.onOrdersLoaded.fire(this.#cache.orders, true);
+                });
+            }
+            catch (ex) {
+                console.error('error loading history (loadNextPageInBackground)', ex);
+            }
         }
 
         return ret;

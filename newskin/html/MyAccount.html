@@ -116,6 +116,133 @@
           </div>
 
 
+          <div class="row panel-edit-address">
+            <div class="col-lg-6 col-md-6 col-12">
+              <div class="form-group">
+                <label for="txtAddressName">Address Name</label>
+                <input name="addressName" id="txtAddressName" type="text" placeholder="Name this address is called">
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12"><div class="form-group"></div></div>
+
+            <div class="col-lg-6 col-md-6 col-12">
+              <div class="form-group">
+                <label for="txtBusinessAddress">Street Address</label>
+                <input name="businessAddress" id="txtBusinessAddress" type="text" placeholder="ex: 123 Main Street">
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12">
+              <div class="form-group">
+                <label for="txtUnitNumber">Suite / Unit Number</label><br>
+                <input name="unitNumber" id="txtUnitNumber" type="text" placeholder="ex: Unit 1234 (optional)" style="width:50%">
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12">
+              <div class="form-group">
+                <label for="txtCity">City</label>
+                <input name="city" id="txtCity" type="text" placeholder="ex: Townsville">
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12">
+              <div class="form-group">
+                <label for="ddlState">State</label><br>
+                <select name="state" id="ddlState" style="max-width: 50%">
+                  <option value="-">-- State --</option>
+                  <option value="AL">Alabama</option>
+                  <option value="AK">Alaska</option>
+                  <option value="AZ">Arizona</option>
+                  <option value="AR">Arkansas</option>
+                  <option value="CA">California</option>
+                  <option value="CO">Colorado</option>
+                  <option value="CT">Connecticut</option>
+                  <option value="DE">Delaware</option>
+                  <option value="DC">District Of Columbia</option>
+                  <option value="FL">Florida</option>
+                  <option value="GA">Georgia</option>
+                  <option value="HI">Hawaii</option>
+                  <option value="ID">Idaho</option>
+                  <option value="IL">Illinois</option>
+                  <option value="IN">Indiana</option>
+                  <option value="IA">Iowa</option>
+                  <option value="KS">Kansas</option>
+                  <option value="KY">Kentucky</option>
+                  <option value="LA">Louisiana</option>
+                  <option value="ME">Maine</option>
+                  <option value="MD">Maryland</option>
+                  <option value="MA">Massachusetts</option>
+                  <option value="MI">Michigan</option>
+                  <option value="MN">Minnesota</option>
+                  <option value="MS">Mississippi</option>
+                  <option value="MO">Missouri</option>
+                  <option value="MT">Montana</option>
+                  <option value="NE">Nebraska</option>
+                  <option value="NV">Nevada</option>
+                  <option value="NH">New Hampshire</option>
+                  <option value="NJ">New Jersey</option>
+                  <option value="NM">New Mexico</option>
+                  <option value="NY">New York</option>
+                  <option value="NC">North Carolina</option>
+                  <option value="ND">North Dakota</option>
+                  <option value="OH">Ohio</option>
+                  <option value="OK">Oklahoma</option>
+                  <option value="OR">Oregon</option>
+                  <option value="PA">Pennsylvania</option>
+                  <option value="RI">Rhode Island</option>
+                  <option value="SC">South Carolina</option>
+                  <option value="SD">South Dakota</option>
+                  <option value="TN">Tennessee</option>
+                  <option value="TX">Texas</option>
+                  <option value="UT">Utah</option>
+                  <option value="VT">Vermont</option>
+                  <option value="VA">Virginia</option>
+                  <option value="WA">Washington</option>
+                  <option value="WV">West Virginia</option>
+                  <option value="WI">Wisconsin</option>
+                  <option value="WY">Wyoming</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-lg-6 col-md-6 col-12">
+              <div class="form-group">
+                <label for="txtZipCode">Zip Code</label><br>
+                <input name="zipCode" id="txtZipCode" type="text" placeholder="ex: 12345-6789" style="width: 50%">
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12"><div class="form-group"></div></div>
+
+
+            <div class="col-lg-6 col-md-6 col-12">
+              <div class="form-group">
+                <label for="txtPhoneNumber">Phone Number</label>
+                <input name="phoneNumber" id="txtPhoneNumber" type="text" placeholder="ex: (123) 456-7890">
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12"><div class="form-group"></div></div>
+            <div class="col-lg-6 col-md-6 col-12">
+              <div class="form-group">
+                <label for="txtCellNumber">Cell Number</label>
+                <input name="cellNumber" id="txtCellNumber" type="text" placeholder="ex: (123) 456-7890">
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12"><div class="form-group"></div></div>
+            <div class="col-lg-6 col-md-6 col-12">
+              <div class="form-group">
+                <label for="txtFaxNumber">Fax Number</label>
+                <input name="faxNumber" id="txtFaxNumber" type="text" placeholder="ex: (123) 456-7890">
+              </div>
+            </div>
+
+
+            <div class="col-12">
+              <div class="form-group button">
+                <button id="btnSaveAddress" type="submit" class="btn bg-primary">Save Changes</button>
+                <button id="btnCancelEditAddress" class="btn bg-secondary">Cancel</button>
+              </div>
+            </div>
+
+          </div>
+
         </div>
 
       </div>
@@ -153,21 +280,24 @@
               </div>
 
               <div class="change-password-panel">
-                <div class="form-group">
-                  <label for="txtPassword">Password</label>
-                  <input type="password" placeholder="Enter new password" id="txtPassword">
-                </div>
+                <form name="changePasswordForm">
+                  <div class="form-group">
+                    <label for="txtPassword">Password</label>
+                    <input type="password" placeholder="Enter new password" id="txtPassword" autocomplete="new-password">
+                  </div>
 
-                <div class="form-group">
-                  <label for="txtPassword2">Confirm Password</label>
-                  <input type="password" placeholder="Confirm new password" id="txtPassword2">
-                </div>
+                  <div class="form-group">
+                    <label for="txtPassword2">Confirm Password</label>
+                    <input type="password" placeholder="Confirm new password" id="txtPassword2" autocomplete="new-password">
+                  </div>
+                </form>
 
                 <div class="form-group">
                   <button class="btn bg-primary" id="btnSaveChangePassword">Save Changes</button>
                   <button class="btn bg-secondary" id="btnCancelChangePassword">Cancel</button>
                 </div>
               </div>
+
             </div>
           </div>
         </div>

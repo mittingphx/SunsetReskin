@@ -594,3 +594,32 @@ table.admin-table a:hover i {
     font-size: 2em;
     transition: 0.3s;
 }
+
+
+.my-account-section .form-group {
+    margin: 10px;
+}
+.my-account-section .form-group label {
+    color: #333;
+}
+.my-account-section .form-group input, .my-account-section .form-group select {
+    border: 1px solid #e6e2f5;
+    border-radius: 4px;
+    padding: 0 10px;
+    height: 30px;
+    width: 100%;
+}
+.my-account-section .form-group button {
+    color:white;
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 6px 20px;
+}
+.my-account-section .form-group button:hover {
+    color: black;
+    background-color: #eee2cf !important;
+}
+
+.panel-edit-address {
+    display: none;
+}

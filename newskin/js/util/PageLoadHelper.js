@@ -23,7 +23,7 @@ export class PageLoadHelper {
     static fetchIntoHiddenIframe(url, callback) {
 
         // clean up the url
-        let fetchUrl = new URL(url, UrlHelper.getDeployment()).href
+        let fetchUrl = new URL(url, UrlHelper.getDeployment()).href;
 
         // loading page into window using fetch instead of iframe src
         fetch(fetchUrl)
