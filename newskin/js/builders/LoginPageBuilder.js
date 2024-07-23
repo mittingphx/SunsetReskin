@@ -43,10 +43,10 @@ export class LoginPageBuilder {
             $regAccount: '#reg-acctNo',
         }))
 
-            // show the error message if there is one
-            if (loginForm.errorMessage) {
-                data.$newError.innerText = loginForm.errorMessage;
-            }
+        // show the error message if there is one
+        if (loginForm.errorMessage) {
+            data.$newError.innerText = loginForm.errorMessage;
+        }
 
         // bind input elements on new skin to original form fields
         DomHelper.bindAllFormInputs([
@@ -136,21 +136,41 @@ export class LoginPageBuilder {
 
         // show registration form from login
         data.$newRegister.addEventListener('click', _ => {
-            document.querySelector('#panel-register').style.display = 'block';
-            document.querySelector('#panel-login').style.display = 'none';
-            setTimeout(_ => {
-                window.scrollTo({top: 0, behavior: 'smooth'});
-            }, 250);
+            this.#showRegistrationForm();
         });
 
         // show login form from registration
         data.$newLogin.addEventListener('click', _ => {
-            document.querySelector('#panel-register').style.display = 'none';
-            document.querySelector('#panel-login').style.display = 'block';
-            setTimeout(_ => {
-                window.scrollTo({top: 0, behavior: 'smooth'});
-            }, 250);
+            this.#showLoginForm();
         });
+
+        // show registration form if url contains ?register=1
+        let url = new URL(window.location.href);
+        if (url.searchParams.get('register') === '1') {
+            this.#showRegistrationForm();
+            data.$regEmail.focus();
+        }
+        else {
+            data.$newUsername.focus();
+        }
+    }
+
+    /**
+     * Displays the new account registration form.
+     */
+    #showRegistrationForm() {
+        document.querySelector('#panel-register').style.display = 'block';
+        document.querySelector('#panel-login').style.display = 'none';
+        //setTimeout(_ => { window.scrollTo({top: 0, behavior: 'smooth'}); }, 250);
+    }
+
+    /**
+     * Displays the user login form.
+     */
+    #showLoginForm() {
+        document.querySelector('#panel-register').style.display = 'none';
+        document.querySelector('#panel-login').style.display = 'block';
+        //setTimeout(_ => { window.scrollTo({top: 0, behavior: 'smooth'}); }, 250);
     }
 
     /**
