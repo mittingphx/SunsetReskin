@@ -660,7 +660,6 @@ export class ViewCartBuilder {
                 $removeA.title = 'Remove this item';
                 $removeA.innerHTML = '<i class="lni lni-close"></i>';
                 $removeA.addEventListener('click', () => {
-                    //alert('TODO: implement shopping cart remove here');
                     cart.remove(item);
                 });
 

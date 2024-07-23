@@ -151,12 +151,9 @@ export class ShoppingCart {
         });
     }
 
-
     /**
      * Sets the DOM elements from the shopping cart in the old page
      * and presses submit button.
-     *
-     * TODO: need to handle the response elegantly somehow
      */
     updateAndSubmit() {
         this.update();

@@ -10,7 +10,7 @@ import {CssHelper} from "../util/CssHelper.js";
 export class CategoryBuilder {
 
     build() {
-        // TODO: make this the function the main code calls.
+
     }
 
     /**
@@ -113,16 +113,6 @@ export class CategoryBuilder {
                 $widgetDiv.appendChild($ul);
             }
 
-
-            // TODO: why is this code here?!!
-            /*
-            for (let i = 0; i < item.children.length; i++) {
-
-                let child = item.children[i];
-            }
-
-
-             */
         }
         return $widgetDiv;
     }
@@ -444,11 +434,11 @@ export class CategoryBuilder {
     createSubcategoryHeader(item, breadcrumbs) {
 
         // detect top level
-        let isTopLevel = false; // TODO: need to check if this is a top-level item
+        let isTopLevel = false;
 
         // create main list heading
         let $h3 = document.createElement('h3');
-        $h3.innerHTML = item.text; // TODO: may need to say "All Categories" for top-level items
+        $h3.innerHTML = item.text;
 
         // create icon linking to parent if not top level
         if (!isTopLevel) {

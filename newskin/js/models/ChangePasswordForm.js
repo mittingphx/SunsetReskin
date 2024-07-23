@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 /**
  * DOM references on the change password page.
  */

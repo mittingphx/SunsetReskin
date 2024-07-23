@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import {SlideshowItem} from "../parsers/SlideshowParser.js";
 import {CookieHelper} from "../util/CookieHelper.js";
 import {tns} from "../../../assets/js/tiny-slider.js";

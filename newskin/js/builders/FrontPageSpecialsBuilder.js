@@ -7,7 +7,6 @@
  *  HTML building methods for the specials section on the front page.
  */
 
-
 import {ImageHelper} from "../util/ImageHelper.js";
 
 /**
@@ -22,7 +21,6 @@ export class FrontPageSpecialsBuilder {
      * @param $insertionPoint {HTMLElement}
      */
     buildFrontPageProducts(sections, $insertionPoint) {
-
 
         // create a <section> for each section data
         for (let i = 0; i < sections.length; i++) {
@@ -270,21 +268,6 @@ export class FrontPageSpecialsBuilder {
                     $productInfoH4.appendChild($productInfoH4Link);
                 }
             }
-
-            // TODO: review could go here
-            /*
-            let $review = document.createElement('ul');
-            {
-                $review.classList.add('review');
-                $review.innerHTML = '<li><i class="lni lni-star-filled"></i></li>\n' +
-                    '                            <li><i class="lni lni-star-filled"></i></li>\n' +
-                    '                            <li><i class="lni lni-star-filled"></i></li>\n' +
-                    '                            <li><i class="lni lni-star-filled"></i></li>\n' +
-                    '                            <li><i class="lni lni-star"></i></li>\n' +
-                    '                            <li><span>4.0 Review(s)</span></li>';
-                $productInfo.appendChild($review);
-            }
-            */
 
             // prices
             let $price = document.createElement('div');
