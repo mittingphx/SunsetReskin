@@ -10,6 +10,9 @@ export class ContactPageBuilder {
      */
     build(loginStatus, $contactForm) {
 
+        // TODO: submit needs to be tied to the old form
+
+
         // don't fill out form if not logged in
         if (!loginStatus.loggedIn) {
             $contactForm.elements['name'].focus();
