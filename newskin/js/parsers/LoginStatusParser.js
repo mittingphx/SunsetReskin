@@ -52,11 +52,11 @@ export class LoginStatusParser {
             ret.loggedIn = true;
             ret.isAdmin = !!ret.$adminLink;
             this.#fetchDetailPages().then(results => {
-                ret.email = results.email;
-                ret.name = results.name;
-                ret.company = results.company;
+                ret.email = Format.unescape(results.email);
+                ret.name = Format.unescape(results.name);
+                ret.company = Format.unescape(results.company);
                 ret.acctNo = results.acctNo;
-                ret.phone = this.readPhoneNumberFromTable(ret.$addressTable);
+                ret.phone = this.readPhoneNumberFromTable(results.$addressTable);
 
                 //console.log('readLoginStatus() results', ret);
                 if (typeof callback === 'function') {
@@ -81,7 +81,7 @@ export class LoginStatusParser {
 
         // find the Phone column in the header and return the phone number in the second row
         let $th = $tr[0].querySelectorAll('th');
-        for (let i = 0; i < $th.length; i++) {ß
+        for (let i = 0; i < $th.length; i++) {
             if ($th[i].innerHTML === 'Phone') {
                 return Format.phone($tr[1].cells[i].innerHTML);
             }
@@ -101,7 +101,7 @@ export class LoginStatusParser {
             name: new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_LblName'),
             company: new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_LblCompany'),
             acctNo: new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_LblAcctNo'),
-            addressTable : new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_GridShipToAddresses', true)
+            $addressTable : new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_GridShipToAddresses', true)
         }));
     }
 }

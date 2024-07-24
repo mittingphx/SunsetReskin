@@ -44,6 +44,13 @@ export class LoginStatus {
     email = null;  // from ContactUs.aspx > MainContent_TxtEmail
 
     /**
+     * The phone number of the user.
+     * This comes from Login/MyAccount.aspx > MainContent_GridShopToAddresses row 2 cell 8
+     * @type {string|null}
+     */
+    phone = null; // from Login/MyAccount.aspx > MainContent_GridShopToAddresses row 2 cell 8
+
+    /**
      * Reference to the log-out button on the old page, if logged in.
      * @type {HTMLElement|null}
      */
@@ -60,4 +67,10 @@ export class LoginStatus {
      * @type {HTMLElement|null}
      */
     $adminLink = null;
+
+    /**
+     * This is the table of shipping addresses on the My Account page.
+     * @type {HTMLTableElement|null}
+     */
+    $addressTable = null;
 }
