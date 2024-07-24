@@ -148,7 +148,7 @@ export class LoginPageBuilder {
         let url = new URL(window.location.href);
         if (url.searchParams.get('register') === '1') {
             this.#showRegistrationForm();
-            data.$regEmail.focus();
+            //data.$regEmail.focus(); // focus was hiding red warning block
         }
         else {
             data.$newUsername.focus();
