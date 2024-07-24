@@ -18,14 +18,22 @@ export class FetchQueryItem {
     query = null;
 
     /**
-     * Constructor accepts both parts for the item.
-     * @param url
-     * @param query
+     * When true the element if pulled instead of its value. (default: false)
+     * @type {boolean}
      */
-    constructor(url, query) {
+    getElement = false;
+
+    /**
+     * Constructor accepts both parts for the item.
+     * @param url {string} url to grab from
+     * @param query {string} DOM selector
+     * @param getElement {boolean} grab element instead of value (default: false)
+     */
+    constructor(url, query, getElement = false) {
         //this.url = UrlHelper.makeRelativeUrl(url);
         this.url = fixUrl(url);
         this.query = query;
+        this.getElement = getElement;
     }
 }
 
@@ -164,6 +172,14 @@ export class FetchHelper {
                 console.error( 'Could not find element with query: ' + query.query + ' in url: ' + query.url);
                 continue;
             }
+
+            // grab element when requested
+            if (query.getElement) {
+                results[key] = $element;
+                continue;
+            }
+
+            // otherwise grab value
             switch ($element.tagName) {
                 case 'IMG':
                     results[key] = $element.src;
