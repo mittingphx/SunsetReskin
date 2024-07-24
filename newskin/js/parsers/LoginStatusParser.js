@@ -1,6 +1,7 @@
 import {FetchHelper, FetchQueryList, FetchQueryItem} from "../util/FetchHelper.js";
 import {DomHelper} from "../util/DomHelper.js";
 import {LoginStatus} from "../models/LoginStatus.js";
+import {Format} from "../util/Format.js";
 
 /**
  * Parses from the old web page whether the user is logged in, and who
@@ -55,6 +56,7 @@ export class LoginStatusParser {
                 ret.name = results.name;
                 ret.company = results.company;
                 ret.acctNo = results.acctNo;
+                ret.phone = this.readPhoneNumberFromTable(ret.$addressTable);
 
                 //console.log('readLoginStatus() results', ret);
                 if (typeof callback === 'function') {
@@ -66,6 +68,30 @@ export class LoginStatusParser {
     }
 
     /**
+     * Reads the phone number from the first address in the list on the
+     * My Account page.
+     * @param $addressTable {HTMLTableElement}
+     */
+    readPhoneNumberFromTable($addressTable) {
+        if (!$addressTable) return null;
+
+        let $tr = $addressTable.querySelectorAll('tr');
+        if (!$tr) return null;
+        if ($tr.length < 2) return null;
+
+        // find the Phone column in the header and return the phone number in the second row
+        let $th = $tr[0].querySelectorAll('th');
+        for (let i = 0; i < $th.length; i++) {ß
+            if ($th[i].innerHTML === 'Phone') {
+                return Format.phone($tr[1].cells[i].innerHTML);
+            }
+        }
+
+        // didn't find phone number
+        return null;
+    }
+
+    /**
      * Uses FetchHelper to fetch the account details from several pages.
      * @returns {Promise<Record<string, string>>}
      */
@@ -74,7 +100,8 @@ export class LoginStatusParser {
             email: new FetchQueryItem('ContactUs.aspx', '#MainContent_TxtEmail'),
             name: new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_LblName'),
             company: new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_LblCompany'),
-            acctNo: new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_LblAcctNo')
+            acctNo: new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_LblAcctNo'),
+            addressTable : new FetchQueryItem('Login/MyAccount.aspx', '#MainContent_GridShipToAddresses', true)
         }));
     }
 }
