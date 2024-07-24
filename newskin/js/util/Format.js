@@ -40,6 +40,22 @@ export class Format {
         }
     }
 
+    /**
+     * Formats the phone number in the format (123) 456-7890
+     * @param value
+     * @return {*|string}
+     */
+    static phone(value) {
+        if (!value) return '';
+        if (value.length < 10) return value;
+
+        // remove all existing formatting
+        value = value.replace(/[^0-9]/g, '');
+
+        // format as (123) 456-7890
+        return '(' + value.substring(0, 3) + ') ' + value.substring(3, 6) + '-' + value.substring(6, 10);
+    }
+
 
     /**
      * Formats a number as money if the format of $1.23
