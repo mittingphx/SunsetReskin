@@ -89,7 +89,7 @@ export class LoginStatusBuilder {
                 // register button
                 let $register = document.createElement('li');
                 {
-                    let url = fixUrl('Login/MyAccount.aspx');
+                    let url = fixUrl('Login/Login.aspx?register=1');
                     $register.innerHTML = '<a href="' + url + '">Register</a>';
                     $userLogin.appendChild($register);
                 }

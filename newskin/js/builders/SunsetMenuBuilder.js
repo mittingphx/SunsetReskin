@@ -100,42 +100,6 @@ export class SunsetMenuBuilder {
      */
     buildMobileMenuNode(itemList, childDepth) {
 
-
-        /*
-        <ul id="nav" class="navbar-nav ms-auto">
-                  <li class="nav-item">
-                    <a href="index.html" class="active" aria-label="Toggle navigation">Home</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="dd-menu collapsed" href="javascript:void(0)" data-bs-toggle="collapse" data-bs-target="#submenu-1-2" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">Pages</a>
-                    <ul class="sub-menu collapse" id="submenu-1-2">
-                      <li class="nav-item"><a href="Default.aspx"><i class="fa fa-home"></i>Home</a></li>
-                      <li class="nav-item"><a href="ContactUs.aspx"><i class="fa fa-envelope"></i>Contact Us</a></li>
-                      <li class="nav-item"><a href="https://sunsetwholesalewest.com/Vendors/" target="_blank"><i class="fa fa-id-card"></i>Vendor Showcases</a></li>
-                      <li class="nav-item"><hr></li>
-                      <li class="nav-item"><a href="Login/MyAccount.aspx"><i class="fa fa-user-plus"></i>Register</a></li>
-                      <li class="nav-item"><a href="Login/Login.aspx"><i class="fa fa-sign-in"></i>Sign In</a></li>
-                      <li class="nav-item"><a href="ViewCart.aspx"><i class="fa fa-shopping-cart"></i>Cart</a></li>
-                    </ul>
-                  </li>
-                  <li class="nav-item">
-                    <a class="dd-menu" href="javascript:void(0)" data-bs-toggle="collapse"
-                    data-bs-target="#submenu-1-3" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">Categories</a>
-                    <ul class="sub-menu" id="submenu-1-3">
-                      <li class="nav-item"><a href="ItemSearch.aspx?WebCatID=CBDProds">CBD Products</a></li>
-                      <li class="nav-item"><a href="ItemSearch.aspx?WebCatID=CreamWhip">Cream Whips</a></li>
-                      <li class="nav-item"><a href="ItemSearch.aspx?WebCatID=Hookah">Hookah</a></li>
-                      <li class="nav-item"><a href="ItemSearch.aspx?WebCatID=PipesGlass">Pipes &amp; Glass</a></li>
-                      <li class="nav-item"><a href="ItemSearch.aspx?WebCatID=Tobacco_Cigs">Cigarettes</a></li>
-                    </ul>
-                  </li>
-                  <li class="nav-item">
-                    <a href="ContactUs.aspx" aria-label="Toggle navigation">Contact Us</a>
-                  </li>
-                </ul>
-         */
-
         // keep child depth within bounds
         childDepth = this.#clampChildDepth(childDepth);
 
