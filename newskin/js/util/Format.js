@@ -56,6 +56,20 @@ export class Format {
         return '(' + value.substring(0, 3) + ') ' + value.substring(3, 6) + '-' + value.substring(6, 10);
     }
 
+    /**
+     * Replaces special formatting such as &amp; or &lt; with the corresponding character.
+     *
+     * @param value
+     */
+    static unescape(value) {
+        return value
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&nbsp;/g, ' ')
+            ;
+    }
+
 
     /**
      * Formats a number as money if the format of $1.23
