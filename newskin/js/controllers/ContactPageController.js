@@ -28,7 +28,7 @@ export class ContactPageController extends PageControllerBase {
 
         let dom = {};
         if (!DomHelper.addElementsByQuery(dom, {
-            $contactForm: 'form#Form1'
+            $contactForm: 'form#contactForm'
         })) return;
 
         // build the contact page

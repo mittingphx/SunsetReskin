@@ -3,11 +3,31 @@
  */
 export class ContactPageBuilder {
 
+    /**
+     * Fills the contact page when the user is logged in.
+     * @param loginStatus {LoginStatus}
+     * @param $contactForm {HTMLFormElement}
+     */
     build(loginStatus, $contactForm) {
-        // nothing to do
 
+        // don't fill out form if not logged in
+        if (!loginStatus.loggedIn) {
+            $contactForm.elements['name'].focus();
+            return;
+        }
 
-        // TODO: going to automatically set the email and company and name on the contact
-        // form when we're logged in, otherwise we'll just have form fields.
+        // automatically set most of the form fields
+        $contactForm.elements['name'].value = loginStatus.name;
+        $contactForm.elements['email'].value = loginStatus.email;
+        $contactForm.elements['subject'].value = 'Message from ' + (loginStatus.company || 'customer');
+        $contactForm.elements['phone'].value = loginStatus.phone;
+
+        // focus on the message
+        if (!loginStatus.name){
+            $contactForm.elements['name'].focus();
+        }
+        else {
+            $contactForm.elements['message'].focus();
+        }
     }
 }
