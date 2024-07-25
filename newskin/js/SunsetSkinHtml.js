@@ -12,6 +12,17 @@ import {TimedMemoizer} from "./util/TimedMemoizer.js";
 import {UrlHelper} from "./UrlHelper.js";
 
 /**
+ * When set to true, the div containing the old website's html gets
+ * attached to the DOM as a hidden element, which causes layout events
+ * to run (slow) and all linked resources to load (even slower)
+ *
+ * All code should work without it, as we can query the old html source
+ * even if it's completely detached from the DOM renderer.
+ * @type {boolean}
+ */
+const ATTACH_OLD_HTML = false;
+
+/**
  * Uses the window title to display messages for advanced users.
  */
 export class WindowTitleAlert {
@@ -311,15 +322,14 @@ export class SunsetSkinHtml {
             document.head.innerHTML = this.newHtmlHead.innerHTML;
             document.body.innerHTML = this.newHtmlBody.innerHTML;
 
-            // TESTING attaching old html to keep it active
-
-            // still getting error: Form submission canceled because the form is not connected
-            // so adding header too
-            //this.oldHtmlHead.setAttribute('id', 'old_html_head');
-            //document.head.appendChild(this.oldHtmlHead);
+            // optionally attach the old html body to the DOM
+            // we were getting error: Form submission canceled because the form is not connected sometimes
+            // set this flag to true if the problem recurs.
             this.oldHtmlBody.setAttribute('id', 'old_html_body');
-            document.body.appendChild(this.oldHtmlBody);
-
+            if (ATTACH_OLD_HTML) {
+                //document.head.appendChild(this.oldHtmlHead);
+                document.body.appendChild(this.oldHtmlBody);
+            }
             //this.runScripts(this.newHtmlBody);
         }
         else if (set === 'old') {

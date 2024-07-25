@@ -9,7 +9,14 @@ export class AspNetPostback {
      * When true the hidden iframe is visible
      * @type {boolean}
      */
-    static SHOW_DEBUG = true;
+    static SHOW_DEBUG = false;
+
+    /**
+     * @typedef ILinkTarget
+     * @property elementQuery {string} query to find the link to press
+     * An additional way to specify what link to press in the background
+     * on a hidden asp.net iframe page.
+     */
 
     /**
      * Loads a page from the old site into a hidden iframe in the
@@ -21,7 +28,7 @@ export class AspNetPostback {
      * If no link is passed in, then the initial page load is sent to the callback
      *
      * @param url {string} url that has the postback to run
-     * @param $link {HTMLAnchorElement|HTMLButtonElement|HTMLInputElement} the link we want to .net ServerClick on a page in the background (optional)
+     * @param $link {HTMLAnchorElement|HTMLButtonElement|HTMLInputElement|ILinkTarget} the link we want to .net ServerClick on a page in the background (optional)
      * @param callback {WindowProxy, HTMLIFrameElement, function(*)} called when the postback is done
      * @param preWriteHtml {function(string)} optional function to modify the html before it is written (optional)
      */
@@ -33,14 +40,19 @@ export class AspNetPostback {
             if ($link instanceof HTMLAnchorElement) {
                 jsPostback = $link.href;
             } else if ($link instanceof HTMLButtonElement) {
-                jsPostback = $link.onclick;
+                jsPostback = $link.getAttribute('onclick');
             } else if ($link instanceof HTMLInputElement) {
-                jsPostback = $link.onclick;
+                jsPostback = $link.getAttribute('onclick');
+            } else if ($link.elementQuery) {
+                jsPostback = $link.elementQuery;
+            } else {
+                console.error('Could not determine jsPostback for $link: ' + $link);
+                return;
             }
         }
 
         // use old site's form for editing shipping addresses
-        PageLoadHelper.fetchIntoHiddenIframe('Login/MyAccount.aspx?reskin=no',
+        PageLoadHelper.fetchIntoHiddenIframe(url,
             (wnd, html, iframe) => {
 
                 // inject a script to run the postback statement on this hidden iframe
@@ -52,6 +64,8 @@ export class AspNetPostback {
                         newScript = AspNetPostback.createButtonPostbackInjectionScript(jsPostback);
                     } else if ($link instanceof HTMLInputElement) {
                         newScript = AspNetPostback.createInputPostbackInjectionScript(jsPostback);
+                    } else if ($link.elementQuery) {
+                        newScript = AspNetPostback.createElementQueryPostbackInjectionScript(jsPostback);
                     }
                     if (newScript) {
                         html = html.replace('</body>', newScript.outerHTML + "</body>");
@@ -99,7 +113,7 @@ export class AspNetPostback {
                 let aList = document.querySelectorAll('a');
                 let found = false;
                 for (let a of aList) {
-                    if (a.href === "${jsPostback}") {
+                    if (a.href === '${jsPostback}') {
                         try {
                             found = true;
                             a.click();
@@ -129,7 +143,7 @@ export class AspNetPostback {
                 let inputList = document.querySelectorAll('input');
                 let found = false;
                 for (let i of inputList) {
-                    if (i.onclick === "${jsPostback}") {
+                    if (i.getAttribute('onclick') === '${jsPostback}') {
                         try {
                             found = true;
                             i.click();
@@ -147,6 +161,30 @@ export class AspNetPostback {
     }
 
     /**
+     * Version of createAnchorPostbackInjectionScript that uses an element query
+     * to find the <input> tag that has the onclick we want to run as a postback.
+     * @param jsPostback {string} contains the element query to use
+     * @return {HTMLScriptElement}
+     */
+    static createElementQueryPostbackInjectionScript(jsPostback) {
+        let newScript = document.createElement('script');
+        newScript.innerHTML =` // click the link that has the postback we want to run               
+                let input = document.querySelector('${jsPostback}');
+                if (!input) {
+                    console.error("could not find the input.button from the inner hidden iframe!!!");
+                }
+                else {
+                    try {
+                        input.click();
+                    }
+                    catch (ex) {
+                        console.error(ex);
+                    }
+                }
+            `;
+        return newScript;
+    }
+    /**
      * Version of createAnchorPostbackInjectionScript that creates
      * a <script> tag that clicks the <button> tag that has
      * the onclick exactly equal to jsPostback.
@@ -159,7 +197,7 @@ export class AspNetPostback {
                 let buttonList = document.querySelectorAll('button');
                 let found = false;
                 for (let b of buttonList) {
-                    if (b.onclick === "${jsPostback}") {
+                    if (b.getAttribute('onclick') === '${jsPostback}') {
                         try {
                             found = true;
                             b.click();

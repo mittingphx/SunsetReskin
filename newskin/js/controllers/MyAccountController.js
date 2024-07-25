@@ -17,7 +17,7 @@ export class MyAccountController extends PageControllerBase {
      * Parses the HTML for the account page
      * @type {MyAccountParser}
      */
-    parser = new MyAccountParser();
+    parser = null;
 
     /**
      * Constructor takes reference to the skin to be built.
@@ -25,6 +25,7 @@ export class MyAccountController extends PageControllerBase {
      */
     constructor(skin) {
         super(skin);
+        this.parser = new MyAccountParser(skin.html.oldHtmlBody);
         this.builder = new MyAccountBuilder(skin, this);
     }
 

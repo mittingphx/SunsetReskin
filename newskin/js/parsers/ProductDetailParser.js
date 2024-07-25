@@ -191,7 +191,6 @@ export class ProductDetailParser {
         }
         else {
             console.error('could not find image using selector: .ImgItemDetail');
-            // TODO: use a placeholder image here
         }
 
         // grab alternate thumbnails

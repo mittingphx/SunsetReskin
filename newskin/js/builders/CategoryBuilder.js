@@ -514,27 +514,12 @@ export class CategoryBuilder {
 
                 let value = this.#getSizeSliderValue($range);
 
-                // chaining the width property of the CSS class 'category-cell'
+                // changing the width property of the CSS class 'category-cell'
                 // instead of setting each of the element's custom styles
                 CssHelper.changeClassProperty('.category-cell', {'width': (50 * value) + '%'});
                 CssHelper.changeClassProperty('.category-cell h4', {'font-size': (2.70*value)+'em'});
                 CssHelper.changeClassProperty('.category-cell a', {'font-size': (21*value)+'px'});
                 CssHelper.changeClassProperty('.category-cell .product-info', {'padding': (20*value)+'px'});
-
-                // TODO: consider replacing all this math with something that
-                // selected between 2 and 8 products per row  (current ease amount seems fine though)
-
-/*
-                // default settings at value = 0.5
-                // width: 33%
-                // font-size: 1.78em;
-                document.querySelectorAll('.category-cell').forEach(cell => {
-                    cell.style.width = (50 * value) + '%';
-                    cell.querySelector('h4').style.fontSize = (2.70*value)+'em';
-                    cell.querySelector('a').style.fontSize = (21*value)+'px';
-                });
-
- */
             });
         }
     }

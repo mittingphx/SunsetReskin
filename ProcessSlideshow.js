@@ -10,7 +10,7 @@ function processSlideshowMarkup() {
     console.log('Running processSlideshowMarkup()');
 
     let $slider = document.querySelector('.bxslider');
-    if (!$slider) return; // TODO: add this line to production
+    if (!$slider) return;
     let $dropdowns = $slider.querySelectorAll('select');
     for (let i = 0; i < $dropdowns.length; i++) {
         let $ddl = $dropdowns[i];

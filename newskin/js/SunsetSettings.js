@@ -24,6 +24,20 @@ import {MyAccountController} from "./controllers/MyAccountController.js";
 export class SunsetSettings {
 
     /**
+     * Available controller classes.
+     * @type {Object.<string,BaseController|function>}
+     */
+    static controllers = {
+        'FrontPageController': FrontPageController,
+        'ProductDetailsController': ProductDetailsController,
+        'CategoryController': CategoryController,
+        'CartController': CartController,
+        'LoginController': LoginController,
+        'ContactPageController': ContactPageController,
+        'MyAccountController': MyAccountController
+    };
+
+    /**
      * Settings for each of the file types supported by this system.
      * @type {Object.<string,{newSkinUrl: string, hasMenu: boolean, controller: string}>}
      */
@@ -81,19 +95,13 @@ export class SunsetSettings {
      * @returns {BaseController}
      */
     static getControllerInstanceByName(controllerName, skin) {
+        let controller = this.controllers[controllerName];
+        if (controller) {
+            return new controller(skin);
+        }
+        throw new Error('Unknown controller: ' + controllerName);
 
-        // TODO: use this other method to instantiate controllers
-        /*
-        // testing creating instance by name
-        let ref = eval('new ' + controllerName + '(skin)');
-        if (ref.prototype instanceof BaseController) {
-            return ref;
-        }
-        else {
-            console.log('Not a BaseController: ' + controllerName);
-            return null;
-        }
-                                                           */
+/*
 
         switch (controllerName) {
             case 'FrontPageController':
@@ -113,5 +121,7 @@ export class SunsetSettings {
             default:
                 throw new Error('Unknown controller: ' + controllerName);
         }
+        */
+
     }
 }

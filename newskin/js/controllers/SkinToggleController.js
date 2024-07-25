@@ -18,47 +18,26 @@ export class SkinToggleController extends ComponentControllerBase {
      */
     build() {
 
-        // TODO: build the toggle html here instead of placing it in the html of every page
-
-        // grab new skin toggle
-        const $newSkinPanel = document.querySelector('.newskin-toggle');
-        if (!$newSkinPanel) {
-            console.error('.newskin-toggle not found');
-            return;
-        }
+        // build the new skin toggle
+        const $newSkinPanel = document.createElement('div');
+        $newSkinPanel.className = 'newskin-toggle';
+        $newSkinPanel.innerHTML = `
+            <i class="fa-solid fa-toggle-on" id="toggleSkin"></i>
+            <b>New Skin Enabled</b>
+        `;
+        document.body.append($newSkinPanel);
 
         // toggle new skin
         $newSkinPanel.addEventListener('click', () => {
 
-            // TODO: make the old pages have a "new skin available" link
+            // parse current location as a URL object
+            let url = new URL(document.location);
 
-            let url = '' + document.location;
-            if (url.indexOf('?') === -1) {
-                url += '?';
-            }
-            else {
-                url += '&';
-            }
-            url += 'reskin=no';
+            // toggle between new and old skin
+            url.searchParams.set('reskin', url.searchParams.get('reskin') === 'no' ? 'yes' : 'no');
 
-            document.location = url;
-            /*
-            const $newSkinIcon = $newSkinPanel.querySelector('i');
-            const $newSkinLabel = $newSkinPanel.querySelector('b');
-            if ($newSkinIcon.classList.contains('fa-toggle-on')) {
-                $newSkinIcon.classList.remove('fa-toggle-on');
-                $newSkinIcon.classList.add('fa-toggle-off');
-                $newSkinLabel.innerText = 'Classic Look';
-
-                this.html.toggle('old');
-            }
-            else {
-                $newSkinIcon.classList.remove('fa-toggle-off');
-                $newSkinIcon.classList.add('fa-toggle-on');
-                $newSkinLabel.innerText = 'New Skin Enabled';
-
-                this.html.toggle('new');
-            }*/
+            // update the url
+            document.location = url.toString();
         });
     }
 }

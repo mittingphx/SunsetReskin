@@ -118,17 +118,7 @@ export class SunsetPreload {
      * @param element {HTMLElement}
      */
     transfer(element) {
-
-        // TODO: you need to detach the element too
-        /*
-        if (!element) return;
-        if (!this.#isConnected()) {
-            this.#assetsAdded = false;
-        }
-        this.#addAssets();
-        element.appendChild(this.#$preloader);
-
-         */
+        // doesn't seem to be needed
     }
 
     /**

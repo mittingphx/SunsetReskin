@@ -148,7 +148,6 @@ export class SunsetMenuItem {
 
     /**
      * The node this data was extracted from
-     * TODO: is this needed anymore?
      * @type {HTMLElement|null}
      */
     $node = null;
