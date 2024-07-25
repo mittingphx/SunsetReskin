@@ -59,9 +59,10 @@ export class Format {
     /**
      * Replaces special formatting such as &amp; or &lt; with the corresponding character.
      *
-     * @param value
+     * @param value {string|null}
      */
     static unescape(value) {
+        if (!value) return '';
         return value
             .replace(/&amp;/g, '&')
             .replace(/&lt;/g, '<')

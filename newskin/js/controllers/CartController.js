@@ -16,10 +16,22 @@ export class CartController extends PageControllerBase {
     cartBuilder = new ViewCartBuilder();
 
     /**
+     * Parser for the shopping cart data.
+     * @type {ViewCartParser}
+     */
+    cartParser = null;
+
+    /**
      * Builder for the product breadcrumbs
      * @type {ProductBreadcrumbBuilder}
      */
     breadcrumbBuilder = new ProductBreadcrumbBuilder();
+
+    /**
+     * The user's shopping cart
+     * @type {ShoppingCart}
+     */
+    cart = null;
 
     /**
      * Constructor takes reference to the skin to be built.
@@ -34,11 +46,54 @@ export class CartController extends PageControllerBase {
      */
     build() {
 
+        // grab cart datasource from DOM of the old page
         let $oldBody = this.skin.html.oldHtmlBody;
         if (!$oldBody) {
             console.error('Could not find old body');
             return;
         }
+
+        // parse product details from the old webpage
+        this.cartParser = new ViewCartParser($oldBody, null);
+        this.cart = this.cartParser.readCart();
+        // console.log({cart:cart});
+
+        // grab login status
+        this.skin.getLoginStatus(loginStatus => {
+            this.onLoginStatusUpdated(loginStatus);
+        });
+
+        // set the window title
+        document.title = `Checkout - Sunset Wholesale West`;
+    }
+
+    /**
+     * Builds the cart preview dropdown from the upper-right corner of the page.
+     * @param loginStatus {LoginStatus}
+     */
+    buildCartDropdown(loginStatus) {
+
+        // show a spinner while the cart is being loaded
+        let $insertionPoint = document.querySelector('.ddl-cart');
+        if (!$insertionPoint) {
+            console.error('Could not find insertion point! (.ddl-cart)');
+            return;
+        }
+        $insertionPoint.innerHTML = '<i class="fa fa-spinner fa-spin fa-2x"></i>';
+
+        // load cart in the background
+        ShoppingCart.getInstanceAsync(cart => {
+            $insertionPoint.replaceWith(
+                this.cartBuilder.buildCartDropdown(cart, loginStatus)
+            );
+        })
+    }
+
+    /**
+     * Builds the cart once the login status has been retrieved.
+     * @param loginStatus {LoginStatus}
+     */
+    onLoginStatusUpdated(loginStatus) {
 
         // find where we're going to insert the product details
         let $insertionPoint = document.querySelector('.shopping-cart');
@@ -47,60 +102,47 @@ export class CartController extends PageControllerBase {
             return;
         }
 
-        // parse product details from the old webpage
-        let parser = new ViewCartParser($oldBody, null);
-        let cart = parser.readCart();
-        console.log({cart:cart});
+        // build the main product details area
+        let $cartHtml = this.cartBuilder.build(this.cart, loginStatus);
+        $insertionPoint.replaceWith($cartHtml);
 
-        // grab login status
-        this.skin.getLoginStatus(loginStatus => {
+        //console.log('getLoginStatus() completed');
+        //console.log({loginStatus:loginStatus, $insertionPoint:$insertionPoint, $cartHtml:$cartHtml});
 
-            // build the main product details area
-            let $cartHtml = this.cartBuilder.build(cart, loginStatus);
-            $insertionPoint.replaceWith($cartHtml);
+        // build the breadcrumbs in the header
+        let $breadcrumbs = this.breadcrumbBuilder.build('Shopping Cart', this.cartBuilder.buildBreadCrumbs());
+        let breadcrumbInsert = document.querySelector('.breadcrumbs');
+        if (breadcrumbInsert) {
+            breadcrumbInsert.replaceWith($breadcrumbs);
+        }
 
-            console.log('getLoginStatus() completed');
-            console.log({loginStatus:loginStatus, $insertionPoint:$insertionPoint, $cartHtml:$cartHtml});
+        // look for commands on the url
+        let urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('remove')) {
+            let itemId = parseInt(urlParams.get('remove'));
+            if (itemId) {
 
-            // build the breadcrumbs in the header
-            let $breadcrumbs = this.breadcrumbBuilder.build('Shopping Cart', this.cartBuilder.buildBreadCrumbs());
-            let breadcrumbInsert = document.querySelector('.breadcrumbs');
-            if (breadcrumbInsert) {
-                breadcrumbInsert.replaceWith($breadcrumbs);
-            }
+                // wait until cart is displayed to start confirming the remove process
+                let startTime = new Date().getTime();
+                let waitInterval = setTimeout(_ => {
 
-            // look for commands on the url
-            let urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('remove')) {
-                let itemId = parseInt(urlParams.get('remove'));
-                if (itemId) {
-
-                    // wait until cart is displayed to start confirming the remove process
-                    let startTime = new Date().getTime();
-                    let waitInterval = setTimeout(_ => {
-
-                        // give up after 15 seconds
-                        if (new Date().getTime() - startTime > 15000) {
-                            clearInterval(waitInterval);
-                            return;
-                        }
-
-                        // confirm cart has been displayed
-                        if (!this.#cartIsDisplayingItem(itemId)) {
-                            return;
-                        }
-
-                        // confirm remove process
+                    // give up after 15 seconds
+                    if (new Date().getTime() - startTime > 15000) {
                         clearInterval(waitInterval);
-                        cart.confirmRemove(itemId);
-                    }, 250);
-                }
+                        return;
+                    }
+
+                    // confirm cart has been displayed
+                    if (!this.#cartIsDisplayingItem(itemId)) {
+                        return;
+                    }
+
+                    // confirm remove process
+                    clearInterval(waitInterval);
+                    this.cart.confirmRemove(itemId);
+                }, 250);
             }
-
-        })
-
-        // set the window title
-        document.title = `Checkout - Sunset Wholesale West`;
+        }
     }
 
     /**
@@ -140,25 +182,4 @@ export class CartController extends PageControllerBase {
         return false;
     }
 
-    /**
-     * Builds the cart preview dropdown from the upper-right corner of the page.
-     * @param loginStatus {LoginStatus}
-     */
-    buildCartDropdown(loginStatus) {
-
-        // show a spinner while the cart is being loaded
-        let $insertionPoint = document.querySelector('.ddl-cart');
-        if (!$insertionPoint) {
-            console.error('Could not find insertion point! (.ddl-cart)');
-            return;
-        }
-        $insertionPoint.innerHTML = '<i class="fa fa-spinner fa-spin fa-2x"></i>';
-
-        // load cart in the background
-        ShoppingCart.getInstanceAsync(cart => {
-            $insertionPoint.replaceWith(
-                this.cartBuilder.buildCartDropdown(cart, loginStatus)
-            );
-        })
-    }
 }

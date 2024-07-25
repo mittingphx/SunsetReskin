@@ -169,7 +169,7 @@ export class FetchHelper {
             let query = queryList.items[key];
             let $element = fetchedPages[query.url].querySelector(query.query);
             if (!$element) {
-                console.error( 'Could not find element with query: ' + query.query + ' in url: ' + query.url);
+                console.warn( 'Could not find element with query: ' + query.query + ' in url: ' + query.url);
                 continue;
             }
 
