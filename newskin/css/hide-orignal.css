@@ -1,9 +1,0 @@
-/**
-This file is used to hide the original HTML from the website.
- */
-
-.page,
-.leftHeaderFiller, .leftTopFiller, .leftBottomFiller, .leftFooterFiller,
-.rightHeaderFiller, .rightTopFiller, .rightBottomFiller, .rightFooterFiller {
-    opacity: 0;
-}

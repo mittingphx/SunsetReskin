@@ -61,7 +61,7 @@ export class CategoryController extends PageControllerBase {
         let category = parser.readNodesFromTable($table);
         let paging = parser.readPageControls();
 
-        console.log({category:category, paging: paging});
+        // console.log({category:category, paging: paging});
 
         this.pageBuilder.buildCategoryProducts(category, $insertionPoint);
 
