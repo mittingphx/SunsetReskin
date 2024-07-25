@@ -623,3 +623,21 @@ table.admin-table a:hover i {
 .panel-edit-address {
     display: none;
 }
+
+/** Show different category menu in navbar depending on if we're mobile or desktop **/
+@media (max-width:990px) {
+    .mobile-menu {
+        display: block;
+    }
+    .desktop-menu {
+        display: none;
+    }
+}
+@media (min-width:991px) {
+    .mobile-menu {
+        display: none;
+    }
+    .desktop-menu {
+        display: block;
+    }
+}

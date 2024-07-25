@@ -77,13 +77,33 @@ export class MenuController extends ComponentControllerBase {
             return;
         }
 
+        // grab insertion point.  changed to allow a different menu on mobile and desktop
+        let $categorySubmenu = document.querySelector('.mobile-menu ul');
+        if (!$categorySubmenu) {
+            console.error('Could not find .mobile-menu ul (category mobile submenu)');
+            return;
+        }
+/*
         let $categorySubmenu = document.querySelector('#submenu-1-3');
         if (!$categorySubmenu) {
             console.error('Could not find #submenu-1-3 (category mobile submenu)');
             return;
-        }
-
+        }*/
         $categorySubmenu.replaceWith(builder.buildMobileMenu());
+
+        // make mobile menu toggle when desktop toggles (css will only display one at a time)
+        const $desktopMenu = document.querySelector('.desktop-menu');
+        const $mobileMenuWrapper = document.querySelector('.mobile-menu');
+        const $mobileMenu = $mobileMenuWrapper.querySelector('ul');
+        const observer = new MutationObserver((_, __) => {
+            if ($desktopMenu.classList.contains('collapse')) {
+                $mobileMenu.classList.add('collapse');
+            }
+            else {
+                $mobileMenu.classList.remove('collapse');
+            }
+        });
+        observer.observe($desktopMenu, {attributes: true, attributeFilter: ['class']});
 
         // show menu with hamburger button
         $menuButton.addEventListener('click', () => {
