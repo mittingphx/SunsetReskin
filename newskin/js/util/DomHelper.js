@@ -10,19 +10,22 @@
 /**
  * Alias for document.querySelector
  * @param query {string} DOM selector
+ * @param source {Document|HTMLElement} optional source to pull from (default: document)
  * @return {Element|null}
  */
-export function $(query) {
-    return document.querySelector(query);
+export function $(query, source = null) {
+    if (!source) source = document;
+    return source.querySelector(query);
 }
 
 /**
  * Returns the value of an element
  * @param query {string} DOM selector
+ * @param source {Document|HTMLElement} optional source to pull from (default: document)
  * @return {*|null}
  */
-export function $value(query) {
-    const $el = $(query);
+export function $value(query, source = null) {
+    const $el = $(query, source);
     return $el ? $el.value : null;
 }
 
@@ -54,7 +57,8 @@ export class DomHelper {
         // search for each element
         let ret = true;
         for (let selector in selectors) {
-            let $element = $parent.querySelector(selectors[selector]);
+            let $element = $(selectors[selector], $parent);
+            //let $element = $parent.querySelector(selectors[selector]);
             if ($element) {
                 data[selector] = $element;
             }
