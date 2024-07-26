@@ -685,3 +685,41 @@ table.admin-table a:hover i {
     width: 100%;
     text-align: center;
 }
+
+
+/** Product Vendor Showcases */
+
+.hero-small-banner {
+    border-radius: 10px;
+    background: url('newskin/images/right-bg.jpg');
+    text-align: center;
+    padding: 20px;
+    height: auto !important;
+}
+.hero-small-banner img {
+    max-width: 100%;
+    max-height: 100%;
+    padding: 20px;
+}
+
+/** New customer registration area **/
+.alert-danger {
+    color: white;
+    background: #d63e3e;
+}
+.alert-danger li {
+    text-align: center;
+    margin: 10px;
+}
+.alert-yellow {
+    color: yellow;
+}
+.alert-yellow-em {
+    color: yellow;
+    font-weight: bold;
+    text-decoration: underline;
+    font-style: italic;
+}
+.alert-white {
+    color: white;
+}
