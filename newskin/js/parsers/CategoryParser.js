@@ -2,7 +2,6 @@ import {CommonParser} from "./CommonParser.js";
 import {ProductCategoryItem} from "../models/ProductCategoryItem.js";
 import {CategoryProductItem} from "../models/CategoryProductItem.js";
 import {PageControls, PageControlLink} from "../models/PageControls.js";
-import {$value} from "../util/DomHelper.js";
 import {AspNetPostback} from "../util/AspNetPostback.js";
 import {ProgressBar} from "../util/ProgressBar.js";
 
