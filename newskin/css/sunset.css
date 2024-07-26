@@ -307,6 +307,10 @@ body.popup-mode .breadcrumbs {
     width: 135px;
 }
 
+.total-show-product {
+    padding: 20px 0;
+}
+
 /** shopping cart **/
 
 .cart-items .content h4 {
