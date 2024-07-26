@@ -8,6 +8,25 @@
  */
 
 /**
+ * Alias for document.querySelector
+ * @param query {string} DOM selector
+ * @return {Element|null}
+ */
+export function $(query) {
+    return document.querySelector(query);
+}
+
+/**
+ * Returns the value of an element
+ * @param query {string} DOM selector
+ * @return {*|null}
+ */
+export function $value(query) {
+    const $el = $(query);
+    return $el ? $el.value : null;
+}
+
+/**
  * Helper methods for dealing with the document object model.
  */
 export class DomHelper {

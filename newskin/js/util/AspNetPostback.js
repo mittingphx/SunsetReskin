@@ -19,6 +19,14 @@ export class AspNetPostback {
      */
 
     /**
+     * @typedef IElementTarget
+     * @property elementQuery {string} query to find the HtmlElement to change
+     * @property value {string} value to set the element to
+     * Sets the value of an HtmlElement on a hidden asp.net iframe page,
+     * with the intention of triggering a postback on that element.
+     */
+
+    /**
      * Loads a page from the old site into a hidden iframe in the
      * background and searches for the <a> link we passed in then does
      * an ASP.net ServerClick on it, sending the callback references
@@ -28,7 +36,7 @@ export class AspNetPostback {
      * If no link is passed in, then the initial page load is sent to the callback
      *
      * @param url {string} url that has the postback to run
-     * @param $link {HTMLAnchorElement|HTMLButtonElement|HTMLInputElement|ILinkTarget} the link we want to .net ServerClick on a page in the background (optional)
+     * @param $link {HTMLAnchorElement|HTMLButtonElement|HTMLInputElement|ILinkTarget|IElementTarget} the link we want to .net ServerClick on a page in the background (optional)
      * @param callback {WindowProxy, HTMLIFrameElement, function(*)} called when the postback is done
      * @param preWriteHtml {function(string)} optional function to modify the html before it is written (optional)
      */
@@ -65,7 +73,7 @@ export class AspNetPostback {
                     } else if ($link instanceof HTMLInputElement) {
                         newScript = AspNetPostback.createInputPostbackInjectionScript(jsPostback);
                     } else if ($link.elementQuery) {
-                        newScript = AspNetPostback.createElementQueryPostbackInjectionScript(jsPostback);
+                        newScript = AspNetPostback.createElementQueryPostbackInjectionScript($link);
                     }
                     if (newScript) {
                         html = html.replace('</body>', newScript.outerHTML + "</body>");
@@ -163,15 +171,47 @@ export class AspNetPostback {
     /**
      * Version of createAnchorPostbackInjectionScript that uses an element query
      * to find the <input> tag that has the onclick we want to run as a postback.
-     * @param jsPostback {string} contains the element query to use
+     * @param $target {ILinkTarget|IElementTarget} contains the element query to use
      * @return {HTMLScriptElement}
      */
-    static createElementQueryPostbackInjectionScript(jsPostback) {
+    static createElementQueryPostbackInjectionScript($target) {
         let newScript = document.createElement('script');
-        newScript.innerHTML =` // click the link that has the postback we want to run               
-                let input = document.querySelector('${jsPostback}');
+
+        // make sure we've got an element query
+        if (!$target.elementQuery) {
+            console.error('Could not determine jsPostback for $target: ' + JSON.stringify($target));
+            return null;
+        }
+
+        // handler for IElementTarget, which sets values
+        if ($target.value) {
+            newScript.innerHTML =` // click the link that has the postback we want to run
+                let input = document.querySelector('${ $target.elementQuery }');
                 if (!input) {
-                    console.error("could not find the input.button from the inner hidden iframe!!!");
+                    console.error("could not find the input '${ $target.elementQuery }' from the inner hidden iframe!!!");
+                }
+                else {
+                    try {
+                        input.value = '${ $target.value }';
+                        if (input.tagName === 'SELECT') {
+                            input.dispatchEvent(new Event('change'));
+                        }
+                        else if (input.tagName === 'input') {
+                            input.dispatchEvent(new Event('input'));
+                        }                        
+                    }
+                    catch (ex) {
+                        console.error(ex);
+                    }
+                }
+            `;
+        }
+        // handler for ILinkTarget, which clicks links
+        else {
+            newScript.innerHTML = ` // click the link that has the postback we want to run               
+                let input = document.querySelector('${$target.elementQuery}');
+                if (!input) {
+                    console.error("could not find the input.button '${$target.elementQuery}' from the inner hidden iframe!!!");
                 }
                 else {
                     try {
@@ -182,6 +222,7 @@ export class AspNetPostback {
                     }
                 }
             `;
+        }
         return newScript;
     }
     /**

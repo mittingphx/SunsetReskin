@@ -2,6 +2,9 @@ import {CommonParser} from "./CommonParser.js";
 import {ProductCategoryItem} from "../models/ProductCategoryItem.js";
 import {CategoryProductItem} from "../models/CategoryProductItem.js";
 import {PageControls, PageControlLink} from "../models/PageControls.js";
+import {$value} from "../util/DomHelper.js";
+import {AspNetPostback} from "../util/AspNetPostback.js";
+import {ProgressBar} from "../util/ProgressBar.js";
 
 /**
  * Parses the category and search products views.
@@ -23,11 +26,68 @@ export class CategoryParser {
     }
 
     /**
+     * Sets up handlers for the items per page dropdown to match the
+     * settings from the old page and to trigger a post-back if the
+     * user changes the value.
+     */
+    #initItemsPerPage() {
+
+        // get the current page size of the old page
+        const $ddlPerPage = this.sourceDocument.querySelector('#MainContent_DropPerPage');
+        let itemsPerPage = null;
+        if ($ddlPerPage) {
+            itemsPerPage = Number($ddlPerPage.value);
+        }
+        console.log('itemsPerPage=' + itemsPerPage);
+
+        // set the value on the visible page
+        const $itemsPerPage = document.querySelector('#itemsPerPage');
+        $itemsPerPage.value = itemsPerPage;
+
+        // create event to trigger a postback when the value changes
+        $itemsPerPage.addEventListener('change', (event) => {
+
+            // start showing a progress bar, this might take a while
+            let progress = new ProgressBar()
+            progress.anim(20, 2);
+            progress.setVisible(true);
+
+            // get url to send postback on
+            const url = new URL('' + document.location);
+            url.searchParams.set('reskin', 'no');
+
+            // setup postback target parameters
+            const target = {elementQuery: '#MainContent_DropPerPage', value:  event.target.value};
+            console.log('AspNetPostback target', target);
+
+            // send postback, reloading the page once sent
+            AspNetPostback.runInBackground(url.toString(), target,
+                (_, __) => {
+                    //alert('post back sent... reloading page');
+                    progress.anim(100, 15);
+                    // reload page to see the change
+                    setTimeout(() => {
+                        document.location = '' + document.location;
+                    }, 10);
+                }, (html) => {
+                    //console.log('post back html', html);
+                    //alert('got post back html');
+                    progress.anim(50, 2);
+                    return html;
+                });
+        });
+
+    }
+
+    /**
      * Reads all the nodes within the given <table>.
      * @param $table {HTMLTableElement}
      * @returns {ProductCategoryItem}
      */
     readNodesFromTable($table) {
+
+        // make sure the items per page is set to its maximum value
+        this.#initItemsPerPage();
 
         // grab category hierarchy which contains the name
         let ret = new ProductCategoryItem()
