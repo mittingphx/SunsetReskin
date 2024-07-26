@@ -8,6 +8,7 @@ import {ProductBreadcrumbBuilder, ProductDetailBuilder} from "../builders/Produc
  */
 export class ProductDetailsController extends PageControllerBase {
 
+    // noinspection JSCheckFunctionSignatures
     /**
      * Builds the product detail area of the page.
      * @type {ProductDetailBuilder}

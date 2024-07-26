@@ -1,3 +1,5 @@
+// noinspection ALL
+
 export var tns = function() {
     var t = window,
         Ai = t.requestAnimationFrame || t.webkitRequestAnimationFrame || t.mozRequestAnimationFrame || t.msRequestAnimationFrame || function(t) {
@@ -29,6 +31,7 @@ export var tns = function() {
     function Hi() {
         var t = document,
             e = t.body;
+        // noinspection JSUndefinedPropertyAssignment
         return e || ((e = t.createElement("body")).fake = !0), e
     }
     var n = document.documentElement;

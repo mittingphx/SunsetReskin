@@ -70,7 +70,7 @@ export class LoginStatusParser {
     /**
      * Reads the phone number from the first address in the list on the
      * My Account page.
-     * @param $addressTable {HTMLTableElement}
+     * @param $addressTable {HTMLElement}
      */
     readPhoneNumberFromTable($addressTable) {
         if (!$addressTable) return null;
@@ -93,7 +93,7 @@ export class LoginStatusParser {
 
     /**
      * Uses FetchHelper to fetch the account details from several pages.
-     * @returns {Promise<Record<string, string>>}
+     * @returns {Promise<Record<string, string|HTMLElement>>}
      */
     async #fetchDetailPages() {
         return await new FetchHelper().fetchAndQuery(new FetchQueryList({

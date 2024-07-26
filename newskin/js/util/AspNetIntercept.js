@@ -169,6 +169,7 @@ export class AspNetIntercept {
         // get a reference to the ASP.Net form
         this.#postbackForm = document.forms['Form1'];
         if (!this.#postbackForm) {
+            // noinspection JSUnresolvedReference
             this.#postbackForm = document.Form1;
         }
     }

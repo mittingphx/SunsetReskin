@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedReference
+
 /*
 This is code to be inserted into the front page of SWWest.com to change how the menu works
 to reduce general load on the system.
