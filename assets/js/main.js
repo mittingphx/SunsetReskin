@@ -20,7 +20,7 @@ Author: GrayGrids
     Sticky
     ======================================= */
     window.onscroll = function () {
-        let header_navbar = document.querySelector(".navbar-area");
+        //let header_navbar = document.querySelector(".navbar-area");
         //let sticky = header_navbar.offsetTop;
 
         // show or hide the back-top-top button
