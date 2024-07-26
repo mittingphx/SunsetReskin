@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import {IProductBase} from "./BaseModels.js";
 
 /**

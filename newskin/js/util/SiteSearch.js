@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 /**
  * Helper methods for dealing with searches on the website.
  */

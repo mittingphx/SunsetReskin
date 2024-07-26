@@ -1,4 +1,6 @@
 
+// noinspection JSUnusedGlobalSymbols
+
 /**
  * Stores information about a dynamically created CSS class, so we can
  * add a few properties at a time instead the same <style> tag instead

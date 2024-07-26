@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import {ChangePasswordForm} from "../models/ChangePasswordForm.js";
 import {DomHelper} from "../util/DomHelper.js";
 

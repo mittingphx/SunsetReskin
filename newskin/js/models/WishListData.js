@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import {WishListItem} from "./WishListItem.js";
 import {WishListBuilder} from "../builders/WishListBuilder.js";
 

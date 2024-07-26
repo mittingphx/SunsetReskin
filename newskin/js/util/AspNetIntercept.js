@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 /**
  * Tools for working with ASP.Net callbacks, with the ability to
  * intercept and redirect PostBacks from the old page and handle

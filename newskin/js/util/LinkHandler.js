@@ -1,3 +1,5 @@
+// noinspection JSUnusedLocalSymbols
+
 /**
  * Adds event handlers that intercepts link click on every link
  * on the page, including dynamically generated links.
@@ -20,7 +22,7 @@ export class LinkHandler {
     fnLinkFilter = ($a) => true;
 
     /**
-     * The event listener currently installed so we can remove it.
+     * The event listener currently installed, kept so that we can remove it.
      * @type {function(MouseEvent)}
      */
     #eventListener = null;

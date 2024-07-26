@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import {fixUrl} from "../UrlHelper.js";
 
 /**

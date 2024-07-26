@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import {ComponentControllerBase} from "./BaseControllers.js";
 
 /**

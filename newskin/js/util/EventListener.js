@@ -1,4 +1,6 @@
 
+// noinspection JSUnusedGlobalSymbols
+
 /**
  * Manages the handlers around a custom event.
  */

@@ -1,4 +1,6 @@
 
+// noinspection JSUnusedGlobalSymbols
+
 /**
  * Current status of the user.
  */
