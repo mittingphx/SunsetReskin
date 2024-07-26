@@ -43,6 +43,6 @@ top of the &lt;body&gt; tag.
 
 ## Author
 This project was created between February and July 2024 by Scott Mitting 
-<a href="mailto:scottm@swwest.com">&lt;scottm@swwest.com&gt;</a>,
+<a href="mailto:scottm@swwest.com">scottm@swwest.com</a>,
 an employee of the IT department at 
 <a href="https://swwest.com">Sunset Wholesale West</a>.
