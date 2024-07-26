@@ -25,60 +25,6 @@ export class CategoryParser {
     }
 
     /**
-     * Sets up handlers for the items per page dropdown to match the
-     * settings from the old page and to trigger a post-back if the
-     * user changes the value.
-     */
-    #initItemsPerPage() {
-
-        // get the current page size of the old page
-        const $ddlPerPage = this.sourceDocument.querySelector('#MainContent_DropPerPage');
-        let itemsPerPage = null;
-        if ($ddlPerPage) {
-            itemsPerPage = Number($ddlPerPage.value);
-        }
-        console.log('itemsPerPage=' + itemsPerPage);
-
-        // set the value on the visible page
-        const $itemsPerPage = document.querySelector('#itemsPerPage');
-        $itemsPerPage.value = itemsPerPage;
-
-        // create event to trigger a postback when the value changes
-        $itemsPerPage.addEventListener('change', (event) => {
-
-            // start showing a progress bar, this might take a while
-            let progress = new ProgressBar()
-            progress.anim(20, 2);
-            progress.setVisible(true);
-
-            // get url to send postback on
-            const url = new URL('' + document.location);
-            url.searchParams.set('reskin', 'no');
-
-            // setup postback target parameters
-            const target = {elementQuery: '#MainContent_DropPerPage', value:  event.target.value};
-            console.log('AspNetPostback target', target);
-
-            // send postback, reloading the page once sent
-            AspNetPostback.runInBackground(url.toString(), target,
-                (_, __) => {
-                    //alert('post back sent... reloading page');
-                    progress.anim(100, 15);
-                    // reload page to see the change
-                    setTimeout(() => {
-                        document.location = '' + document.location;
-                    }, 10);
-                }, (html) => {
-                    //console.log('post back html', html);
-                    //alert('got post back html');
-                    progress.anim(50, 2);
-                    return html;
-                });
-        });
-
-    }
-
-    /**
      * Reads all the nodes within the given <table>.
      * @param $table {HTMLTableElement}
      * @returns {ProductCategoryItem}
@@ -97,17 +43,24 @@ export class CategoryParser {
 
         for (let i = 0; i < $nodes.length; i++) {
             let $node = $nodes[i];
-            let nodeType = this.getNodeType($node);
+            let nodeType = this.#getNodeType($node);
             if (nodeType === '') continue;
 
             if (nodeType === 'product') {
-                let product = this.readFromDataNode($node);
+                let product = this.#readFromDataNode($node);
                 ret.items.push(product);
             }
             else if (nodeType === 'qty') {
-                // TODO: tie this to the product by item number
+                // if we want to implement the QTY input box directly on the category
+                // page, this is where we'd get the input we need to do post-backs on
                 /*
-                <td class="CenterQty"><span id="MainContent_LblQtyPopularItems...2918">Qty:</span><input name="ctl00$MainContent$txtQtyPopularItems...2918" type="text" maxlength="4" id="MainContent_txtQtyPopularItems...2918" style="width:30px;"><input type="submit" name="ctl00$MainContent$btnPopularItems...2918" value="Buy" id="MainContent_btnPopularItems...2918" class="ButtonBuy"></td>
+                <td class="CenterQty">
+                    <span id="MainContent_LblQtyPopularItems...2918">Qty:</span>
+                    <input name="ctl00$MainContent$txtQtyPopularItems...2918" type="text" maxlength="4"
+                        id="MainContent_txtQtyPopularItems...2918" style="width:30px;">
+                    <input type="submit" name="ctl00$MainContent$btnPopularItems...2918" value="Buy"
+                        id="MainContent_btnPopularItems...2918" class="ButtonBuy">
+                </td>
                  */
             }
         }
@@ -116,23 +69,54 @@ export class CategoryParser {
     }
 
     /**
+     * Reads the paging controls from the source document.
+     * @returns {PageControls}
+     */
+    readPageControls() {
+
+        let $parent = this.sourceDocument.querySelector('#MainContent_PanelPages');
+        if (!$parent) {
+            console.error('could not find paging controls using selector: #MainContent_PanelPages');
+            return null;
+        }
+        let $links = $parent.querySelectorAll('a')
+
+        let pageControls = new PageControls();
+        for (let i = 0; i < $links.length; i++) {
+            let page = new PageControlLink($links[i]);
+            if (page.type === 'prev') {
+                pageControls.prevLink = page;
+            }
+            else if (page.type === 'next') {
+                pageControls.nextLink = page;
+            }
+            else if (page.type === 'current') {
+                pageControls.currentLink = page;
+            }
+            pageControls.pages.push(page);
+        }
+
+        return pageControls;
+    }
+
+
+    /**
      * Returns the type of data within this node
      * @param $node
      * @returns {null|string}
      */
-    getNodeType($node) {
+    #getNodeType($node) {
         if ($node.classList.contains('Item')) return 'product';
         if ($node.classList.contains('Qty')) return 'qty';
         return null;
     }
-
 
     /**
      * Reads the data for one protect from an HTML element.
      * @param $node {HTMLElement} DOM element to read from
      * @returns {CategoryProductItem} the product data read
      */
-    readFromDataNode($node) {
+    #readFromDataNode($node) {
 
         let ret = new CategoryProductItem();
 
@@ -172,40 +156,61 @@ export class CategoryParser {
             console.warn('No link for product: ' + $node.outerHTML);
         }
 
-
         return ret;
 
     }
 
     /**
-     * Reads the paging controls from the source document.
-     * @returns {PageControls}
+     * Sets up handlers for the items per page dropdown to match the
+     * settings from the old page and to trigger a post-back if the
+     * user changes the value.
      */
-    readPageControls() {
+    #initItemsPerPage() {
 
-        let $parent = this.sourceDocument.querySelector('#MainContent_PanelPages');
-        if (!$parent) {
-            console.error('could not find paging controls using selector: #MainContent_PanelPages');
-            return null;
+        // get the current page size of the old page
+        const $ddlPerPage = this.sourceDocument.querySelector('#MainContent_DropPerPage');
+        let itemsPerPage = null;
+        if ($ddlPerPage) {
+            itemsPerPage = Number($ddlPerPage.value);
         }
-        let $links = $parent.querySelectorAll('a')
+        // console.log('itemsPerPage=' + itemsPerPage);
 
-        let pageControls = new PageControls();
-        for (let i = 0; i < $links.length; i++) {
-            let page = new PageControlLink($links[i]);
-            if (page.type === 'prev') {
-                pageControls.prevLink = page;
-            }
-            else if (page.type === 'next') {
-                pageControls.nextLink = page;
-            }
-            else if (page.type === 'current') {
-                pageControls.currentLink = page;
-            }
-            pageControls.pages.push(page);
-        }
+        // set the value on the visible page
+        const $itemsPerPage = document.querySelector('#itemsPerPage');
+        $itemsPerPage.value = itemsPerPage;
 
-        return pageControls;
+        // create event to trigger a postback when the value changes
+        $itemsPerPage.addEventListener('change', (event) => {
+
+            // start showing a progress bar, this might take a while
+            let progress = new ProgressBar()
+            progress.anim(20, 2);
+            progress.setVisible(true);
+
+            // get url to send postback on
+            const url = new URL('' + document.location);
+            url.searchParams.set('reskin', 'no');
+
+            // setup postback target parameters
+            const target = {elementQuery: '#MainContent_DropPerPage', value:  event.target.value};
+            // console.log('AspNetPostback target', target);
+
+            // send postback, reloading the page once sent
+            AspNetPostback.runInBackground(url.toString(), target,
+                (_, __) => {
+                    //alert('post back sent... reloading page');
+                    progress.anim(100, 15);
+                    // reload page to see the change
+                    setTimeout(() => {
+                        document.location = '' + document.location;
+                    }, 10);
+                }, (html) => {
+                    //console.log('post back html', html);
+                    //alert('got post back html');
+                    progress.anim(50, 2);
+                    return html;
+                });
+        });
     }
 }
 

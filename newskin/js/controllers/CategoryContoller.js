@@ -48,21 +48,18 @@ export class CategoryController extends PageControllerBase {
             return;
         }
 
-        // find where we're going to insert the category
+        // parse from the old to build the category grid
+        let parser = new CategoryParser($oldBody);
+        let category = parser.readNodesFromTable($table);
+        let paging = parser.readPageControls();
+        // console.log({category:category, paging: paging});
+
+        // build the category based on the parsed data
         let $insertionPoint = document.querySelector('.insert-category');
         if (!$insertionPoint) {
             console.error('Could not find insertion point!');
             return;
         }
-
-
-        // parse from the old to build the category grid
-        let parser = new CategoryParser($oldBody);
-        let category = parser.readNodesFromTable($table);
-        let paging = parser.readPageControls();
-
-        // console.log({category:category, paging: paging});
-
         this.pageBuilder.buildCategoryProducts(category, $insertionPoint);
 
         // build the subcategory list on the left, or show search terms when searching
