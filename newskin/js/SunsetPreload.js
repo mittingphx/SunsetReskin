@@ -121,6 +121,7 @@ export class SunsetPreload {
      */
     transfer(element) {
         // doesn't seem to be needed
+        console.log(element);
     }
 
     /**
