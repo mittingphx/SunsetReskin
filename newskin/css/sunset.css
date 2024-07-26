@@ -641,3 +641,47 @@ table.admin-table a:hover i {
         display: block;
     }
 }
+
+/** Progress bar for page loading **/
+.page-loader {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(1px);
+    animation: ease-in 0.8s;
+    display:none;
+}
+
+.loader-inner {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader-dialog {
+    background: white;
+    width: 250px;
+    height: 75px;
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.8);
+}
+
+.progress {
+    width: 200px;
+    margin-top: 25px;
+    margin-left: 25px;
+}
+
+.progress-text {
+    width: 100%;
+    text-align: center;
+}

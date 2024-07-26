@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--suppress HtmlUnknownTarget -->
 <html lang="en">
 <head>
     <base href="../../">
@@ -182,7 +183,7 @@
                       <li class="nav-item"><a href="ItemSearch.aspx?WebCatID=Tobacco_Cigs">Cigarettes</a></li>
                     </ul>
                     <div class="mobile-wrapper mobile-menu">
-                      <ul class="sub-menu collapse" id="submenu-1-3">
+                      <ul class="sub-menu collapse">
                         <li class="nav-item"><a href="ItemSearch.aspx?WebCatID=CBDProds">CBD Products</a></li>
                       </ul>
                     </div>
@@ -212,63 +213,18 @@
     </div>
     <!-- End Header Bottom -->
 
+    <!-- progress bar shown when loading pages -->
     <div class="page-loader">
       <div class="loader-inner">
         <div class="loader-dialog">
           <div class="loader-layer"></div>
-          <progress class="progress" value="40" max="100">
+          <progress class="progress" value="0" max="100">
           </progress>
-          <div class="progress-text">Loading: 40%</div>
-        </div>
+          <div class="progress-text">Loading: 0%</div>
         </div>
       </div>
     </div>
 
-    <style>
-      .page-loader {
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 9999;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(1px);
-        animation: ease-in 0.8s;
-        display:none;
-      }
-
-      .loader-inner {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .loader-dialog {
-        background: white;
-        width: 250px;
-        height: 75px;
-        border-radius: 10px;
-        border: 2px solid rgba(0, 0, 0, 0.8);
-      }
-
-      .progress {
-        width: 200px;
-        margin-top: 25px;
-        margin-left: 25px;
-      }
-
-      .progress-text {
-        width: 100%;
-        text-align: center;
-      }
-
-</style>
   </header>
   <!-- End Header Area -->
 
