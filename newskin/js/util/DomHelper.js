@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 /**
  * Project: Sunset Wholesale West Website
  * File:    DomHelper.js
