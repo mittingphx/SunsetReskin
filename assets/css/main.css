@@ -1,3 +1,4 @@
+
 /* ===========================
 Index Of css
 
@@ -70,6 +71,7 @@ button:focus,
   text-decoration: none;
   outline: none;
   outline: none !important;
+
   border-color: none !important;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
@@ -93,6 +95,7 @@ select {
   text-align: start;
   -webkit-appearance: menulist;
   -moz-appearance: menulist;
+  /*noinspection CssInvalidPropertyValue*/
   appearance: menulist;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
@@ -104,6 +107,7 @@ select {
   background-color: -internal-light-dark(white, #3b3b3b);
   cursor: default;
   margin: 0em;
+  /*noinspection CssInvalidPropertyValue*/
   font: 400 14px;
   border-radius: 0px;
   border-width: 1px;
@@ -1646,7 +1650,9 @@ ol {
 
 @media (max-width: 767px) {
   .header .middle-right-area {
+    /*noinspection CssInvalidPropertyValue*/
     -webkit-box-pack: right;
+    /*noinspection CssInvalidPropertyValue*/
     -ms-flex-pack: right;
     justify-content: right;
     float: right;
@@ -2666,6 +2672,7 @@ ol {
   transition: all 0.3s ease-out 0s;
   position: relative;
   padding: 20px 0;
+  /*noinspection CssInvalidPropertyValue*/
   display: -webkit-inline-box;
   display: -ms-inline-flexbox;
   display: inline-flex;
@@ -2703,6 +2710,7 @@ ol {
 
 @media only screen and (min-width: 992px) and (max-width: 1199px) {
   .navbar-nav .nav-item a.dd-menu::after {
+    /*noinspection CssInvalidPropertyValue*/
     right: -15;
   }
 }
@@ -4974,6 +4982,7 @@ blockquote span {
 }
 
 .popular-tag-widget .tags > a {
+  /*noinspection CssInvalidPropertyValue*/
   display: -webkit-inline-box;
   display: -ms-inline-flexbox;
   display: inline-flex;
@@ -7518,7 +7527,6 @@ blockquote span {
   margin-right: auto;
   background-color: #fff;
   position: relative;
-  background-image: url("../images/error/404-bg.png");
   background-repeat: no-repeat;
   background-position: center;
 }
