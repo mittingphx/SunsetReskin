@@ -21,7 +21,7 @@ Author: GrayGrids
     ======================================= */
     window.onscroll = function () {
         let header_navbar = document.querySelector(".navbar-area");
-        let sticky = header_navbar.offsetTop;
+        //let sticky = header_navbar.offsetTop;
 
         // show or hide the back-top-top button
         let backToTo = document.querySelector(".scroll-top");
