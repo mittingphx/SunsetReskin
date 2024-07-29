@@ -367,6 +367,19 @@ export class SunsetSkinHtml {
     }
 
     /**
+     * Sets a new old html document, which is used when requesting
+     * new pages from the server of the same page.
+     * @param doc {Document|HTMLDocument}
+     */
+    replaceOldDocument(doc) {
+        this.oldHtmlBody = document.createElement('div');
+        this.oldHtmlHead = document.createElement('div');
+        this.oldHtmlBody.innerHTML = doc.body.innerHTML;
+        this.oldHtmlHead.innerHTML = doc.head.innerHTML;
+        this.oldHtmlBody.style.display = 'none';
+    }
+
+    /**
      * Adds scroll listener to prevent over-scrolling and a hot-key to disable it.
      */
     addScrollListener() {

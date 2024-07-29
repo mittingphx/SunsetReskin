@@ -27,7 +27,7 @@ export class SunsetSettings {
      * Available controller classes.
      * @type {Object.<string,BaseController|function>}
      */
-    static controllers = {
+    static #controllers = {
         'FrontPageController': FrontPageController,
         'ProductDetailsController': ProductDetailsController,
         'CategoryController': CategoryController,
@@ -95,7 +95,7 @@ export class SunsetSettings {
      * @returns {BaseController}
      */
     static getControllerInstanceByName(controllerName, skin) {
-        let controller = this.controllers[controllerName];
+        let controller = this.#controllers[controllerName];
         if (controller) {
             return new controller(skin);
         }

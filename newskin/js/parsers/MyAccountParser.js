@@ -1,9 +1,7 @@
-// noinspection JSUnusedGlobalSymbols
 
 import {DomHelper} from "../util/DomHelper.js";
 import {OrderHistoryRow} from "../models/OrderHistoryRow.js";
 import {ShippingAddress} from "../models/ShippingAddress.js";
-import {SunsetSkin} from "../SunsetSkin.js";
 import {OrderCache} from "../util/OrderCache.js";
 import {AddressEditForm} from "../models/AddressEditForm.js";
 import {MyAccountForm} from "../models/MyAccountForm.js";
@@ -24,10 +22,10 @@ export class MyAccountParser {
     sourceDocument = null;
 
     /**
-     * Reference to the main application class.
-     * @type {SunsetSkin|null}
+     * Reference to the controller instance using this parser.
+     * @type {MyAccountController|null}
      */
-    skin = null;
+    controller = null;
 
     /**
      * Receives orders that are loaded on additional pages in the background.
@@ -44,11 +42,11 @@ export class MyAccountParser {
     /**
      * Constructor defaults source document to the current document.
      * @param source {Document|HTMLElement|null}
+     * @param controller {MyAccountController}
      */
-    constructor(source= null) {
+    constructor(source, controller) {
         this.sourceDocument = source || document;
-
-        this.skin = SunsetSkin.getInstance();
+        this.controller = controller;
     }
 
     /**
@@ -161,7 +159,7 @@ export class MyAccountParser {
             // each recursive call will have its own "orders" array that gets combined
             // with the array sent to the result callback.  This causes the first call
             // to loadNedPageInBackground to have all orders in the correct order.
-            this.skin.aspNet.backgroundPostback($btnNext, (iframeDoc) => {
+            this.controller.skin.aspNet.backgroundPostback($btnNext, (iframeDoc) => {
 
                 // parse data from the loaded html
                 let $orderTable = iframeDoc.querySelector('#MainContent_GridOrders');

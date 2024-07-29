@@ -1,3 +1,5 @@
+
+
 import {PageControllerBase} from "./BaseControllers.js";
 import {MyAccountBuilder} from "../builders/MyAccountBuilder.js";
 import {MyAccountParser} from "../parsers/MyAccountParser.js";
@@ -25,7 +27,7 @@ export class MyAccountController extends PageControllerBase {
      */
     constructor(skin) {
         super(skin);
-        this.parser = new MyAccountParser(skin.html.oldHtmlBody);
+        this.parser = new MyAccountParser(skin.html.oldHtmlBody, this);
         this.builder = new MyAccountBuilder(skin, this);
     }
 

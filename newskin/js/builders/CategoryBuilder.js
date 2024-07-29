@@ -9,6 +9,20 @@ import {CssHelper} from "../util/CssHelper.js";
  */
 export class CategoryBuilder {
 
+    /**
+     * The controller using this builder.
+     * @type {CategoryController}
+     */
+    controller = null;
+
+    /**
+     * Constructor takes reference to the skin to be built.
+     * @param controller {CategoryController}
+     */
+    constructor(controller) {
+        this.controller = controller;
+    }
+
     build() {
 
     }
@@ -490,8 +504,7 @@ export class CategoryBuilder {
                                 console.error('unknown page type: ' + page.type);
                             }
                             $a.addEventListener('click', () => {
-                                alert('clicking page: ' + page.text + ' (' + page.pageNumber + ', type=' + page.type + ')');
-                                page.$dom.click();
+                                this.controller.pageButtonHandler(page);
                             });
                         }
                     }
@@ -500,6 +513,7 @@ export class CategoryBuilder {
         }
         return $div;
     }
+
 
 
     /**

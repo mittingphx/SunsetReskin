@@ -106,14 +106,14 @@ export class AspNetIntercept {
             }, 100);
         };
 
-        let actionUrl = this.#postbackForm.action;
-        if (actionUrl.indexOf('?') === -1) {
-            this.#postbackForm.action += '?reskin=no';
-        }
-        else {
-            this.#postbackForm.action += '&reskin=no';
-        }
+        // add reskin=no to the action url
+        let actionUrl = new URL(this.#postbackForm.action);
+        actionUrl.searchParams.set('reskin', 'no');
+        this.#postbackForm.action = actionUrl.href;
 
+        alert(this.#postbackForm.action);
+
+        // listen for load event and press the button
         iframe.addEventListener('load', onIframeLoaded);
         element.click();
     }

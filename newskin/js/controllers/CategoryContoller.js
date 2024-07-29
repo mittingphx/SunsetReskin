@@ -4,6 +4,7 @@ import {CategoryParser} from "../parsers/CategoryParser.js";
 import {ProductCategoryBreadcrumb} from "../parsers/CommonParser.js";
 import {CategoryBuilder} from "../builders/CategoryBuilder.js";
 import {ProductBreadcrumbBuilder} from "../builders/ProductDetailBuilder.js";
+import {AspNetPostback} from "../util/AspNetPostback.js";
 
 /**
  * Implements the product category page and the search results page.
@@ -14,13 +15,13 @@ export class CategoryController extends PageControllerBase {
      * Builds the category page view.
      * @type {CategoryBuilder}
      */
-    pageBuilder = new CategoryBuilder();
+    pageBuilder = null;
 
     /**
      * Builds the breadcrumbs for the category page.
      * @type {ProductBreadcrumbBuilder}
      */
-    breadcrumbBuilder = new ProductBreadcrumbBuilder();
+    breadcrumbBuilder = null;
 
     /**
      * Constructor takes reference to the skin to be built.
@@ -28,6 +29,8 @@ export class CategoryController extends PageControllerBase {
      */
     constructor(skin) {
         super(skin);
+        this.pageBuilder = new CategoryBuilder(this);
+        this.breadcrumbBuilder = new ProductBreadcrumbBuilder();
     }
 
     /**
@@ -122,6 +125,90 @@ export class CategoryController extends PageControllerBase {
 
         // set the window title
         document.title = `${category.name} - Sunset Wholesale West`;
+    }
+
+    #stripOutNewSkin(html) {
+
+        // search for the filename
+        let nameIndex = html.indexOf('NewSkin.js');
+        if (nameIndex === -1) {
+            console.warn('NewSkin.js not found in html');
+            return html;
+        }
+
+        // search for the start of the script tag
+        let scriptStartIndex = html.lastIndexOf('<script', nameIndex);
+        if (scriptStartIndex === -1) {
+            console.warn('could not find script tag for NewSkin in html');
+            return html;
+        }
+
+        // search for the closing script tag
+        let scriptEndIndex = html.indexOf('</script>', scriptStartIndex);
+        if (scriptEndIndex === -1) {
+            console.warn('could not find script closing tag for NewSkin in html');
+            return html;
+        }
+
+        // remove the tag
+        html = html.substring(0, scriptStartIndex) + html.substring(scriptEndIndex);
+        console.log('new skin removed from html');
+        return html;
+    }
+
+    /**
+     * Handles the click event of a paging button, causing the page to reload.
+     * @param page {PageControlLink}
+     */
+    pageButtonHandler(page) {
+
+
+        let url = new URL(document.location + '')
+        url.searchParams.set('reskin', 'no');
+
+
+        const onPreWrite = (html) => {
+            // make sure the new skin doesn't run.
+            html = this.#stripOutNewSkin(html);
+
+            console.log('onPreWrite', html);
+            //alert('onPreWrite');
+
+            return html;
+        };
+        const onDocumentLoaded = (loadedDocument) => {
+            console.log('onDocumentLoaded', loadedDocument);
+            //alert('onDocumentLoaded');
+
+            // reprocess the current page with the new old page data set
+            this.skin.html.replaceOldDocument(loadedDocument.document);
+            this.build();
+        }
+
+        AspNetPostback.runInBackground(url.href, page.$dom, onDocumentLoaded, onPreWrite);
+
+        /*
+        // we have to reconnect the original form to make this work
+        let oldBody = this.skin.html.oldHtmlBody;
+        if (!oldBody.parentElement) {
+            document.body.appendChild(oldBody);
+        }
+
+
+
+        // clicks the button in question and then the build html
+        // process for just the items data is re-triggered, replacing
+        // that portion of the document.
+        this.skin.aspNet.backgroundPostback(page.$dom, (loadedDocument) => {
+            this.skin.html.replaceOldDocument(loadedDocument);
+            this.build();
+
+            //this.skin.html.replaceDocument(loadedDocument);
+
+        })
+
+            */
+
     }
 
     /**
