@@ -56,7 +56,7 @@ export class MenuController extends ComponentControllerBase {
      */
     buildMobileMenu() {
 
-        console.log('building mobile menu');
+        //console.log('building mobile menu');
 
         let $menuButton = document.querySelector('.mobile-menu-btn');
         if (!$menuButton) {

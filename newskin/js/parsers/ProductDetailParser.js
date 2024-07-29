@@ -219,7 +219,7 @@ export class ProductDetailParser {
                 ret.thumbs.push(UrlHelper.toThumbNail(ret.images[i]));
             }
 
-            console.log({image:ret.image, images:ret.images, thumbs:ret.thumbs});
+            //console.log({image:ret.image, images:ret.images, thumbs:ret.thumbs});
         }
 
         // detect that we're viewing an 'item added to cart' message on the old skin

@@ -10742,14 +10742,14 @@ to reduce general load on the system.
 
     function removeTopMenuRedirects() {
         $('.link').off('click');
-        console.log('removeTopMenuRedirects()');
+        //console.log('removeTopMenuRedirects()');
         try {
             const topLevelMenuItems = document.querySelectorAll('.accordionHeader');
             for (let i = 0; i < topLevelMenuItems.length; i++) {
                 const div = topLevelMenuItems[i];
                 updateMenuItemEvents(div);
             }
-            console.log('removeTopMenuRedirects successful.')
+            //console.log('removeTopMenuRedirects successful.')
         } catch (ex) {
             console.error(ex);
         }
@@ -10770,7 +10770,7 @@ to reduce general load on the system.
      product links we can place in the slideshow.
      */
     function processSlideshowMarkup() {
-        console.log('Running processSlideshowMarkup()');
+       //console.log('Running processSlideshowMarkup()');
 
         let $slider = document.querySelector('.bxslider');
         if (!$slider) {
@@ -10830,7 +10830,7 @@ to reduce general load on the system.
             $ddl.onchange = function (e) {
                 const value = this.options[this.selectedIndex].value;
                 if (!value) {
-                    console.log('Skipping event, user selected blank option.');
+                    //console.log('Skipping event, user selected blank option.');
                     return;
                 }
                 const url = '/ItemDetail.aspx?ItemNo=' + value;

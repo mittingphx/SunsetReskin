@@ -204,7 +204,7 @@ export class SlideshowBuilder {
      This is copied from the old website's ProcessSlideshow.js
      */
     addSlideshowChooseProductHandler() {
-        console.log('Running addSlideshowChooseProductHandler()');
+        //console.log('Running addSlideshowChooseProductHandler()');
 
         let $slider = document.querySelector('.hero-slider');
         if (!$slider) return;
@@ -226,9 +226,9 @@ export class SlideshowBuilder {
 
         // get the product selection
         const value = $ddl.options[$ddl.selectedIndex].value;
-        console.log('user selected value: ' + value);
+        //console.log('user selected value: ' + value);
         if (!value) {
-            console.log('Skipping event, user selected blank option.');
+            //console.log('Skipping event, user selected blank option.');
             return;
         }
 

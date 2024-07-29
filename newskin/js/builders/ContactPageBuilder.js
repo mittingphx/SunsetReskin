@@ -71,7 +71,7 @@ export class ContactPageBuilder {
             html = HtmlHelper.injectTagInnerHtml(html, 'MainContent_TxtMessage', $contactForm.elements['message'].value );
 
             // complete the postback
-            console.log('sending postback', html);
+            //console.log('sending postback', html);
             return html;
         }
 

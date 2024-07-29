@@ -200,8 +200,7 @@ export class SunsetSkinHtml {
      */
     async load(newSkinUrl) {
         let deployment = UrlHelper.getDeployment();
-        console.log('load() ' + newSkinUrl + ' deployment=' + deployment);
-
+        //console.log('load() ' + newSkinUrl + ' deployment=' + deployment);
 
         let headerIndex = -1;
         let footerIndex = -1;

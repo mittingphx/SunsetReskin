@@ -41,7 +41,7 @@ export class OrderCache {
         if (cache) {
             this.orders = JSON.parse(cache);
             this.cacheRange = this.#getOrderRange(this.orders);
-            console.log('Loaded ' + this.orders.length + ' orders from cache for account #' + this.acctMo, this.cacheRange);
+          //  console.log('Loaded ' + this.orders.length + ' orders from cache for account #' + this.acctMo, this.cacheRange);
         }
     }
 

@@ -215,7 +215,7 @@ export class LoginPageBuilder {
             let $email = document.querySelector('#MainContent_TxtReturningEmail');
             let $password = document.querySelector('#MainContent_TxtReturningPassword');
             let $button = document.querySelector('#MainContent_BtnLogin');
-            console.log({body: document.body});
+            //console.log({body: document.body});
 
             let allGood = true;
             if (!$email) {
@@ -232,7 +232,7 @@ export class LoginPageBuilder {
             }
 
             if (allGood) {
-                console.log('attempting to login...');
+                //console.log('attempting to login...');
                 $email.value = '%%USERNAME%%';
                 $password.value = '%%PASSWORD%%';
                 $button.click();
@@ -241,7 +241,7 @@ export class LoginPageBuilder {
                     window.close();
                 }, 1000);
             } else {
-                console.log('could not access login form... already logged in?')
+                console.warn('could not access login form... already logged in?')
                 setTimeout(_ => {
                     document.location = '/sunset/Login/Login.aspx?reskin=0';
                 }, 1000);

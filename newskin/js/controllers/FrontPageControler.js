@@ -51,7 +51,7 @@ export class FrontPageController extends PageControllerBase {
         if (dom.$table) {
             let parser = new FrontPageSpecialsParser();
             let specials = parser.readNodesFromTable(dom.$table);
-            console.log({specials: specials});
+            //console.log({specials: specials});
 
             if (dom.$insertionPoint) {
                 this.specialsBuilder.buildFrontPageProducts(specials, dom.$insertionPoint);
@@ -61,7 +61,7 @@ export class FrontPageController extends PageControllerBase {
         // set up the slide show using slides from the old page
         let slideshowParser = new SlideshowParser();
         let slideshow = slideshowParser.readSlidesFromDocument($oldBody);
-        console.log({slideshow:slideshow});
+        //console.log({slideshow:slideshow});
 
         if (dom.$slideshowInsertion) {
             if (slideshow.length === 0) {

@@ -50,7 +50,7 @@ export class ProductDetailsController extends PageControllerBase {
         // parse product details from the old webpage
         let parser = new ProductDetailParser($oldBody);
         let productItem = parser.readProductDetail();
-        console.log({productItem:productItem});
+        //console.log({productItem:productItem});
 
         // build the main product details area
         $insertionPoint.after(this.detailBuilder.build(productItem));

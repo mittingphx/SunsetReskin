@@ -94,11 +94,11 @@ export class PageLoadHelper {
             if (wnd.location.href === oldUrl) {
                 return;
             }
-            console.log('window title = ' + wnd.document.title
-                + ' location=' + wnd.location.href
-                + ' old=' + oldUrl
-                + ' oldTitle=' + oldTitle
-            );
+            //console.log('window title = ' + wnd.document.title
+            //    + ' location=' + wnd.location.href
+            //    + ' old=' + oldUrl
+            //    + ' oldTitle=' + oldTitle
+            //);
             clearInterval(interval);
 
             // close the temporary window

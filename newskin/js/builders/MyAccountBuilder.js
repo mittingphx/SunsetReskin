@@ -55,7 +55,7 @@ export class MyAccountBuilder {
 
         // set up the order loading event listener.  show the full order history once it's loaded
         this.controller.parser.onOrdersLoaded.addListener((orders, allPages) => {
-            console.log('onOrdersLoaded', orders, allPages);
+            //console.log('onOrdersLoaded', orders, allPages);
             $orderHistoryTable.remove(); // remove old one
             $orderHistoryTable = this.#buildOrderHistoryTable(orders);
             document.querySelector('.order-history-insertion-point').after($orderHistoryTable);
@@ -432,7 +432,7 @@ export class MyAccountBuilder {
                 $btnCancelEditAddress: 'button#btnCancelEditAddress'
             });
 
-            console.log({displayForm:displayForm, addressForm:addressForm});
+            //console.log({displayForm:displayForm, addressForm:addressForm});
 
             // make two-way binding between the two pages
             this.#twoWayBind(displayForm.$txtAddressName, addressForm.$txtName);
@@ -597,12 +597,12 @@ export class MyAccountBuilder {
             let $txtPass2 = document.querySelector('#MainContent_TxtChangePassword2');
             let $btnChangePassword = document.querySelector('#MainContent_BtnChangePassword');
             let $lblError = document.querySelector('#MainContent_LblChangePasswordError');
-            console.log({
-                txtPass1: $txtPass1,
-                txtPass2: $txtPass2,
-                btnChangePassword: $btnChangePassword,
-                lblError: $lblError
-            })
+           //console.log({
+           //     txtPass1: $txtPass1,
+           //     txtPass2: $txtPass2,
+           //     btnChangePassword: $btnChangePassword,
+           //     lblError: $lblError
+           // })
 
             if (!$txtPass1) {
                 console.error('could not find password field! (#MainContent_TxtChangePassword)');

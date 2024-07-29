@@ -220,7 +220,7 @@ export class ShoppingCart {
      */
     confirmRemove(itemNo) {
 
-        console.log('ShoppingCart.remove(' + itemNo + ')');
+        //console.log('ShoppingCart.remove(' + itemNo + ')');
 
         // read each row on the screen
         let productDesc = this.#markRowForDelete(itemNo);
@@ -252,7 +252,7 @@ export class ShoppingCart {
         // go to the cart with a remove parameter to ask the user if they want to remove the item
         let skin = SunsetSkin.getInstance();
         skin.navigateTo('ViewCart.aspx?remove=' + item.itemNo).then(() => {
-            console.log('navigateTo(ViewCart.aspx) completed');
+            //console.log('navigateTo(ViewCart.aspx) completed');
         });
     }
 
@@ -320,7 +320,7 @@ export class ShoppingCart {
      */
     static async loadCartFromServer() {
 
-        console.log('loadCartFromServer()');
+        //console.log('loadCartFromServer()');
 
         let cart = null;
 
@@ -337,12 +337,12 @@ export class ShoppingCart {
 
             const htmlContent = await response.text();
             const cartDocument = new DOMParser().parseFromString(htmlContent, 'text/html');
-            console.log({cartDocument: cartDocument})
+            //console.log({cartDocument: cartDocument})
 
             // parse and cache
             let parser = new ViewCartParser(cartDocument.body, null);
             cart = parser.readCart();
-            console.log({cart: cart});
+            //console.log({cart: cart});
         }
         catch (error) {
             console.error(error);

@@ -17,6 +17,12 @@ import {Range} from "./util/Range.js";
 
 
 /**
+ * Set to true to log when transfer() is called
+ * @type {boolean}
+ */
+const LOG_TRANSFER = false;
+
+/**
  * Constants for time durations.
  */
 export class TimeSpan {
@@ -121,7 +127,9 @@ export class SunsetPreload {
      */
     transfer(element) {
         // doesn't seem to be needed
-        console.log(element);
+        if (LOG_TRANSFER) {
+            console.log(element);
+        }
     }
 
     /**
@@ -186,7 +194,7 @@ export class SunsetPreload {
 
         // reconnect if it got disconnected
         if (this.#$preloader != null) {
-            console.log('reconnecting preloader')
+            //console.log('reconnecting preloader')
             document.body.appendChild(this.#$preloader)
             return;
         }
@@ -195,7 +203,7 @@ export class SunsetPreload {
         if (this.#$preloader === null) {
             this.#$preloader = document.getElementById('divSunsetPreloader');
             if (this.#$preloader !== null) {
-                console.log('reusing preloader');
+                //console.log('reusing preloader');
                 this.#assetsAdded = true;
                 return;
             }
@@ -215,7 +223,7 @@ export class SunsetPreload {
         $div.style.backdropFilter = 'blur(12px)';
         this.#$preloader = $div;
         //console.log({'#$preloader': $div});
-        console.log('Built preloader HTML');
+        //console.log('Built preloader HTML');
 
         // contents on top of pre-loader
         let $text = document.createElement('p');

@@ -350,7 +350,7 @@ export class SunsetSkin {
             //}
             return;
         }
-        console.log('loadNewSkinPage()',{fileType:this.fileType, fileTypeSettings:fileTypeSettings});
+        //console.log('loadNewSkinPage()',{fileType:this.fileType, fileTypeSettings:fileTypeSettings});
 
         // load new page html from server if needed
         if (!fileTypeSettings.newSkinUrl) {
@@ -384,7 +384,7 @@ export class SunsetSkin {
 
         // run custom html generators for filetype via controller classes
         if (fileTypeSettings.controller) {
-            console.log('Running controller: ' + fileTypeSettings.controller);
+            console.log('Running controller: ' + fileTypeSettings.controller, fileTypeSettings);
             this.controller = SunsetSettings.getControllerInstanceByName(fileTypeSettings.controller, this);
             this.controller.build();
         }

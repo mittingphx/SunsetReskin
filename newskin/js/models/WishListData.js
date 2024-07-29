@@ -104,7 +104,7 @@ export class WishListData {
      */
     save() {
         let serialized = JSON.stringify(this.wishList || []);
-        console.log(serialized);
+        //console.log(serialized);
         localStorage.setItem('wishList', serialized);
     }
 

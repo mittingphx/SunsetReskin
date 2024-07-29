@@ -42,7 +42,7 @@ export class SiteSearchController extends ComponentControllerBase {
 
         // grab and log user input
         let searchTerm = this.getInputSearchTerm();
-        console.log('handleSearch() searchTerm: ' + searchTerm);
+        //console.log('handleSearch() searchTerm: ' + searchTerm);
 
         // example url: https://swwest.com/ItemSearch.aspx?Search=esko+leaf
         let searchUrl = 'ItemSearch.aspx?Search=' + encodeURIComponent(searchTerm);

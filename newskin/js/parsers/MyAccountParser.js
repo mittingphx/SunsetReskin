@@ -144,7 +144,7 @@ export class MyAccountParser {
      */
     loadNextPageInBackground($btnNext, pageNumber, callback) {
 
-        console.log('loadNextPageInBackground pageNumber=' + pageNumber);
+        //console.log('loadNextPageInBackground pageNumber=' + pageNumber);
 
         try {
 

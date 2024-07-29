@@ -152,7 +152,7 @@ export class CategoryController extends PageControllerBase {
 
         // remove the tag
         html = html.substring(0, scriptStartIndex) + html.substring(scriptEndIndex);
-        console.log('new skin removed from html');
+       // console.log('new skin removed from html');
         return html;
     }
 
@@ -171,13 +171,13 @@ export class CategoryController extends PageControllerBase {
             // make sure the new skin doesn't run.
             html = this.#stripOutNewSkin(html);
 
-            console.log('onPreWrite', html);
+            //console.log('onPreWrite', html);
             //alert('onPreWrite');
 
             return html;
         };
         const onDocumentLoaded = (loadedDocument) => {
-            console.log('onDocumentLoaded', loadedDocument);
+            //console.log('onDocumentLoaded', loadedDocument);
             //alert('onDocumentLoaded');
 
             // reprocess the current page with the new old page data set
