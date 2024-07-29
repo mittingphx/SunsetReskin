@@ -11,12 +11,12 @@
  */
 
 import {FileDetector} from "./FileDetector.js";
-import {SunsetPreload, TimeSpan} from "./SunsetPreload.js";
 import {SunsetSkinHtml} from "./SunsetSkinHtml.js";
 import {SunsetSettings} from "./SunsetSettings.js";
-
+import {SunsetPreload, TimeSpan} from "./SunsetPreload.js";
+import {LoginStatus} from "./models/LoginStatus.js";
 import {ProgressBar} from "./util/ProgressBar.js";
-
+import {AspNetIntercept} from "./util/AspNetIntercept.js";
 import {CartController} from "./controllers/CartController.js";
 import {LinkController} from "./controllers/LinkController.js";
 import {MenuController} from "./controllers/MenuController.js";
@@ -24,8 +24,6 @@ import {LoginController} from "./controllers/LoginController.js";
 import {WishListController} from "./controllers/WishListController.js";
 import {SkinToggleController} from "./controllers/SkinToggleController.js";
 import {SiteSearchController} from "./controllers/SiteSearchController.js";
-import {LoginStatus} from "./models/LoginStatus.js";
-import {AspNetIntercept} from "./util/AspNetIntercept.js";
 
 /**
  * Analyzes the original HTML to figure out the contents of the menu
@@ -133,6 +131,14 @@ export class SunsetSkin {
     static #instance = null;
 
     /**
+     * Keeps track of when loadNewSkinPage() has been called, so we
+     * can print warnings if functions aren't being called in the
+     * order we expect.
+     * @type {boolean}
+     */
+    #loadNewSkinPageCalled = false;
+
+    /**
      * Constructor
      */
     constructor() {
@@ -162,7 +168,6 @@ export class SunsetSkin {
         })
     }
 
-
     /**
      * Gets the most recent instance of this object.
      * @returns {SunsetSkin}
@@ -170,7 +175,6 @@ export class SunsetSkin {
     static getInstance() {
         return this.#instance;
     }
-
 
     /**
      * Starts monitoring the page for its data and launches the
@@ -204,11 +208,15 @@ export class SunsetSkin {
         // monitor history
         window.addEventListener('popstate', (event) => {
 
-            // TODO: test that this is working.  it's called by the back/forward buttons
+            // warn if calling navigateTo() before calling loadNewSkinPage()
+            if (this.#loadNewSkinPageCalled === false) {
+                console.warn('navigateTo() is being called before loadNewSkinPage()');
+            }
 
-            // NOTE: this may be calling navigateTo() before calling loadNewSkinPage()
-            this.navigateTo(event.state.url).then(_ => {
-                //console.log('navigate finished: ' + event.state.url);
+            // if the state is null, then we need to reload the initial page
+            let url = event.state === null ? document.location + '' : event.state.url;
+            this.navigateTo(url).then(_ => {
+                //console.log('navigate finished: ' + url);
                 this.preloader.ready();
             });
         });
@@ -307,6 +315,8 @@ export class SunsetSkin {
      */
     async loadNewSkinPage(newUrl = null) {
 
+        this.#loadNewSkinPageCalled = true;
+
         // determine file type of new page
         this.fileType = FileDetector.getPageType(newUrl);
 
@@ -399,5 +409,4 @@ export class SunsetSkin {
             loginStatus.$btnSignOut.click()
         });
     }
-
 }
