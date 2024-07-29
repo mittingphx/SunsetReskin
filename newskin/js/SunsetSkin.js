@@ -24,6 +24,7 @@ import {LoginController} from "./controllers/LoginController.js";
 import {WishListController} from "./controllers/WishListController.js";
 import {SkinToggleController} from "./controllers/SkinToggleController.js";
 import {SiteSearchController} from "./controllers/SiteSearchController.js";
+import {UrlHelper} from "./UrlHelper.js";
 
 /**
  * Analyzes the original HTML to figure out the contents of the menu
@@ -274,18 +275,30 @@ export class SunsetSkin {
     async navigateTo(url) {
      //   window.location.href = url;
 
+        // check function calls order
         if (!this.html) {
             console.error('navigateTo() called before loadNewSkinPage()');
             alert('navigateTo() called before loadNewSkinPage()');
             return;
         }
 
-        //alert('navigateTo: ' + url);
+        // alias certain urls for convenience
+        const alias = [
+            { old: 'index.html', new: 'Default.aspx' }
+        ];
+        let baseUrl = UrlHelper.getDeployment();
+        for (let i = 0; i < alias.length; i++) {
+            if (url === baseUrl + alias[i].old) url = baseUrl + alias[i].new;
+        }
+
+        // log call and start showing progress
+        console.log('navigateTo: ' + url);
         this.usingDynamicLoading = true;
 
         let progress = new ProgressBar()
         progress.anim(70, 5);
         progress.setVisible(true);
+
 
         // load both old and new page
         let loaded = await this.html.loadOld(url)
