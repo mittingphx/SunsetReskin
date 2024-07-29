@@ -41,8 +41,10 @@ export class SunsetMenuParser {
     }
 
     /**
-     * Reads the menu from the old website.
-     * See swwest_menu.html for a copy of the structure from the old website.
+     * Reads the menu from the old website.  See swwest_menu.html
+     * for a copy of the structure from the old website.  This
+     * version of the code is recursive and can read a menu of
+     * arbitrary depth.
      */
     readMenu() {
 
@@ -50,121 +52,85 @@ export class SunsetMenuParser {
         if (this.#menuRead) return;
         this.#menuRead = true;
 
-        console.log('readMenu()');
-        //this.log = [];
-
-        // grab the parent
+        // grab and parse the parent menu
         const $menu = this.sourceDocument.querySelector('#Menu')
-        if (!$menu) {
-            console.error('could not find menu using selector: #Menu');
-            return;
+        if ($menu) {
+            this.menu = this.#readMenuProcessMenu($menu);
         }
+        else {
+            console.error('could not find menu using selector: #Menu');
+        }
+    }
+
+    /**
+     * Parses the old site's menu into a SunsetMenu object.
+     * Is able to parse menus of arbitrary depth.
+     * @param $menu {HTMLElement}
+     * @return {SunsetMenu}
+     */
+    #readMenuProcessMenu($menu) {
+
+        let menu = new SunsetMenu(null);
 
         // find each top-level menu section
         const $topLevelMenus = $menu.querySelectorAll('.accordionHeader,.accordionHeaderSelected');
         if ($topLevelMenus.length === 0) {
             console.error('menu contained 0 elements');
-            return;
+            return menu;
         }
 
-        this.menu = new SunsetMenu(null);
-
+        // process top-level menu items
         for (let i = 0; i < $topLevelMenus.length; i++) {
-            //this.log.push('parsing menu #' + i);
-            const $thisSubmenu = $topLevelMenus[i];
-
-            const $thisSubmenuLink = $thisSubmenu.querySelector('.link');
-            if (!$thisSubmenuLink) {
-                console.log('WARNING: Could not find ".link" inside of menu.');
-                console.log($thisSubmenu);
-                continue;
+            let topMenuItem = this.#readMenuProcessTopLevelNode($topLevelMenus[i]);
+            if (topMenuItem) {
+                menu.addMenuItem(topMenuItem);
             }
-
-            // init top-level
-            let topMenuItem = new SunsetMenuItem($thisSubmenuLink, true);
-
-            // new approach:
-            // search include to find the first table, then use the parent of that table
-            // and find all tables that are direct children of that.
-
-            const $newParent = $thisSubmenu.nextElementSibling.querySelector('table').parentElement;
-            const $nodes = $newParent.querySelectorAll(':scope > table');
-
-            for (let k = 0; k < $nodes.length; k++) {
-                let child = new SunsetMenuItem($nodes[k]);
-                topMenuItem.addChild(child);
-                if (!child.loaded) {
-                    continue;
-                }
-                let nodeParents = this.getMenuNodeMainElements(child.$node, 'table', 'div');
-                if (nodeParents.children === null) {
-                    continue;
-                }
-                const $parentChildren = nodeParents.children.querySelectorAll(':scope > table');
-                child.$parentChildren = $parentChildren;
-                for (let j = 0; j < $parentChildren.length; j++) {
-                    let grandChild = new SunsetMenuItem($parentChildren[j]);
-                    child.addChild(grandChild);
-                    if (!grandChild.loaded) {
-                        continue;
-                    }
-                    let childNodeParents = this.getMenuNodeMainElements(grandChild.$node, 'table', 'div');
-                    if (childNodeParents.children === null) {
-                        continue;
-                    }
-                    const $parentGrandChildren = childNodeParents.children.querySelectorAll(':scope > table');
-                    for (let m = 0; m < $parentGrandChildren.length; m++) {
-                        let greatGrandChild = new SunsetMenuItem($parentGrandChildren[m]);
-                        grandChild.addChild(greatGrandChild);
-                        if (!greatGrandChild.loaded) {
-                            continue;
-                        }
-                        let grandChildNodeParents = this.getMenuNodeMainElements(greatGrandChild.$node, 'table', 'div');
-                        if (grandChildNodeParents.children === null) {
-                            continue;
-                        }
-                        const $parentGreatGrandChildren = grandChildNodeParents.children.querySelectorAll(':scope > table');
-                        for (let n = 0; n < $parentGreatGrandChildren.length; n++) {
-
-                            // TODO: continue recursively
-                            // BUG: this only handles a certain hard-coded depth and if
-                            // the menu goes deeper it'll be ignored
-
-
-                            /*
-                            // START CODEIUM SUGGESTION
-
-                            const parseMenuItem = ($menuElement) => {
-                                // Parse the current menu item
-                                // Your existing parsing logic here
-
-                                // Check if the current menu item has nested submenus
-                                const $subMenus = $menuElement.querySelectorAll('.submenu');
-                                if ($subMenus.length > 0) {
-                                    // Recursively parse each nested submenu
-                                    $subMenus.forEach($submenu => {
-                                        parseMenuItem($submenu);
-                                    });
-                                }
-                            };
-
-                            // Call the parsing logic for each top-level menu item
-                            $topLevelMenus.forEach($menu => {
-                                parseMenuItem($menu);
-                            });
-
-                            // END CODEIUM SUGGESTION
-                             */
-                        }
-                    }
-                }
-            }
-
-            this.menu.addMenuItem(topMenuItem);
         }
 
+        return menu;
     }
 
+    /**
+     * Processes a top-level menu item calling processNodes() to
+     * add children at an arbitrary depth.
+     * @param $submenu {HTMLElement}
+     * @return {SunsetMenuItem}
+     */
+    #readMenuProcessTopLevelNode($submenu) {
+
+        // find link within menu
+        const $link = $submenu.querySelector('.link');
+        if (!$link) {
+            console.log('WARNING: Could not find ".link" inside of menu.', $submenu);
+            return null;
+        }
+
+        // process top-level menu item
+        let topMenuItem = new SunsetMenuItem($link, true);
+        const $newParent = $submenu.nextElementSibling.querySelector('table').parentElement;
+        this.#readMenuProcessNodes($newParent, topMenuItem);
+        return topMenuItem;
+    }
+
+
+    /**
+     * Recursively adds children to the parentItem
+     * @param $newParent {HTMLElement} element to parse
+     * @param parentItem {SunsetMenuItem} the parent to add children to
+     */
+    #readMenuProcessNodes($newParent, parentItem) {
+        const $nodes = $newParent.querySelectorAll(':scope > table');
+        for (let nodeIndex = 0; nodeIndex < $nodes.length; nodeIndex++) {
+            let child = new SunsetMenuItem($nodes[nodeIndex]);
+            parentItem.addChild(child);
+            if (!child.loaded) continue;
+
+            let nodeParents = this.#getMenuNodeMainElements(child.$node);
+            if (nodeParents.children !== null) {
+                this.#readMenuProcessNodes(nodeParents.children, child);
+            }
+        }
+    }
 
     /**
      * Returns The parent <table> and when relevant the hidden <div>
@@ -172,36 +138,22 @@ export class SunsetMenuParser {
      *
      * Keeps checking parents of a node until a table is found.
      * @param $node {HTMLElement} the div with class="menuNode"
-     * @param [parentQuery=table] {string} the selector to find walking up parents to $node
-     * @param [siblingQuery=div] {string} the selector to determine if the next sibling is the children
      * @returns {{parent: HTMLElement, children: HTMLElement}|null}
      */
-    getMenuNodeMainElements($node, parentQuery, siblingQuery) {
+    #getMenuNodeMainElements($node) {
         let ret = {};
 
-        // check input
-        if ($node === null) {
-            console.error('$node is a required parameter');
-            return null;
-        }
-        if (parentQuery === null) {
-            parentQuery = 'table';
-        }
-        if (siblingQuery === null) {
-            siblingQuery = 'div'
-        }
-
         // grab the root container for this element
-        ret.parent = this.queryParent($node, parentQuery);
+        ret.parent = this.#queryParent($node, 'table');
         if (ret.parent === null) {
-            console.error(`getMenuNodeMainElements() did not find a parent matching the query "${parentQuery}": ${$node.outerHTML}`);
+            console.error(`getMenuNodeMainElements() did not find a parent matching the query "table": ${$node.outerHTML}`);
             return null;
         }
 
         // grab the children from the next sibling when applicable
         ret.children = null;
         const $sibling = ret.parent.nextElementSibling;
-        if ($sibling !== null && $sibling.matches(siblingQuery)) {
+        if ($sibling !== null && $sibling.matches('div')) {
             ret.children = $sibling;
         }
 
@@ -209,18 +161,15 @@ export class SunsetMenuParser {
         return ret;
     }
 
-
     /**
      * Keeps checking parents until the query is matched
      * @param $node {HTMLElement}
      * @param query {string}
      * @returns {*|null}
      */
-    queryParent($node, query) {
+    #queryParent($node, query) {
         if ($node === null) return null;
         if ($node.matches(query)) return $node;
-        return this.queryParent($node.parentElement, query);
+        return this.#queryParent($node.parentElement, query);
     }
-
-
 }
