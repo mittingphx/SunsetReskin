@@ -88,7 +88,7 @@ export class PageLoadHelper {
     static waitUntilPageChange(wnd, callback) {
 
         let oldUrl = wnd.location.href;
-        let oldTitle = wnd.document.title;
+        //let oldTitle = wnd.document.title;
 
         let interval = setInterval(async _ => {
             if (wnd.location.href === oldUrl) {

@@ -54,7 +54,8 @@ export class MyAccountBuilder {
         document.querySelector('.order-history-insertion-point').after($orderHistoryTable);
 
         // set up the order loading event listener.  show the full order history once it's loaded
-        this.controller.parser.onOrdersLoaded.addListener((orders, allPages) => {
+        this.controller.parser.onOrdersLoaded.addListener((orders, _) => {
+            //this.controller.parser.onOrdersLoaded.addListener((orders, allPages) => {
             //console.log('onOrdersLoaded', orders, allPages);
             $orderHistoryTable.remove(); // remove old one
             $orderHistoryTable = this.#buildOrderHistoryTable(orders);
