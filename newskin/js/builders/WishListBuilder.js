@@ -36,7 +36,6 @@ export class WishListBuilder {
                 $btn.setAttribute('href', 'javascript:void(0)');
                 $btn.addEventListener('click', () => {
                     // WishList.clear();
-                    // TODO: show wish list here
                 });
 
                 let $i = document.createElement('i');

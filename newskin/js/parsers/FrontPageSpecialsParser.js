@@ -54,11 +54,7 @@ export class FrontPageSpecialsParser {
                 //continue;
             }
             else if (nodeType === 'arrow') {
-                // TODO: get link to request paging through specials
-                /*
-                <td class="arrow" rowspan="2"><input type="image" name="ctl00$MainContent$imgPrevItemsonSpecial" id="MainContent_imgPrevItemsonSpecial" disabled="disabled" class="aspNetDisabled" src="Images/previousArrowDisabled.png"></td>
-                 */
-                //continue;
+                // Note: this is where you would implement paging through specials
             }
             else if (nodeType === 'product') {
                 if (this.currentSection == null) {
