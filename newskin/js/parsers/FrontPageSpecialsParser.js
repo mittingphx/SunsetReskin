@@ -70,10 +70,8 @@ export class FrontPageSpecialsParser {
                 this.currentSection.products.push(product);
             }
             else if (nodeType === 'qty') {
-                // TODO: tie this to the product by item number
-                /*
-                <td class="CenterQty"><span id="MainContent_LblQtyPopularItems...2918">Qty:</span><input name="ctl00$MainContent$txtQtyPopularItems...2918" type="text" maxlength="4" id="MainContent_txtQtyPopularItems...2918" style="width:30px;"><input type="submit" name="ctl00$MainContent$btnPopularItems...2918" value="Buy" id="MainContent_btnPopularItems...2918" class="ButtonBuy"></td>
-                 */
+                // Note: this is where you would implement the QTY input
+                // box if we decided to add it to the new skin
             }
         }
         return sections;
