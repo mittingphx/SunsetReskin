@@ -10,6 +10,12 @@
  */
 
 /**
+ * Set to true to show warnings when elements are not found.
+ * @type {boolean}
+ */
+const SHOW_ELEMENT_WARNINGS = false;
+
+/**
  * Alias for document.querySelector
  * @param query {string} DOM selector
  * @param source {Document|HTMLElement} optional source to pull from (default: document)
@@ -65,7 +71,9 @@ export class DomHelper {
                 data[selector] = $element;
             }
             else {
-                console.log('Could not find element with selector ' + selectors[selector]);
+                if (SHOW_ELEMENT_WARNINGS) {
+                    console.warn('Could not find element with selector ' + selectors[selector]);
+                }
                 ret = false;
             }
         }
