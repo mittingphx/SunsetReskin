@@ -132,9 +132,11 @@ export class ShoppingCart {
         //console.log('Call to getInstanceAsync()');
 
         // check for singleton instance first
-        if (ShoppingCart.#instance) {
-            fnCallback(ShoppingCart.#instance);
-            return;
+        if (!ShoppingCart.invalidateCache) {
+            if (ShoppingCart.#instance) {
+                fnCallback(ShoppingCart.#instance);
+                return;
+            }
         }
 
         // attempt a cache read
