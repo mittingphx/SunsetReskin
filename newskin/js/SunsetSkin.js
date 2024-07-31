@@ -462,7 +462,7 @@ export class SunsetSkin {
                 console.warn('could not find login controller to force cart dropdown to reload');
                 return;
             }
-            ShoppingCart.invalidateCache = true;
+            ShoppingCart.invalidate();
             this.getLoginStatus((loginStatus) => {
                 console.log('got login status, building cart dropdown', loginStatus);
                 this.cartController.buildCartDropdown(loginStatus);

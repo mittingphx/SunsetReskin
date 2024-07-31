@@ -111,6 +111,15 @@ export class ShoppingCart {
     }
 
     /**
+     * Does a hard invalidate, removing all cached data and stored instances.
+     */
+    static invalidate() {
+        ShoppingCart.invalidateCache = true;
+        ShoppingCart.#instance = null;
+        localStorage.removeItem('cart');
+    }
+
+    /**
      * Attempts to load the cart's items from cache if the singleton is
      * not already available.
      */
