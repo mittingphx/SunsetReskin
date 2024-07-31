@@ -391,6 +391,9 @@ export class SunsetSkin {
         else {
             console.error('No controller for filetype: ' + this.fileType);
         }
+
+        // reload the cart if needed
+        this.checkForceReloadCartDropdown();
     }
 
     /**
@@ -422,4 +425,50 @@ export class SunsetSkin {
             loginStatus.$btnSignOut.click()
         });
     }
+
+
+    /**
+     * Checks if a flag was set to reload the cart from the server,
+     * and does so if set.
+     */
+    checkForceReloadCartDropdown() {
+        if (localStorage.getItem('forceReloadCartDropdown') === 'yes') {
+            this.forceReloadCartDropdown();
+        }
+    }
+
+    /**
+     * Makes sure the cart dropdown is reloaded after an item
+     * is added.  Sets a flag to force a reload on the next
+     * page load, as often the old page will reload pages when
+     * adding items to the cart.
+     */
+    forceReloadCartDropdown() {
+        console.log('forceReloadCartDropdown()');
+
+        // check for reload flag and clear it
+        if (localStorage.getItem('forceReloadCartDropdown') === 'yes') {
+            localStorage.removeItem('forceReloadCartDropdown');
+        }
+        else {
+            // set a flag to force a reload on next page load.
+            localStorage.setItem('forceReloadCartDropdown', 'yes');
+        }
+
+        // reload the cart dropdown
+        try {
+            if (!this.cartController) {
+                console.warn('could not find login controller to force cart dropdown to reload');
+                return;
+            }
+            this.getLoginStatus((loginStatus) => {
+                console.log('got login status, building cart dropdown', loginStatus);
+                this.cartController.buildCartDropdown(loginStatus);
+            })
+        }
+        catch (e) {
+            console.error('error forceReloadCartDropdown', e);
+        }
+    }
+
 }

@@ -228,17 +228,7 @@ export class ProductDetailParser {
         if ($btnKeepShopping) {
 
             // start reloading the cart dropdown
-            try {
-                const skin = SunsetSkin.getInstance();
-                if (skin && skin.loginController) {
-                    skin.loginController.updateLoginStatus();
-                } else {
-                    console.warn('could not find login controller to force cart dropdown to reload');
-                }
-            }
-            catch (e) {
-                console.error('error refreshing cart', e);
-            }
+            this.#forceReloadCartDropdown();
 
             // we need to display the last copy of this product when this happens.
             alert('Item added to cart');
@@ -265,6 +255,13 @@ export class ProductDetailParser {
         ret.category = CommonParser.getCategoryBreadcrumbs(this.sourceDocument);
 
         return ret;
+    }
+
+    /**
+     * Makes sure the cart dropdown is reloaded after an item is added.
+     */
+    #forceReloadCartDropdown() {
+        SunsetSkin.getInstance().forceReloadCartDropdown();
     }
 
     /**
