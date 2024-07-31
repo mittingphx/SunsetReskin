@@ -103,6 +103,25 @@ export class ViewCartBuilder {
                         }
                     }
                 }
+                // empty cart but logged in
+                else if (cart.isEmpty()) {
+                    let $outerDiv = document.createElement('div');
+                    {
+                        $outerDiv.classList.add('cart-empty');
+                        $container.appendChild($outerDiv);
+                        let $row = document.createElement('div');
+                        {
+                            $row.classList.add('row');
+                            $outerDiv.appendChild($row);
+                            {
+                                let $cell = document.createElement('div');
+                                $cell.classList.add('col-lg-12', 'col-md-12', 'col-12');
+                                $cell.innerHTML = '<p>Your shopping cart is empty.</p>';
+                                $row.appendChild($cell);
+                            }
+                        }
+                    }
+                }
                 else {
                     // cart list
                     for (let item of cart.items) {
