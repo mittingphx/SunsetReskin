@@ -130,23 +130,25 @@ export class ShoppingCart {
     static getInstanceAsync(fnCallback) {
         let loaded = false;
         //console.log('Call to getInstanceAsync()');
+        let cart = null;
 
         // check for singleton instance first
         if (!ShoppingCart.invalidateCache) {
-            if (ShoppingCart.#instance) {
-                fnCallback(ShoppingCart.#instance);
+            cart = ShoppingCart.#instance;
+            if (cart && !cart.isEmpty()) {
+                fnCallback(cart);
                 return;
             }
         }
 
         // attempt a cache read
-        let cart  = new ShoppingCart();
         if (ShoppingCart.invalidateCache) {
             ShoppingCart.invalidateCache = false;
         }
         else {
+            cart  = new ShoppingCart();
             loaded = cart.readFromCache();
-            if (loaded) {
+            if (loaded && !cart.isEmpty()) {
                 fnCallback(cart);
                 return;
             }
@@ -156,6 +158,7 @@ export class ShoppingCart {
         new Promise(async () => {
             cart = await ShoppingCart.loadCartFromServer();
             if (!cart) {
+                console.warn('Failed to load cart from server.  Returning empty cart.');
                 fnCallback(new ShoppingCart());
             }
             else {
