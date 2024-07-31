@@ -12,6 +12,7 @@
 import {UrlHelper} from "../UrlHelper.js";
 import {CommonParser} from "./CommonParser.js";
 import {Format} from "../util/Format.js";
+import {SunsetSkin} from "../SunsetSkin.js";
 
 /**
  * Model class for parsed product detail data.
@@ -225,6 +226,20 @@ export class ProductDetailParser {
         // detect that we're viewing an 'item added to cart' message on the old skin
         let $btnKeepShopping = $table.querySelector('#MainContent_BtnKeepShopping');
         if ($btnKeepShopping) {
+
+            // start reloading the cart dropdown
+            try {
+                const skin = SunsetSkin.getInstance();
+                if (skin && skin.loginController) {
+                    skin.loginController.updateLoginStatus();
+                } else {
+                    console.warn('could not find login controller to force cart dropdown to reload');
+                }
+            }
+            catch (e) {
+                console.error('error refreshing cart', e);
+            }
+
             // we need to display the last copy of this product when this happens.
             alert('Item added to cart');
 
