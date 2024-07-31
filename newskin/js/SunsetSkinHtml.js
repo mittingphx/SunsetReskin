@@ -20,7 +20,7 @@ import {UrlHelper} from "./UrlHelper.js";
  * even if it's completely detached from the DOM renderer.
  * @type {boolean}
  */
-const ATTACH_OLD_HTML = false;
+const ATTACH_OLD_HTML = true;
 
 /**
  * Uses the window title to display messages for advanced users.
