@@ -8,6 +8,14 @@ import {SunsetSkin} from "../SunsetSkin.js";
  */
 export class ShoppingCart {
 
+
+    /**
+     * When set to true the next call to get the shopping cart will
+     * ignore the cache and reload it from the server.
+     * @type {boolean}
+     */
+    static invalidateCache = false;
+
     /**
      * The last loaded instance of the shopping cart, allowing for
      * building features like the cart dropdown view without having
@@ -131,10 +139,15 @@ export class ShoppingCart {
 
         // attempt a cache read
         let cart  = new ShoppingCart();
-        loaded = cart.readFromCache();
-        if (loaded) {
-            fnCallback(cart);
-            return;
+        if (ShoppingCart.invalidateCache) {
+            ShoppingCart.invalidateCache = false;
+        }
+        else {
+            loaded = cart.readFromCache();
+            if (loaded) {
+                fnCallback(cart);
+                return;
+            }
         }
 
         // load in the background from server

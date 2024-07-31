@@ -25,6 +25,7 @@ import {WishListController} from "./controllers/WishListController.js";
 import {SkinToggleController} from "./controllers/SkinToggleController.js";
 import {SiteSearchController} from "./controllers/SiteSearchController.js";
 import {UrlHelper} from "./UrlHelper.js";
+import {ShoppingCart} from "./models/ShoppingCart.js";
 
 /**
  * Analyzes the original HTML to figure out the contents of the menu
@@ -461,6 +462,7 @@ export class SunsetSkin {
                 console.warn('could not find login controller to force cart dropdown to reload');
                 return;
             }
+            ShoppingCart.invalidateCache = true;
             this.getLoginStatus((loginStatus) => {
                 console.log('got login status, building cart dropdown', loginStatus);
                 this.cartController.buildCartDropdown(loginStatus);
