@@ -1,0 +1,33 @@
+.order-here-prompt {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  animation: bounce-fade 2s infinite;
+}
+
+.order-here-prompt span {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.order-here-prompt i {
+  font-size: 1.2em;
+  transform: rotate(-45deg);
+}
+
+@keyframes bounce-fade {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 0.7;
+  }
+}
