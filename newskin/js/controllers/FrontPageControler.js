@@ -83,6 +83,12 @@ export class FrontPageController extends PageControllerBase {
 
         // set the window title
         document.title = `Sunset Wholesale West - Fine Tobaccos and Products`;
+
+        // show "start your order" badge until you hover over the main menu
+        document.querySelector('.mega-category-menu').addEventListener('mouseover', () => {
+            document.querySelector('.order-here-prompt').style.display = 'none';
+        });
+        document.querySelector('.order-here-prompt').style.display = 'block';
     }
 
 }
