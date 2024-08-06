@@ -8,6 +8,7 @@
  */
 
 import {ImageHelper} from "../util/ImageHelper.js";
+import {SizeHelper} from "../util/SizeHelper.js";
 
 /**
  * Builds the HTML for the special offers on the front page.
@@ -24,7 +25,15 @@ export class FrontPageSpecialsBuilder {
 
         // create a <section> for each section data
         for (let i = 0; i < sections.length; i++) {
-            $insertionPoint.after(this.buildSpecialSection(sections[i]))
+
+            // create the section and add to DOM
+            let $section = this.#buildSpecialSection(sections[i]);
+            $insertionPoint.after($section)
+
+            // make all product boxes the same height
+            SizeHelper.makeChildrenSameHeight($section, '.product-image', () => {
+                SizeHelper.makeChildrenSameHeight($section, '.single-product');
+            });
         }
     }
 
@@ -33,7 +42,7 @@ export class FrontPageSpecialsBuilder {
      * @param section {SpecialSectionItem}
      * @returns {HTMLElement}
      */
-    buildSpecialSection(section) {
+    #buildSpecialSection(section) {
 
         // top level section tag
         let $section = document.createElement('section');
@@ -48,7 +57,7 @@ export class FrontPageSpecialsBuilder {
                 $section.appendChild($container);
 
                 // create the title row
-                let $titleRow = this.buildSectionTitleRow(section);
+                let $titleRow = this.#buildSectionTitleRow(section);
                 $container.appendChild($titleRow);
 
                 // create the product row(s)
@@ -65,7 +74,7 @@ export class FrontPageSpecialsBuilder {
                             $productCol.classList.add('col-lg-3', 'col-md-6', 'col-12');
                             $productRow.appendChild($productCol);
 
-                            let $product = this.buildProduct(product);
+                            let $product = this.#buildProduct(product);
                             $productCol.appendChild($product);
                         }
                     } // next j
@@ -81,7 +90,7 @@ export class FrontPageSpecialsBuilder {
      * @param section {SpecialSectionItem}
      * @returns {HTMLElement}
      */
-    buildSectionTitleRow(section) {
+    #buildSectionTitleRow(section) {
 
         let $titleRow = document.createElement('div');
         {
@@ -102,7 +111,7 @@ export class FrontPageSpecialsBuilder {
                     $title.appendChild($titleH2);
 
                     let $titleP = document.createElement('p');
-                    let text = this.getSectionQuote(section);
+                    let text = this.#getSectionQuote(section);
                     $titleP.innerHTML = text + '  <a href="' + section.link + '">View All</a>';
                     $title.appendChild($titleP);
                 }
@@ -117,7 +126,7 @@ export class FrontPageSpecialsBuilder {
      * @param section {SpecialSectionItem}
      * @returns {string}
      */
-    getSectionQuote(section) {
+    #getSectionQuote(section) {
         switch (section.name) {
             case "Popular Items":
                 return "Check out this week's most popular items.";
@@ -138,7 +147,7 @@ export class FrontPageSpecialsBuilder {
      * @param {SpecialProductItem} product
      * @returns {HTMLElement}
      */
-    buildProduct(product) {
+    #buildProduct(product) {
 
         // .single-product wrapper
         let $product = document.createElement('div');
@@ -146,11 +155,11 @@ export class FrontPageSpecialsBuilder {
             $product.classList.add('single-product');
 
             // product image area
-            let $productImage = this.buildProductImage(product);
+            let $productImage = this.#buildProductImage(product);
             $product.appendChild($productImage);
 
             // product info area
-            let $productInfo = this.buildProductInfo(product);
+            let $productInfo = this.#buildProductInfo(product);
             $product.appendChild($productInfo);
 
         } // end .single-product
@@ -163,7 +172,7 @@ export class FrontPageSpecialsBuilder {
      * @param product {SpecialProductItem}
      * @returns {HTMLElement}
      */
-    buildProductImage(product) {
+    #buildProductImage(product) {
 
         // product image area
         let $productImage = document.createElement('div');
@@ -241,7 +250,7 @@ export class FrontPageSpecialsBuilder {
      * @param product {SpecialProductItem}
      * @returns {HTMLElement}
      */
-    buildProductInfo(product) {
+    #buildProductInfo(product) {
 
         // product info area
         let $productInfo = document.createElement('div');
@@ -298,5 +307,4 @@ export class FrontPageSpecialsBuilder {
 
         return $productInfo;
     }
-
 }
