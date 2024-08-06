@@ -3,6 +3,7 @@ import {CategoryProductItem} from "../models/CategoryProductItem.js";
 import {ProductCategoryItem} from "../models/ProductCategoryItem.js";
 import {MathFilter} from "../util/Tween.js";
 import {CssHelper} from "../util/CssHelper.js";
+import {SizeHelper} from "../util/SizeHelper.js";
 
 /**
  * Builds the HTML for the category page.
@@ -14,6 +15,12 @@ export class CategoryBuilder {
      * @type {CategoryController}
      */
     controller = null;
+
+    /**
+     * Last place we inserted products.
+     * @type {HTMLDivElement|null}
+     */
+    $lastInsertionPoint = null;
 
     /**
      * Constructor takes reference to the skin to be built.
@@ -95,7 +102,7 @@ export class CategoryBuilder {
             $widgetDiv.classList.add('single-widget', 'sub-category-list');
 
             // title of the list
-            $widgetDiv.appendChild(this.createSubcategoryHeader(item, categoryData.breadcrumbs));
+            $widgetDiv.appendChild(this.#createSubcategoryHeader(item, categoryData.breadcrumbs));
 
             // links
             let $ul = document.createElement('ul');
@@ -164,7 +171,7 @@ export class CategoryBuilder {
                             $cell.classList.add('col-lg-4', 'col-md-6', 'col-12', 'category-cell');
                             $row.appendChild($cell);
 
-                            let $productItem = this.buildCategoryProduct(product);
+                            let $productItem = this.#buildCategoryProduct(product);
                             $cell.appendChild($productItem);
                         }
                     }
@@ -246,7 +253,7 @@ export class CategoryBuilder {
                             $cell.classList.add('col-lg-12', 'col-md-12', 'col-12');
                             $row.appendChild($cell);
 
-                            let $productItem = this.buildCategoryProductListItem(product);
+                            let $productItem = this.#buildCategoryProductListItem(product);
                             $cell.appendChild($productItem);
                         }
                     }
@@ -261,13 +268,116 @@ export class CategoryBuilder {
         $insertionPoint.innerHTML = $tabContent.innerHTML
         $insertionPoint.classList.add('tab-content');
 
-        this.addTabViewEventHandlers()
+        this.$lastInsertionPoint = $insertionPoint;
+
+        // make sure products are the same height
+        setTimeout(() => {
+            this.resizeProductImages();
+        }, 1000);
+
+        this.#addTabViewEventHandlers()
+    }
+
+    /**
+     * Removes the old custom heights and recalculates a height that
+     * makes all product boxes the same height.
+     */
+    resizeProductImages() {
+
+        // only continue if we have a reference to the insertion point
+        if (this.$lastInsertionPoint === null) {
+            console.warn('Call to resizeProductImages without $lastInsertionPoint');
+            return;
+        }
+        let $insertionPoint = this.$lastInsertionPoint
+
+        // remove old custom heights
+        document.querySelectorAll('.product-image, .single-product').forEach((element) => {
+            element.style.height = '';
+        });
+
+        // make all product boxes the same height
+        SizeHelper.makeChildrenSameHeight($insertionPoint, '.product-image', () => {
+            SizeHelper.makeChildrenSameHeight($insertionPoint, '.single-product');
+        });
+    }
+
+    /**
+     * Builds the paging on the bottom of a category page from the
+     * PageControls object.
+     *
+     * @param pageControls {PageControls}
+     * @returns {HTMLElement}
+     */
+    buildPagingControls(pageControls) {
+        let $div = document.createElement('div');
+        {
+            $div.classList.add('pagination', 'left');
+            let $ul = document.createElement('ul');
+            {
+                $ul.classList.add('pagination-list');
+                $div.appendChild($ul);
+                for (let i = 0; i < pageControls.pages.length; i++) {
+                    let page = pageControls.pages[i];
+                    let $li = document.createElement('li');
+                    {
+                        $ul.appendChild($li);
+                        let $a = document.createElement('a');
+                        {
+                            $li.appendChild($a);
+                            $a.href = 'javascript:void(0)';
+                            if (page.type === 'current') {
+                                $a.innerHTML = page.text;
+                                $li.classList.add('active');
+                            } else if (page.type === 'next') {
+                                $a.innerHTML = '<i class="lni lni-chevron-right"></i>';
+                            } else if (page.type === 'prev') {
+                                $a.innerHTML = '<i class="lni lni-chevron-left"></i>';
+                            } else if (page.type === 'page') {
+                                $a.innerHTML = page.text;
+                            } else {
+                                console.error('unknown page type: ' + page.type);
+                            }
+                            $a.addEventListener('click', () => {
+                                this.controller.pageButtonHandler(page);
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        return $div;
+    }
+
+    /**
+     * Creates an HTML range slider for customizing the grid size similar
+     * to many photo apps.
+     */
+    initSizeSlider() {
+
+        let $range = document.querySelector('#nav-size-range');
+        if ($range) {
+            $range.addEventListener('input', _ => {
+
+                let value = this.#getSizeSliderValue($range);
+
+                // changing the width property of the CSS class 'category-cell'
+                // instead of setting each of the element's custom styles
+                CssHelper.changeClassProperty('.category-cell', {'width': (50 * value) + '%'});
+                CssHelper.changeClassProperty('.category-cell h4', {'font-size': (2.70*value)+'em'});
+                CssHelper.changeClassProperty('.category-cell a', {'font-size': (21*value)+'px'});
+                CssHelper.changeClassProperty('.category-cell .product-info', {'padding': (20*value)+'px'});
+
+                // resize the images
+                this.resizeProductImages();
+            });
+        }
     }
 
     /**
      * Adds event handlers to icons to change the tab views.
      */
-    addTabViewEventHandlers() {
+    #addTabViewEventHandlers() {
 
         let $tabList = document.querySelector('#nav-list-tab');
         let $tabListView = document.querySelector('#nav-list');
@@ -299,7 +409,7 @@ export class CategoryBuilder {
      * @param product {CategoryProductItem}
      * @returns {HTMLElement}
      */
-    buildCategoryProduct(product) {
+    #buildCategoryProduct(product) {
         let $div = document.createElement('div');
         $div.classList.add('single-product');
         {
@@ -357,7 +467,7 @@ export class CategoryBuilder {
      * @param product {CategoryProductItem}
      * @returns {HTMLElement}
      */
-    buildCategoryProductListItem(product) {
+    #buildCategoryProductListItem(product) {
         let $div = document.createElement('div');
         $div.classList.add('single-product');
         {
@@ -445,7 +555,7 @@ export class CategoryBuilder {
      * @param breadcrumbs {ProductCategoryBreadcrumb}
      * @returns {HTMLHeadingElement}
      */
-    createSubcategoryHeader(item, breadcrumbs) {
+    #createSubcategoryHeader(item, breadcrumbs) {
 
         // detect top level
         let isTopLevel = false;
@@ -465,77 +575,6 @@ export class CategoryBuilder {
         }
 
         return $h3;
-    }
-
-    /**
-     * Builds the paging on the bottom of a category page from the
-     * PageControls object.
-     *
-     * @param pageControls {PageControls}
-     * @returns {HTMLElement}
-     */
-    buildPagingControls(pageControls) {
-        let $div = document.createElement('div');
-        {
-            $div.classList.add('pagination', 'left');
-            let $ul = document.createElement('ul');
-            {
-                $ul.classList.add('pagination-list');
-                $div.appendChild($ul);
-                for (let i = 0; i < pageControls.pages.length; i++) {
-                    let page = pageControls.pages[i];
-                    let $li = document.createElement('li');
-                    {
-                        $ul.appendChild($li);
-                        let $a = document.createElement('a');
-                        {
-                            $li.appendChild($a);
-                            $a.href = 'javascript:void(0)';
-                            if (page.type === 'current') {
-                                $a.innerHTML = page.text;
-                                $li.classList.add('active');
-                            } else if (page.type === 'next') {
-                                $a.innerHTML = '<i class="lni lni-chevron-right"></i>';
-                            } else if (page.type === 'prev') {
-                                $a.innerHTML = '<i class="lni lni-chevron-left"></i>';
-                            } else if (page.type === 'page') {
-                                $a.innerHTML = page.text;
-                            } else {
-                                console.error('unknown page type: ' + page.type);
-                            }
-                            $a.addEventListener('click', () => {
-                                this.controller.pageButtonHandler(page);
-                            });
-                        }
-                    }
-                }
-            }
-        }
-        return $div;
-    }
-
-
-
-    /**
-     * Creates an HTML range slider for customizing the grid size similar
-     * to many photo apps.
-     */
-    initSizeSlider() {
-
-        let $range = document.querySelector('#nav-size-range');
-        if ($range) {
-            $range.addEventListener('input', _ => {
-
-                let value = this.#getSizeSliderValue($range);
-
-                // changing the width property of the CSS class 'category-cell'
-                // instead of setting each of the element's custom styles
-                CssHelper.changeClassProperty('.category-cell', {'width': (50 * value) + '%'});
-                CssHelper.changeClassProperty('.category-cell h4', {'font-size': (2.70*value)+'em'});
-                CssHelper.changeClassProperty('.category-cell a', {'font-size': (21*value)+'px'});
-                CssHelper.changeClassProperty('.category-cell .product-info', {'padding': (20*value)+'px'});
-            });
-        }
     }
 
     /**
