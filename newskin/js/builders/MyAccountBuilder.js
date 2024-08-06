@@ -54,13 +54,27 @@ export class MyAccountBuilder {
         document.querySelector('.order-history-insertion-point').after($orderHistoryTable);
 
         // set up the order loading event listener.  show the full order history once it's loaded
-        this.controller.parser.onOrdersLoaded.addListener((orders, _) => {
-            //this.controller.parser.onOrdersLoaded.addListener((orders, allPages) => {
-            //console.log('onOrdersLoaded', orders, allPages);
-            $orderHistoryTable.remove(); // remove old one
-            $orderHistoryTable = this.#buildOrderHistoryTable(orders);
-            document.querySelector('.order-history-insertion-point').after($orderHistoryTable);
-            document.querySelector('.page-buttons').remove();
+        this.controller.parser.onOrdersLoaded.addListener((orders, allPages) => {
+
+            console.log('refreshing my orders view (' + orders.length + ' orders, finished=' + allPages + ' )');
+
+            // remove old order history
+            if ($orderHistoryTable) {
+                $orderHistoryTable.remove(); // remove old one
+            }
+            $orderHistoryTable = this.#buildOrderHistoryTable(orders, allPages);
+
+            // insert order history
+            const $orderHistoryInsertionPoint = document.querySelector('.order-history-insertion-point');
+            if (!$orderHistoryInsertionPoint) {
+                console.error('Could not find .order-history-insertion-point');
+                return;
+            }
+            $orderHistoryInsertionPoint.after($orderHistoryTable);
+
+            // remove paging buttons
+            const $pageButtons = document.querySelector('.page-buttons');
+            if ($pageButtons) $pageButtons.remove();
         });
 
         // shipping addresses
@@ -138,9 +152,10 @@ export class MyAccountBuilder {
     /**
      * Creates the <table> for the order history table.
      * @param orders {OrderHistoryRow[]}
+     * @param finishedLoading {boolean} when true, the background loading is finished
      * @returns {HTMLTableElement}
      */
-    #buildOrderHistoryTable(orders) {
+    #buildOrderHistoryTable(orders, finishedLoading = true) {
         let $table = document.createElement('table');
         {
             $table.classList.add('admin-table');
@@ -151,6 +166,10 @@ export class MyAccountBuilder {
                     $tbody.appendChild(this.#buildOrderRow(order));
                 }
                 $table.appendChild($tbody);
+
+                if (!finishedLoading) {
+                    $tbody.innerHTML = '<tr><td colspan="6">Loading additional pages...</td></tr>';
+                }
             }
         }
         return $table;

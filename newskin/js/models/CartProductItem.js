@@ -42,6 +42,13 @@ export class CartProductItem {
     quantity = 0;
 
     /**
+     * When true the item cannot be modified and is just displayed
+     * for final review before clicking "submit order".
+     * @type {boolean}
+     */
+    reviewMode = false;
+
+    /**
      * When true the item will be removed from the cart upon submission.
      * @type {boolean}
      */

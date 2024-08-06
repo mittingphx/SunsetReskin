@@ -81,10 +81,10 @@ export class MyAccountParser {
         let topPageOrders = this.parseOrders(ret.$orderTable);
         let loadNextPage = this.#cache.shouldLoadNextPage(topPageOrders);
         this.#cache.addRows(topPageOrders);
-        if (!loadNextPage) {
+        // if (!loadNextPage) { // immediately show the first page
             this.#cache.save();
-            this.onOrdersLoaded.fire(this.#cache.orders, true);
-        }
+            this.onOrdersLoaded.fire(this.#cache.orders, !loadNextPage);
+        // }
 
         // parse shipping addresses
         ret.shippingAddresses = this.#parseShippingAddresses(ret.$shippingAddressTable);
@@ -112,16 +112,24 @@ export class MyAccountParser {
         // attempt to load all pages of the order history in the background
         if (loadNextPage) {
             try {
-                this.loadNextPageInBackground(ret.$orderPaging.$btnNext, 1, (newOrders) => {
+                this.loadNextPageInBackground(ret.$orderPaging.$btnNext, 1, (newOrders, completed) => {
                     // add to cache and alert order listeners
                     this.#cache.addRows(newOrders);
                     this.#cache.save();
-                    this.onOrdersLoaded.fire(this.#cache.orders, true);
+                    this.onOrdersLoaded.fire(this.#cache.orders, completed);
                 });
             }
             catch (ex) {
                 console.error('error loading history (loadNextPageInBackground)', ex);
             }
+        }
+
+        // just in case we didn't get an event to redraw My Orders, redraw every 5 seconds for 20 seconds
+        const refreshTimes = [ 5000, 10000, 15000, 20000 ];
+        for (let i = 0; i < refreshTimes.length; i++) {
+            setTimeout(() => {
+                this.onOrdersLoaded.fire(this.#cache.orders, true);
+            }, refreshTimes[i]);
         }
 
         return ret;
@@ -140,7 +148,7 @@ export class MyAccountParser {
      *
      * @param $btnNext {HTMLElement} the button to click to load the next page
      * @param pageNumber {number} the page number of the next page
-     * @param callback {function(OrderHistoryRow[])} callback with order history, each recursive call combines its results
+     * @param callback {function(OrderHistoryRow[],boolean)} callback with order history, each recursive call combines its results, true indicates loading is complete
      */
     loadNextPageInBackground($btnNext, pageNumber, callback) {
 
@@ -178,11 +186,15 @@ export class MyAccountParser {
                         (newOrders) => {
                             // combines the new page with the existing pages
                             orders = orders.concat(newOrders);
-                            callback(orders);
+                            callback(orders, false);
                         });
+
+                    // update callback with the new orders from each page as we receive them
+                    callback(orders, false);
+
                 } else {
                     // all pages have been loaded
-                    callback(orders);
+                    callback(orders, true);
                 }
 
             }, true);

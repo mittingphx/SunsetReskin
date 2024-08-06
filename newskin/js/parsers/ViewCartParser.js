@@ -59,6 +59,11 @@ export class ViewCartParser {
         if (dom.$table) {
             cart.items = this.readCartProducts(dom.$table);
             cart.$btnUpdate = dom.$table.querySelector('input#MainContent_BtnUpdateCart');
+
+            // check if we're in review mode
+            if (cart.items.length > 0) {
+                cart.reviewMode = cart.items[0].reviewMode;
+            }
         }
         else {
             cart.items = [];
@@ -70,8 +75,11 @@ export class ViewCartParser {
                 $oldShipping: 'select#MainContent_DropShipMethod',
                 $oldPO: 'input#MainContent_TxtPONumber',
                 $oldMessage: 'input#MainContent_TxtMessage',
-                $btnSubmit: 'input#MainContent_BtnCheckOut'
+                //$btnSubmit: 'input#MainContent_BtnCheckOut',
+                $submitError: '#MainContent_lblErrorBottom'
             })
+
+            cart.$btnSubmit = dom.$tableSummary.querySelector('input#MainContent_BtnCheckOut');
         }
 
         cart.storeInCache();
@@ -114,6 +122,12 @@ export class ViewCartParser {
         let item = new CartProductItem();
         let $cells = $row.querySelectorAll('td');
 
+        if ($cells.length < 3) {
+            console.warn('Invalid row: ' + $row.outerHTML);
+            return null;
+        }
+
+
         // image
         //item.image = $cells[0].querySelector('img').src;
 
@@ -152,15 +166,25 @@ export class ViewCartParser {
         price = price.replace('$', '');
         item.price = parseFloat(price);
 
+        // input for quantity and checkbox
+        if ($cells.length >= 4) {
+            item.$qty = $cells[3].querySelector('input');
+        }
+        if ($cells.length >= 6) {
+            item.$removeCheckbox = $cells[5].querySelector('input');
+        }
+
         // quantity
-        item.quantity = parseInt($cells[3].querySelector('input').value);
+        if (item.$qty) {
+            item.quantity = parseInt(item.$qty.value);
+        }
+        else { // we're in review mode if there's no text box
+            item.quantity = parseInt($cells[3].innerText);
+            item.reviewMode = true;
+        }
 
         // total
         // (just use calculation property)
-
-        // input for quantity and checkbox
-        item.$qty = $cells[3].querySelector('input');
-        item.$removeCheckbox = $cells[5].querySelector('input');
 
         return item;
     }

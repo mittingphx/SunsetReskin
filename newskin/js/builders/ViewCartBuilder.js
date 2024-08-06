@@ -75,17 +75,38 @@ export class ViewCartBuilder {
                             $cell4.innerHTML = '<p>Subtotal</p>';
                             $row.appendChild($cell4);
 
-                            // remove
-                            let $cell5 = document.createElement('div');
-                            $cell5.classList.add('col-lg-1', 'col-md-2', 'col-12');
-                            $cell5.innerHTML = '<p>Remove</p>';
-                            $row.appendChild($cell5);
+                            if (!cart.reviewMode) {
+                                // remove
+                                let $cell5 = document.createElement('div');
+                                $cell5.classList.add('col-lg-1', 'col-md-2', 'col-12');
+                                $cell5.innerHTML = '<p>Remove</p>';
+                                $row.appendChild($cell5);
+                            }
                         }
                     }
                 }
 
+                // order submitted
+                if (cart.errorMessage && cart.errorMessage.indexOf('submitted.') > -1) {
+                    let $outerDiv = document.createElement('div');
+                    {
+                        $outerDiv.classList.add('cart-empty');
+                        $container.appendChild($outerDiv);
+                        let $row = document.createElement('div');
+                        {
+                            $row.classList.add('row');
+                            $outerDiv.appendChild($row);
+                            {
+                                let $cell = document.createElement('div');
+                                $cell.classList.add('col-lg-12', 'col-md-12', 'col-12');
+                                $cell.innerHTML = '<p>' + cart.errorMessage +'</p>';
+                                $row.appendChild($cell);
+                            }
+                        }
+                    }
+                }
                 // empty cart because not logged in
-                if (!loginStatus || !loginStatus.loggedIn) {
+                else if (!loginStatus || !loginStatus.loggedIn) {
                     let $outerDiv = document.createElement('div');
                     {
                         $outerDiv.classList.add('cart-empty');
@@ -194,6 +215,13 @@ export class ViewCartBuilder {
                         $p.appendChild($spanUnit);
                         $spanUnit.innerHTML = '<em>Unit:</em> ' + item.unitType;
                     }
+
+                    if (item.textError) {
+                        let $spanError = document.createElement('span');
+                        $spanError.classList.add('cart-error');
+                        $p.appendChild($spanError);
+                        $spanError.innerHTML = item.textError;
+                    }
                 }
             }
 
@@ -213,18 +241,27 @@ export class ViewCartBuilder {
                 $countDiv.classList.add('count-input');
                 $cell3.appendChild($countDiv);
 
-                let $input = document.createElement('input');
-                $input.style.width = '50px';
-                $input.type = 'number';
-                $input.value = item.quantity.toString();
-                item.$newQuantity = $input;
-                $countDiv.appendChild($input);
+                if (item.reviewMode) {
+                    // show quantity as text in review mode
+                    let $span = document.createElement('span');
+                    $span.innerHTML = item.quantity.toString();
+                    $countDiv.appendChild($span);
+                }
+                else {
+                    // show quantity as editable field in normal mode
+                    let $input = document.createElement('input');
+                    $input.style.width = '50px';
+                    $input.type = 'number';
+                    $input.value = item.quantity.toString();
+                    item.$newQuantity = $input;
+                    $countDiv.appendChild($input);
 
-                $input.addEventListener('change', () => {
-                    item.quantity = parseInt($input.value);
-                    $row.querySelector('.subtotal').innerHTML = Format.money(item.total);
-                    document.querySelector('.total-price').innerHTML = Format.money(cart.total);
-                });
+                    $input.addEventListener('change', () => {
+                        item.quantity = parseInt($input.value);
+                        $row.querySelector('.subtotal').innerHTML = Format.money(item.total);
+                        document.querySelector('.total-price').innerHTML = Format.money(cart.total);
+                    });
+                }
             }
 
             // subtotal
@@ -233,36 +270,37 @@ export class ViewCartBuilder {
             $cell4.innerHTML = '<p class="subtotal">' + Format.money(item.total) + '</p>';
             $row.appendChild($cell4);
 
-            // remove
-            let $cell5 = document.createElement('div');
-            {
-                $cell5.classList.add('col-lg-1', 'col-md-2', 'col-12');
+            // remove toggle
+            if (!item.reviewMode) {
+                let $cell5 = document.createElement('div');
+                {
+                    $cell5.classList.add('col-lg-1', 'col-md-2', 'col-12');
 
-                let $aRemove = document.createElement('a');
-                $aRemove.href = 'javascript:;';
-                $cell5.appendChild($aRemove);
-                item.$newCheckbox = $aRemove;
+                    let $aRemove = document.createElement('a');
+                    $aRemove.href = 'javascript:;';
+                    $cell5.appendChild($aRemove);
+                    item.$newCheckbox = $aRemove;
 
-                let $icon = document.createElement('i');
-                $icon.classList.add('fa', 'fa-toggle-off', 'fa-2x');
-                $aRemove.appendChild($icon);
+                    let $icon = document.createElement('i');
+                    $icon.classList.add('fa', 'fa-toggle-off', 'fa-2x');
+                    $aRemove.appendChild($icon);
 
-                $aRemove.addEventListener('click', () => {
-                    if ($aRemove.classList.contains('remove')) {
-                        $aRemove.classList.remove('remove');
-                        $icon.classList.add('fa-toggle-off');
-                        $icon.classList.remove('fa-toggle-on');
-                        item.markedForDeletion = false;
-                    }
-                    else {
-                        $aRemove.classList.add('remove');
-                        $icon.classList.remove('fa-toggle-off');
-                        $icon.classList.add('fa-toggle-on');
-                        item.markedForDeletion = true;
-                    }
-                });
+                    $aRemove.addEventListener('click', () => {
+                        if ($aRemove.classList.contains('remove')) {
+                            $aRemove.classList.remove('remove');
+                            $icon.classList.add('fa-toggle-off');
+                            $icon.classList.remove('fa-toggle-on');
+                            item.markedForDeletion = false;
+                        } else {
+                            $aRemove.classList.add('remove');
+                            $icon.classList.remove('fa-toggle-off');
+                            $icon.classList.add('fa-toggle-on');
+                            item.markedForDeletion = true;
+                        }
+                    });
+                }
+                $row.appendChild($cell5);
             }
-            $row.appendChild($cell5);
         }
 
         return $cartItem;
@@ -305,25 +343,25 @@ export class ViewCartBuilder {
                                 $left.classList.add('left');
                                 $col1.appendChild($left);
 
-
-                                // update button (test)
-                                let $divButtonUpdate = document.createElement('div');
-                                {
-                                    $divButtonUpdate.classList.add('button');
-                                    $left.appendChild($divButtonUpdate);
-
-                                    let $a1 = document.createElement('a');
+                                // show update button unless in review mode
+                                if (!cart.reviewMode) {
+                                    let $divButtonUpdate = document.createElement('div');
                                     {
-                                        $a1.classList.add('btn', 'btn-update-cart');
-                                        $a1.innerHTML = 'Update Cart';
-                                        $divButtonUpdate.appendChild($a1);
+                                        $divButtonUpdate.classList.add('button');
+                                        $left.appendChild($divButtonUpdate);
 
-                                        $a1.addEventListener('click', () => {
-                                            cart.updateCart()
-                                        });
+                                        let $a1 = document.createElement('a');
+                                        {
+                                            $a1.classList.add('btn', 'btn-update-cart');
+                                            $a1.innerHTML = 'Update Cart';
+                                            $divButtonUpdate.appendChild($a1);
+
+                                            $a1.addEventListener('click', () => {
+                                                cart.updateCart()
+                                            });
+                                        }
                                     }
-                                } // end buttons
-
+                                }  // end buttons
                             }
                         }
 
@@ -387,6 +425,14 @@ export class ViewCartBuilder {
                                             }
                                         }
 
+                                        if (cart.$oldShipping) {
+                                            if (cart.$oldShipping.selectedIndex === 0) {
+                                                $selectShip.selectedIndex = 1;
+                                            } else if (cart.$oldShipping.selectedIndex === 1) {
+                                                $selectShip.selectedIndex = 2;
+                                            }
+                                        }
+
                                         $selectShip.addEventListener('change', () => {
                                             switch ($selectShip.value) {
                                                 case '1':
@@ -415,6 +461,7 @@ export class ViewCartBuilder {
                                                 $input.style.width = '150px';
                                                 $input.type = 'text';
                                                 $input.placeholder = 'Enter PO Number';
+                                                $input.value = cart.$oldPO.value;
                                                 $span.appendChild($input);
                                                 cart.$newPO = $input;
                                                 cart.$newPO.addEventListener('input', () => {
@@ -437,6 +484,7 @@ export class ViewCartBuilder {
                                                 $input.style.width = '150px';
                                                 $input.type = 'text';
                                                 $input.placeholder = 'Enter Message';
+                                                $input.value = cart.$oldMessage.value;
                                                 $span.appendChild($input);
                                                 cart.$newMessage = $input;
                                                 cart.$newMessage.addEventListener('input', () => {
@@ -445,6 +493,14 @@ export class ViewCartBuilder {
                                             }
                                         }
                                     } // end of line 4
+
+                                    if (cart.$submitError && cart.$submitError.innerHTML) {
+                                        let $li5 = document.createElement('li');
+                                        {
+                                            $ul.appendChild($li5);
+                                            $li5.innerHTML = '<span class="cart-error">' + cart.$submitError.innerHTML + '</span>';
+                                        }
+                                    } // end of line 5
 
 
                                 } // end subtotal lines
@@ -458,11 +514,16 @@ export class ViewCartBuilder {
                                     let $a1 = document.createElement('a');
                                     {
                                         $a1.classList.add('btn');
-                                        $a1.innerHTML = 'Checkout';
+                                        $a1.innerHTML = cart.reviewMode ? 'Submit Order' : 'Checkout';
                                         $divButton.appendChild($a1);
 
                                         $a1.addEventListener('click', () => {
-                                            cart.updateAndSubmit();
+                                            if (cart.reviewMode) {
+                                                cart.finalSubmit();
+                                            }
+                                            else {
+                                                cart.updateAndSubmit();
+                                            }
                                         });
                                     }
 

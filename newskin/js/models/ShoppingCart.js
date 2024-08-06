@@ -43,6 +43,12 @@ export class ShoppingCart {
     errorMessage = null;
 
     /**
+     * Gets set to true when the cart is being reviewed before final submission.
+     * @type {boolean}
+     */
+    reviewMode = false;
+
+    /**
      * The submit button in the shopping cart.
      * @type {HTMLInputElement}
      */
@@ -89,6 +95,12 @@ export class ShoppingCart {
      * @type {HTMLInputElement}
      */
     $newMessage = null;
+
+    /**
+     * The <span> containing an error message from submitting the order.
+     * @type {HTMLSpanElement|null}
+     */
+    $submitError = null;
 
     /**
      * Returns all the items in the shopping cart
@@ -184,7 +196,23 @@ export class ShoppingCart {
      */
     updateAndSubmit() {
         this.update();
-        this.$btnSubmit.click();
+
+        //this.$btnSubmit.click();
+        // fix for "Form submission canceled because the form is not connected"
+        let skin = SunsetSkin.getInstance();
+        skin.aspNet.serverClick(this.$btnSubmit);
+    }
+
+    /**
+     * Called when the order is in review mode and the user clicks "Submit Order"
+     */
+    finalSubmit() {
+
+        // no need to update cart in this version
+
+        // fix for "Form submission canceled because the form is not connected"
+        let skin = SunsetSkin.getInstance();
+        skin.aspNet.serverClick(this.$btnSubmit);
     }
 
     /**
