@@ -111,7 +111,7 @@ export class AspNetIntercept {
         actionUrl.searchParams.set('reskin', 'no');
         this.#postbackForm.action = actionUrl.href;
 
-        alert(this.#postbackForm.action);
+        // alert(this.#postbackForm.action);
 
         // listen for load event and press the button
         iframe.addEventListener('load', onIframeLoaded);
