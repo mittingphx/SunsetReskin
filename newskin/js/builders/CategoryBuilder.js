@@ -23,6 +23,12 @@ export class CategoryBuilder {
     $lastInsertionPoint = null;
 
     /**
+     * Last value for the product size slider.
+     * @type {number|null}
+     */
+    #lastSliderValue = null;
+
+    /**
      * Constructor takes reference to the skin to be built.
      * @param controller {CategoryController}
      */
@@ -297,6 +303,12 @@ export class CategoryBuilder {
         });
 
         // make all product boxes the same height
+        if (this.#lastSliderValue !== null && this.#lastSliderValue < 0.4) {
+            SizeHelper.minHeight = 32;
+        }
+        else {
+            SizeHelper.minHeight = 100;
+        }
         SizeHelper.makeChildrenSameHeight($insertionPoint, '.product-image', () => {
             SizeHelper.makeChildrenSameHeight($insertionPoint, '.single-product');
         });
@@ -360,6 +372,7 @@ export class CategoryBuilder {
             $range.addEventListener('input', _ => {
 
                 let value = this.#getSizeSliderValue($range);
+                this.#lastSliderValue = value;
 
                 // changing the width property of the CSS class 'category-cell'
                 // instead of setting each of the element's custom styles

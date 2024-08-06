@@ -4,7 +4,14 @@
 export class SizeHelper {
 
     /**
-     * Makes all child elements found by a query the same height within the parent.
+     * Minimum height for a product image
+     * @type {number}
+     */
+    static minHeight = 100;
+
+    /**
+     * Makes all child elements found by a query the same height
+     * within the parent.
      * @param $parent {HTMLElement} the parent element
      * @param childQuery {string} the query selector for the child elements
      * @param callback {function} called after the heights are calculated successfully (may take a few retries)
@@ -25,7 +32,7 @@ export class SizeHelper {
             return;
         }
 
-        // find the tallest .product-image <div>
+        // find the tallest .product-image <div>, and the tallest for each row
         let maxHeight = 0;
         $productImages.forEach($productImage => {
             //let height = $productImage.offsetHeight;
@@ -37,7 +44,7 @@ export class SizeHelper {
 
         // make sure we were able to detect the heights, if we call this
         // before the elements are added to the DOM they'll all be 0
-        if (maxHeight <= 32) {
+        if (maxHeight <= SizeHelper.minHeight) {
             if (retriesLeft < 0) {
                 console.warn('Call to makeChildrenSameHeight() failed after 5 retries.  ' +
                     'Query = ' + childQuery + '.  Height = ' + maxHeight, $parent);
@@ -51,7 +58,10 @@ export class SizeHelper {
             return;
         }
 
-        // set all .product-image <div> to the same height
+        // set all .product-image <div> to the same height for each row
+        if (maxHeight < SizeHelper.minHeight) {
+            maxHeight = SizeHelper.minHeight;
+        }
         $productImages.forEach($productImage => {
             $productImage.style.height = maxHeight + 'px';
         });
