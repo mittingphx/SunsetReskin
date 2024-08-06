@@ -376,6 +376,9 @@ export class SunsetSkin {
             this.menuController.buildMobileMenu();
         }
 
+        // hide the start-your-order prompt by default
+        document.querySelector('.order-here-prompt').style.display = 'none';
+
         // setup common page controls
         this.searchController.build();
         this.linkController.build();
