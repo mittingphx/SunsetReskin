@@ -437,6 +437,8 @@ export class CategoryBuilder {
                 $divImage.appendChild($img);
 
                 ImageHelper.addMissingImageHandler($img);
+
+                // ImageHelper.makeImageTransparent($img);
             }
 
             let $divInfo = document.createElement('div');

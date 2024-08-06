@@ -6,6 +6,7 @@ import {LoginStatus} from "../models/LoginStatus.js";
 import {SunsetSkin} from "../SunsetSkin.js";
 import {ShoppingCart} from "../models/ShoppingCart.js";
 import {CartProductItem} from "../models/CartProductItem.js";
+import {ImageHelper} from "../util/ImageHelper.js";
 
 /**
  * Builds the cart page and cart dropdown html.
@@ -187,6 +188,7 @@ export class ViewCartBuilder {
                 $image.src = item.image;
                 $a.appendChild($image);
             }
+
 
             // product text and link
             let $cell1 = document.createElement('div');

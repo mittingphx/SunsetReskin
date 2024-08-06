@@ -12,6 +12,16 @@
 
 .single-product {
     overflow: hidden;
+    /*background: rgba(255,255,255,0.9) !important;*/
+}
+
+/* fills a background with the sunset logo */
+.logo-bg {
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-image: url('../../images/Logos/SunsetBigLogoGray.jpg');
+    background-size: contain;
+    background-attachment: fixed;
 }
 
 /*** Mobile menu ***/
