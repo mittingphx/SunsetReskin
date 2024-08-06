@@ -1,12 +1,25 @@
-.order-here-prompt {
-  position: absolute;
-  z-index: 90;
-  top: 60px;
-  left: 30px;
-  animation: bounce-fade 1s infinite;
-  transition: all 0.3s ease-out;
-  display: none;
+
+@media (min-width:991px) {
+  .order-here-prompt {
+    position: absolute;
+    z-index: 90;
+    top: 60px;
+    left: 30px;
+    animation: bounce-fade 1s infinite;
+    transition: all 0.3s ease-out;
+    display: none;
+  }
+
 }
+
+@media (max-width:990px) {
+  .order-here-prompt {
+    display: none !important;
+  }
+}
+
+
+
 
 @keyframes bounce-fade {
   0%, 100% {

@@ -88,7 +88,24 @@ export class FrontPageController extends PageControllerBase {
         document.querySelector('.mega-category-menu').addEventListener('mouseover', () => {
             document.querySelector('.order-here-prompt').style.display = 'none';
         });
-        document.querySelector('.order-here-prompt').style.display = 'block';
+
+        // hide if window is less than 991 wide
+        if (window.innerWidth < 991) {
+            document.querySelector('.order-here-prompt').style.display = 'none';
+        }
+        else {
+            document.querySelector('.order-here-prompt').style.display = 'block';
+        }
+
+        // detect window resizes
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 991) {
+                document.querySelector('.order-here-prompt').style.display = 'none';
+            }
+            else {
+                document.querySelector('.order-here-prompt').style.display = 'block';
+            }
+        });
     }
 
 }

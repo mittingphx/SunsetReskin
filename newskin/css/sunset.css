@@ -333,6 +333,10 @@ body.popup-mode .breadcrumbs {
     color: red;
 }
 
+.cart-error {
+    color: red;
+}
+
 .cart-empty {
     font-size: 20px;
     padding: 30px 20px;
