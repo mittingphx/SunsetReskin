@@ -6,7 +6,7 @@ import {LoginStatus} from "../models/LoginStatus.js";
 import {SunsetSkin} from "../SunsetSkin.js";
 import {ShoppingCart} from "../models/ShoppingCart.js";
 import {CartProductItem} from "../models/CartProductItem.js";
-import {ImageHelper} from "../util/ImageHelper.js";
+//import {ImageHelper} from "../util/ImageHelper.js";
 
 /**
  * Builds the cart page and cart dropdown html.
