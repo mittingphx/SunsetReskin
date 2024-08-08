@@ -87,4 +87,17 @@ export class CategoryProductItem extends IProductBase {
      */
     isNew = false;
 
+    /**
+     * Input box on the old page to specify a qty to add.
+     * @type HTMLInputElement
+     */
+    $txtAdd;
+
+    /**
+     * Button on the old page to add an item to the cart from a list.
+     * @type HTMLInputElement
+     */
+    $btnAdd;
+
+
 }

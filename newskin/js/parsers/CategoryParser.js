@@ -49,6 +49,37 @@ export class CategoryParser {
             if (nodeType === 'product') {
                 let product = this.#readFromDataNode($node);
                 ret.items.push(product);
+
+                // grab the cell in the next row and make sure it's qty
+                let $qtyNode = this.findCellOnNextRow($node);
+                if (!$qtyNode) {
+                    console.warn('could not find qty cell for product node', $node);
+                    continue;
+                }
+                if (this.#getNodeType($qtyNode) !== 'qty') {
+                    console.warn('skipping qty cell of wrong type');
+                    continue;
+                }
+
+                // grab the mini-form within it
+                const $qtyInputs = $qtyNode.querySelectorAll('input');
+                for (let j = 0; j < $qtyInputs.length; j++) {
+                    let type = $qtyInputs[j].type;
+                    if (type === 'text') {
+                        product.$txtAdd = $qtyInputs[j];
+                    }
+                    else if (type === 'submit') {
+                        product.$btnAdd = $qtyInputs[j];
+                    }
+                }
+
+                // check that we found the fields in the old page
+                if (!product.$txtAdd) {
+                    console.warn('could not find add to cart text box', $qtyNode);
+                }
+                if (!product.$btnAdd) {
+                    console.warn('could not find add to cart button', $qtyNode);
+                }
             }
             else if (nodeType === 'qty') {
                 // if we want to implement the QTY input box directly on the category
@@ -66,6 +97,41 @@ export class CategoryParser {
         }
 
         return ret;
+    }
+
+    /**
+     * Returns the <td> directly underneath a given <td> in a table.
+     * @param $td {HTMLTableCellElement}
+     * @return {HTMLTableCellElement|null} the cell or null if not found
+     */
+    findCellOnNextRow($td) {
+
+        // get parent row
+        const $tr = $td.parentElement;
+        if (!$tr || $tr.tagName !== 'TR') {
+            console.warn('Parent of TD was expected to be a TR', $td, $tr);
+            return null;
+        }
+
+        // grab the next row
+        const $nextRow = $tr.nextElementSibling;
+        if (!$nextRow || $nextRow.tagName !== 'TR') {
+            console.warn('Next sibling of TR was expected to a TR', $tr, $nextRow);
+            return null;
+        }
+
+        // find the cell in the next row with the same cellIndex
+        const $nextRowCells = $nextRow.querySelectorAll('td');
+        for (let i = 0; i < $nextRowCells.length; i++) {
+            let $cell = $nextRowCells[i];
+            if ($cell.cellIndex === $td.cellIndex) {
+                return $cell;
+            }
+        }
+
+        // we didn't find the cell
+        console.warn('Could not find a cell in the next row with cellIndex=' + $td.cellIndex);
+        return null;
     }
 
     /**

@@ -29,6 +29,23 @@
     display: block !important;
 }
 
+/** Add to cart on category list **/
+.single-product .product-add {
+    text-align: center;
+}
+.single-product .product-add button {
+    font-size: 0.9em;
+    padding: 2px 10px;
+    margin-top: -3px;
+    margin-left: 4px;
+}
+.single-product .product-add label {
+    padding-right: 4px;
+}
+
+.single-product .product-add input {
+}
+
 /*** Fixes for product images ***/
 .single-product .product-image {
     /*min-height: 245px;*/

@@ -426,6 +426,7 @@ export class CategoryBuilder {
         let $div = document.createElement('div');
         $div.classList.add('single-product');
         {
+            // product image
             let $divImage = document.createElement('div');
             {
                 $divImage.classList.add('product-image');
@@ -440,7 +441,7 @@ export class CategoryBuilder {
 
                 // ImageHelper.makeImageTransparent($img);
             }
-
+            // product info
             let $divInfo = document.createElement('div');
             {
                 $divInfo.classList.add('product-info');
@@ -472,6 +473,36 @@ export class CategoryBuilder {
                     $price.innerHTML = product.price;
                     $divPrice.appendChild($price);
                 }
+            }
+            // add to cart
+            let $divAdd = document.createElement('div');
+            {
+                $divAdd.classList.add('product-add');
+                $div.appendChild($divAdd);
+                let $label = document.createElement('label');
+                {
+                    $label.setAttribute('for', 'qty');
+                    $label.innerText = 'Qty';
+                    $divAdd.appendChild($label);
+                }
+                let $qty = document.createElement('input');
+                {
+                    $qty.id = 'qty';
+                    $qty.size = 4;
+                    $divAdd.appendChild($qty);
+                }
+                $qty.addEventListener('change', () => {
+                    product.$txtAdd.value = $qty.value;
+                });
+                let $btn = document.createElement('button');
+                {
+                    $btn.classList.add('btn', 'btn-primary');
+                    $btn.innerHTML = 'Add';
+                    $divAdd.appendChild($btn);
+                }
+                $btn.addEventListener('click', () => {
+                   product.$btnAdd.click();
+                });
             }
         }
         return $div;
