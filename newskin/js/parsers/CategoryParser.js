@@ -81,19 +81,6 @@ export class CategoryParser {
                     console.warn('could not find add to cart button', $qtyNode);
                 }
             }
-            else if (nodeType === 'qty') {
-                // if we want to implement the QTY input box directly on the category
-                // page, this is where we'd get the input we need to do post-backs on
-                /*
-                <td class="CenterQty">
-                    <span id="MainContent_LblQtyPopularItems...2918">Qty:</span>
-                    <input name="ctl00$MainContent$txtQtyPopularItems...2918" type="text" maxlength="4"
-                        id="MainContent_txtQtyPopularItems...2918" style="width:30px;">
-                    <input type="submit" name="ctl00$MainContent$btnPopularItems...2918" value="Buy"
-                        id="MainContent_btnPopularItems...2918" class="ButtonBuy">
-                </td>
-                 */
-            }
         }
 
         return ret;

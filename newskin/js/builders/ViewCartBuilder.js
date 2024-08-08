@@ -788,7 +788,9 @@ export class ViewCartBuilder {
                     let $spanPrice = document.createElement('span');
                     {
                         $spanPrice.classList.add('amount');
-                        $spanPrice.innerHTML = item.price.toFixed(2);
+                        if (item.price) {
+                            $spanPrice.innerHTML = item.price.toFixed(2);
+                        }
                         $p.appendChild($spanPrice);
                     }
                 }

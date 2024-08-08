@@ -4,6 +4,8 @@ import {ProductCategoryItem} from "../models/ProductCategoryItem.js";
 import {MathFilter} from "../util/Tween.js";
 import {CssHelper} from "../util/CssHelper.js";
 import {SizeHelper} from "../util/SizeHelper.js";
+import {ClickHelper} from "../util/ClickHelper.js";
+import {SunsetSkin} from "../SunsetSkin.js";
 
 /**
  * Builds the HTML for the category page.
@@ -309,6 +311,7 @@ export class CategoryBuilder {
         else {
             SizeHelper.minHeight = 100;
         }
+
         SizeHelper.makeChildrenSameHeight($insertionPoint, '.product-image', () => {
             SizeHelper.makeChildrenSameHeight($insertionPoint, '.single-product');
         });
@@ -474,6 +477,12 @@ export class CategoryBuilder {
                     $divPrice.appendChild($price);
                 }
             }
+            // spacer to keep margin above add to cart (because it's absolute positions relative to single-product)
+            let $divSpacer = document.createElement('div');
+            {
+                $divSpacer.classList.add('product-spacer');
+                $div.appendChild($divSpacer);
+            }
             // add to cart
             let $divAdd = document.createElement('div');
             {
@@ -490,19 +499,37 @@ export class CategoryBuilder {
                     $qty.id = 'qty';
                     $qty.size = 4;
                     $divAdd.appendChild($qty);
+
+                    // this fixes a bug where addEventListener isn't working
+                    $qty.setAttribute('onkeyup', ClickHelper.registerFunction((e) => {
+                        product.$txtAdd.value = e.target.value;
+                    }));
                 }
-                $qty.addEventListener('change', () => {
-                    product.$txtAdd.value = $qty.value;
-                });
                 let $btn = document.createElement('button');
                 {
                     $btn.classList.add('btn', 'btn-primary');
-                    $btn.innerHTML = 'Add';
+                    $btn.innerHTML = '<i class="lni lni-cart"></i> Add';
                     $divAdd.appendChild($btn);
+
+                    // this fixes a bug where addEventListener isn't working
+                    $btn.setAttribute('onclick', ClickHelper.registerFunction((_) => {
+                        const skin = SunsetSkin.getInstance();
+                        skin.loginController.getStatus(loginStatus => {
+                            // show a warning (one time) if not logged in
+                            if (!loginStatus.loggedIn) {
+                                if (CategoryBuilder.shownLoginWarning) {
+                                    return;
+                                }
+                                CategoryBuilder.shownLoginWarning = true;
+                                alert('You must be logged in to add items to your cart');
+                                return;
+                            }
+                            // add to cart
+                            product.$btnAdd.click();
+                        });
+                    }));
+
                 }
-                $btn.addEventListener('click', () => {
-                   product.$btnAdd.click();
-                });
             }
         }
         return $div;
