@@ -146,6 +146,18 @@ export class CategoryBuilder {
         return $widgetDiv;
     }
 
+    /**
+     * Builds the HTML for an error message on the category page.
+     * @param errorMessage {string} message to display
+     */
+    buildError(errorMessage) {
+        let $div = document.createElement('div');
+        {
+            $div.classList.add('alert', 'alert-danger');
+            $div.innerHTML = errorMessage;
+        }
+        return $div;
+    }
 
     /**
      * Builds the HTML for the products in the category grid view.

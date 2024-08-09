@@ -37,7 +37,7 @@ export class CategoryParser {
         // grab category hierarchy which contains the name
         let ret = new ProductCategoryItem()
         ret.breadcrumbs = CommonParser.getCategoryBreadcrumbs(this.sourceDocument)
-        ret.name = ret.breadcrumbs.name;
+        ret.name = ret.breadcrumbs ? ret.breadcrumbs.name : '';
 
         let $nodes = $table.querySelectorAll('td');
 

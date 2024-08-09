@@ -51,6 +51,7 @@ export class CategoryController extends PageControllerBase {
             return;
         }
 
+
         // parse from the old to build the category grid
         let parser = new CategoryParser($oldBody);
         let category = parser.readNodesFromTable($table);
@@ -64,6 +65,14 @@ export class CategoryController extends PageControllerBase {
             return;
         }
         this.pageBuilder.buildCategoryProducts(category, $insertionPoint);
+        
+        // check for and display error messages
+        let $error = $oldBody.querySelector('#MainContent_LblError');
+        if ($error && $error.innerHTML) {
+            let $divError = this.pageBuilder.buildError($error.innerHTML);
+            $insertionPoint.before($divError);
+            return;
+        }
 
         // build the subcategory list on the left, or show search terms when searching
         let $subcategoryMenu;
