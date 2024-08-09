@@ -1,4 +1,6 @@
 
+// noinspection JSUnusedGlobalSymbols
+
 export class ImageHelper {
 
     /**
