@@ -10,14 +10,55 @@ export class SizeHelper {
     static minHeight = 100;
 
     /**
+     * Clears all heights set by makeChildrenSameHeight()
+     * @param $parent {HTMLElement} the parent element
+     * @param childQuery {string|string[]} the query selector for the child elements
+     */
+    static clearHeight($parent, childQuery) {
+        if (Array.isArray(childQuery)) {
+            childQuery.forEach((query) => {
+                $parent.querySelectorAll(query).forEach((element) => {
+                    element.style.height = '';
+                });
+            });
+        }
+        else {
+            $parent.querySelectorAll(childQuery).forEach((element) => {
+                element.style.height = '';
+            });
+        }
+    }
+
+    /**
      * Makes all child elements found by a query the same height
      * within the parent.
      * @param $parent {HTMLElement} the parent element
-     * @param childQuery {string} the query selector for the child elements
+     * @param childQuery {string|string[]} the query selector for the child elements, when array each element is handled one after the other
      * @param callback {function} called after the heights are calculated successfully (may take a few retries)
      * @param retriesLeft {number} number of retries before giving up (default 5)
      */
     static makeChildrenSameHeight($parent, childQuery= '.product-image', callback = null, retriesLeft = 5) {
+
+        // clear out previous heights to get a clean measurement
+        SizeHelper.clearHeight($parent, childQuery);
+
+        // if childQuery is an array, handle each element independently
+        if (Array.isArray(childQuery)) {
+            let childIndex = 0;
+            function processNextQuery() {
+                if (childIndex >= childQuery.length) {
+                    if (callback) {
+                        callback();
+                    }
+                    return;
+                }
+                let query = childQuery[childIndex];
+                childIndex++;
+                SizeHelper.makeChildrenSameHeight($parent, query, processNextQuery, retriesLeft);
+            }
+            processNextQuery();
+            return;
+        }
 
         // check arguments
         if (!$parent) {
@@ -33,9 +74,26 @@ export class SizeHelper {
         }
 
         // find the tallest .product-image <div>, and the tallest for each row
+        let rowHeights = {};
         let maxHeight = 0;
         $productImages.forEach($productImage => {
-            //let height = $productImage.offsetHeight;
+            let rect = $productImage.getBoundingClientRect();
+            let row =  Math.floor(rect.y);
+            let height = rect.height;
+            if (row in rowHeights) {
+                if (height > rowHeights[row]) {
+                    rowHeights[row] = Math.max(SizeHelper.minHeight, height);
+                }
+            }
+            else {
+                rowHeights[row] = Math.max(SizeHelper.minHeight, height);
+            }
+            if (height > maxHeight) {
+                maxHeight = height;
+            }
+        });
+
+        $productImages.forEach($productImage => {
             let height = $productImage.clientHeight;
             if (height > maxHeight) {
                 maxHeight = height;
@@ -46,12 +104,8 @@ export class SizeHelper {
         // before the elements are added to the DOM they'll all be 0
         if (maxHeight <= SizeHelper.minHeight) {
             if (retriesLeft < 0) {
-                console.warn('Call to makeChildrenSameHeight() failed after 5 retries.  ' +
-                    'Query = ' + childQuery + '.  Height = ' + maxHeight, $parent);
                 return;
             }
-            console.warn('Call to makeChildrenSameHeight() to early for DOM to calculate heights.  ' +
-                'Query = ' + childQuery + '.  Height = ' + maxHeight + '.  Retrying in 1 second...');
             setTimeout(() => {
                 SizeHelper.makeChildrenSameHeight($parent, childQuery, callback, retriesLeft - 1);
             }, 1000);
@@ -59,11 +113,25 @@ export class SizeHelper {
         }
 
         // set all .product-image <div> to the same height for each row
-        if (maxHeight < SizeHelper.minHeight) {
-            maxHeight = SizeHelper.minHeight;
-        }
         $productImages.forEach($productImage => {
-            $productImage.style.height = maxHeight + 'px';
+            let rect = $productImage.getBoundingClientRect();
+            let row = Math.floor(rect.y);
+            if (row in rowHeights) {
+                $productImage.style.height = rowHeights[row] + 'px';
+            }
+            else { // find nearest row if exact match not found
+                let maxFound = -1;
+                let foundHeight = 0;
+                for (let r in rowHeights) {
+                    if (row < r) {
+                        if (r > maxFound) {
+                            maxFound = r;
+                            foundHeight = rowHeights[r];
+                        }
+                    }
+                }
+                $productImage.style.height = foundHeight + 'px';
+            }
         });
 
         // notify callback
