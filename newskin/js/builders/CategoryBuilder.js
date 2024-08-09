@@ -394,7 +394,9 @@ export class CategoryBuilder {
                 CssHelper.changeClassProperty('.category-cell', {'width': (50 * value) + '%'});
                 CssHelper.changeClassProperty('.category-cell h4', {'font-size': (2.70*value)+'em'});
                 CssHelper.changeClassProperty('.category-cell a', {'font-size': (21*value)+'px'});
+                CssHelper.changeClassProperty('.category-cell .price', {'font-size': (21*value)+'px'});
                 CssHelper.changeClassProperty('.category-cell .product-info', {'padding': (20*value)+'px'});
+                CssHelper.changeClassProperty('.category-cell .product-add', {'font-size': (2.0*value)+'em'});
 
                 // resize the images
                 this.resizeProductImages();
