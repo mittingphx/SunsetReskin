@@ -315,7 +315,7 @@ export class MyAccountBuilder {
             }
             type = type.replace(/ /g, '&nbsp;');
 
-            return type + ': ' + phone + '<br>';
+            return type + ': <span style="text-wrap: nowrap;">' + phone + '</span><br>';
         }
 
         let $row = document.createElement('tr');
