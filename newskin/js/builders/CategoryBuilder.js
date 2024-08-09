@@ -6,6 +6,7 @@ import {CssHelper} from "../util/CssHelper.js";
 import {SizeHelper} from "../util/SizeHelper.js";
 import {ClickHelper} from "../util/ClickHelper.js";
 import {SunsetSkin} from "../SunsetSkin.js";
+import {StringHelper} from "../util/StringHelper.js";
 
 /**
  * Builds the HTML for the category page.
@@ -151,6 +152,13 @@ export class CategoryBuilder {
      * @param errorMessage {string} message to display
      */
     buildError(errorMessage) {
+
+        // reload the cart dropdown when this error message is displayed
+        if (StringHelper.contains(errorMessage, 'Added to Cart')) {
+            SunsetSkin.getInstance().forceReloadCartDropdown();
+        }
+
+        // build the error message
         let $div = document.createElement('div');
         {
             $div.classList.add('alert', 'alert-danger');
