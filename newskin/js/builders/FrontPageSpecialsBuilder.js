@@ -51,6 +51,7 @@ export class FrontPageSpecialsBuilder {
             $section.classList.add('trending-product');
             $section.classList.add('section');
 
+
             // create the container for this section
             let $container = document.createElement('div');
             {
