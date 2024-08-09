@@ -332,9 +332,7 @@ export class CategoryBuilder {
             SizeHelper.minHeight = 100;
         }
 
-        SizeHelper.makeChildrenSameHeight($insertionPoint, '.product-image', () => {
-            SizeHelper.makeChildrenSameHeight($insertionPoint, '.single-product');
-        });
+        SizeHelper.makeChildrenSameHeight($insertionPoint, ['.product-image', '.single-product']);
     }
 
     /**
@@ -498,13 +496,16 @@ export class CategoryBuilder {
                     $price.innerHTML = product.price;
                     $divPrice.appendChild($price);
                 }
+
+                // spacer to keep margin above add to cart
+                // (because add-to-cart is absolute positioned relative to single-product)
+                let $divSpacer = document.createElement('div');
+                {
+                    $divSpacer.classList.add('product-spacer');
+                    $divInfo.appendChild($divSpacer);
+                }
             }
-            // spacer to keep margin above add to cart (because it's absolute positions relative to single-product)
-            let $divSpacer = document.createElement('div');
-            {
-                $divSpacer.classList.add('product-spacer');
-                $div.appendChild($divSpacer);
-            }
+
             // add to cart
             let $divAdd = document.createElement('div');
             {
