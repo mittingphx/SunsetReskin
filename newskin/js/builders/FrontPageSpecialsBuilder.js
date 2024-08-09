@@ -31,7 +31,10 @@ export class FrontPageSpecialsBuilder {
             $insertionPoint.after($section)
 
             // make all product boxes the same height
-            SizeHelper.makeChildrenSameHeight($section, ['.product-image', '.single-product']);
+            SizeHelper.makeChildrenSameHeight(
+                $section,
+                ['.trending-product .product-image', '.trending-product .single-product']
+            );
         }
     }
 

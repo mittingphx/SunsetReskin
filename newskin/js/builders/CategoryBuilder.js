@@ -299,9 +299,7 @@ export class CategoryBuilder {
         this.$lastInsertionPoint = $insertionPoint;
 
         // make sure products are the same height
-        setTimeout(() => {
-            this.resizeProductImages();
-        }, 1000);
+        setTimeout(() => { this.resizeProductImages(); }, 1000);
 
         this.#addTabViewEventHandlers()
     }
@@ -319,11 +317,6 @@ export class CategoryBuilder {
         }
         let $insertionPoint = this.$lastInsertionPoint
 
-        // remove old custom heights
-        document.querySelectorAll('.product-image, .single-product').forEach((element) => {
-            element.style.height = '';
-        });
-
         // make all product boxes the same height
         if (this.#lastSliderValue !== null && this.#lastSliderValue < 0.4) {
             SizeHelper.minHeight = 32;
@@ -332,7 +325,7 @@ export class CategoryBuilder {
             SizeHelper.minHeight = 100;
         }
 
-        SizeHelper.makeChildrenSameHeight($insertionPoint, ['.product-image', '.single-product']);
+        SizeHelper.makeChildrenSameHeight($insertionPoint, ['#nav-grid .product-image', '#nav-grid .single-product']);
     }
 
     /**
