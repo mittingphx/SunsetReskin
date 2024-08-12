@@ -1996,11 +1996,13 @@ ol {
   width: 100%;
 }
 
+/*
 @media (max-width: 767px) {
   .header .main-menu-search {
     display: none;
   }
 }
+ */
 
 .header .main-menu-search .navbar-search {
   position: relative;
