@@ -5,6 +5,10 @@
  * intercept and redirect PostBacks from the old page and handle
  * responses in the background, allowing for automation of several
  * features on the server-side of the website.
+ *
+ * This is used when you have a <form> that needs to be submitted
+ * along with the postback, whereas AspNetPostback is used when
+ * merely submitting the postback.
  */
 export class AspNetIntercept {
 
@@ -54,6 +58,7 @@ export class AspNetIntercept {
 
         // ignore these calls on localhost as CORS freaks out
         if (window.origin.indexOf('localhost') > -1) {
+            console.warn('ignoring call to AspNetIntercept.backgroundPostback on localhost!');
             return;
         }
 

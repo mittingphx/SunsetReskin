@@ -2,6 +2,10 @@ import {PageLoadHelper} from "./PageLoadHelper.js";
 
 /**
  * Helper classes for running ASP.net post-backs in the background.
+ *
+ * This class is used when you want to run a post-back that isn't
+ * tied to a <form> on the page.  For <form> submission, use
+ * AspNetIntercept instead.
  */
 export class AspNetPostback {
 

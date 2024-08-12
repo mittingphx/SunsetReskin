@@ -49,6 +49,18 @@ export class LoginPageForm {
     errorMessage = null;
 
     /**
+     * Reference to the message on the registration page.
+     * @type {HTMLInputElement|null}
+     */
+    $regMessage = null;
+
+    /**
+     * The message to display on the registration page.
+     * @type {string|null}
+     */
+    regMessage = null;
+
+    /**
      * Reference to the email text box on the registration form.
      * @type {HTMLInputElement|null}
      */

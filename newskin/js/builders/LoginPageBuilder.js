@@ -28,7 +28,7 @@ export class LoginPageBuilder {
             $newSubmit: '#reg-submit',
             $newForgot: '#reg-forgot',
             $newRegister: '#reg-register',
-            $newError: '.error'
+            $newError: '#login-error',
         })) return;
 
         // grab registration form elements
@@ -41,11 +41,18 @@ export class LoginPageBuilder {
             $regLastName: '#reg-ln',
             $regCompany: '#reg-company',
             $regAccount: '#reg-acctNo',
-        }))
+            $regMessage: '#reg-message',
+            $btnRegister: '.btn-register',
+        })) {}
 
         // show the error message if there is one
         if (loginForm.errorMessage) {
             data.$newError.innerText = loginForm.errorMessage;
+            data.$newError.style.display = 'block';
+        }
+        if (loginForm.regMessage) {
+            data.$regMessage.innerText = loginForm.regMessage;
+            data.$regMessage.style.display = 'block';
         }
 
         // bind input elements on new skin to original form fields
@@ -108,7 +115,9 @@ export class LoginPageBuilder {
         });
 
         // register account button
-        data.$regAccount.addEventListener('click', _ => {
+        data.$btnRegister.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
 
             // make sure there's an email address entered
             if (!data.$regEmail.value) {
@@ -125,13 +134,27 @@ export class LoginPageBuilder {
                 alert('Please enter a password before pressing Register');
                 return;
             }
-            if (!data.$regPass.value !== data.$regPassConfirm.value) {
+            if (data.$regPass.value !== data.$regPassConfirm.value) {
                 alert('The passwords do not match');
                 return;
             }
 
             // click the register button
-            data.$regBtnSubmit.click();
+            //data.$regBtnSubmit.click();
+
+            // TODO: this is a two step process, need to make sure the form
+            // submits and then show the 2nd page of the form.
+
+
+            // fix for "Form submission canceled because the form is not connected"
+            let skin = SunsetSkin.getInstance();
+            skin.aspNet.backgroundPostback(data.$regBtnSubmit, (iframeDoc) => {
+
+                alert('got to page 2 of registration');
+                console.log(iframeDoc);
+
+            });
+
         })
 
         // show registration form from login
@@ -159,6 +182,7 @@ export class LoginPageBuilder {
      * Displays the new account registration form.
      */
     #showRegistrationForm() {
+        document.querySelector('.page-title').innerHTML = 'Register';
         document.querySelector('#panel-register').style.display = 'block';
         document.querySelector('#panel-login').style.display = 'none';
         //setTimeout(_ => { window.scrollTo({top: 0, behavior: 'smooth'}); }, 250);
@@ -168,6 +192,7 @@ export class LoginPageBuilder {
      * Displays the user login form.
      */
     #showLoginForm() {
+        document.querySelector('.page-title').innerHTML = 'Login';
         document.querySelector('#panel-register').style.display = 'none';
         document.querySelector('#panel-login').style.display = 'block';
         //setTimeout(_ => { window.scrollTo({top: 0, behavior: 'smooth'}); }, 250);

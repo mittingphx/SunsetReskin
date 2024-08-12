@@ -38,6 +38,7 @@ export class LoginPageParser {
             $error: '#MainContent_LblReturningError',
 
             // dom elements on the registration form*
+            $regMessage: '#MainContent_LblMessage',
             $regEmail: '#MainContent_TxtNewEmailAddress',
             $regPassword: '#MainContent_TxtNewPassword',
             $regConfirmPassword: '#MainContent_TxtNewPassword2',
@@ -49,6 +50,9 @@ export class LoginPageParser {
         });
         if (ret.$error) {
             ret.errorMessage = ret.$error.innerText;
+        }
+        if (ret.$regMessage) {
+            ret.regMessage = ret.$regMessage.innerText;
         }
         return ret;
     }

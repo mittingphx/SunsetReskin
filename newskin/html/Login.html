@@ -68,7 +68,7 @@
                             <h3>Login Now</h3>
                             <p>You can log in using your email address or register a new account with the link below.</p>
                         </div>
-                        <div class="error" style="display:none">
+                        <div class="error" id="login-error" style="display:none">
                         </div>
                         <div class="form-group input-group">
                             <label for="reg-email">Email</label>
@@ -154,6 +154,8 @@
                         <h3>No Account? Register</h3>
                         <p>Registration takes less than a minute but gives you full control over your orders.</p>
                     </div>
+                    <div class="error" id="reg-message" style="display:none">
+                    </div>
                     <form class="row account-register-form" method="post">
                         <div class="col-sm-12">
                             <div class="form-group">
@@ -198,7 +200,7 @@
                             </div>
                         </div>
                         <div class="button">
-                            <button class="btn" type="submit">Register</button>
+                            <button class="btn btn-register" type="submit">Register</button>
                         </div>
                         <p class="outer-link">
                             Already have an account?
