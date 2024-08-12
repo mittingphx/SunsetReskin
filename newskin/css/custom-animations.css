@@ -3,11 +3,16 @@
   .order-here-prompt {
     position: absolute;
     z-index: 90;
-    top: 60px;
-    left: 30px;
+    top: -10px;
+    left: 140px;
     animation: bounce-fade 1s infinite;
     transition: all 0.3s ease-out;
     display: none;
+
+    box-shadow:
+            0 0 20px rgba(255,255,255,1),
+            -10px 0 40px rgba(255,255,0,1),
+            10px 0 40px rgba(255,128,0,1);
   }
 
 }
@@ -23,28 +28,51 @@
 
 @keyframes bounce-fade {
   0%, 100% {
-    transform: translateY(0);
+    transform: translateX(0);
     opacity: 1;
+
+    box-shadow:
+            0 0 20px rgba(255,255,255,0),
+            -10px 0 40px rgba(255,255,0,0),
+            10px 0 40px rgba(255,128,0,0);
   }
-  10%, 90% {
-    transform: translateY(-1px);
-    opacity: 0.95;
+  30%, 90% {
+    transform: translateX(-1px);
+
+    box-shadow:
+            0 0 20px rgba(255,255,255,0.0),
+            -10px 0 40px rgba(255,255,0,0.0),
+            10px 0 40px rgba(255,128,0,0.0);
   }
-  20%, 80% {
-    transform: translateY(-2px);
-    opacity: 0.9;
+  35%, 80% {
+    transform: translateX(-2px);
+
+    box-shadow:
+            0 0 20px rgba(255,255,255,0.1),
+            -10px 0 40px rgba(255,255,0,0.1),
+            10px 0 40px rgba(255,128,0,0.1);
   }
-  30%, 70% {
-    transform: translateY(-4px);
+  40%, 70% {
+    transform: translateX(-4px);
     opacity: 0.85;
+    box-shadow:
+            0 0 20px rgba(255,255,255,0.4),
+            -10px 0 40px rgba(255,255,0,0.4),
+            10px 0 40px rgba(255,128,0,0.4);
   }
-  40%, 60% {
-    transform: translateY(-8px);
-    opacity: 0.8;
+  45%, 60% {
+    transform: translateX(-8px);
+    box-shadow:
+            0 0 20px rgba(255,255,255,0.7),
+            -10px 0 40px rgba(255,255,0,0.7),
+            10px 0 40px rgba(255,128,0,0.7);
   }
   50% {
-    transform: translateY(-16px);
-    opacity: 0.75;
+    transform: translateX(-16px);
+    box-shadow:
+            0 0 20px rgba(255,255,255,1),
+            -10px 0 40px rgba(255,255,0,1),
+            10px 0 40px rgba(255,128,0,1);
   }
 }
 
