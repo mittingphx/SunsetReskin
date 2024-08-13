@@ -329,6 +329,15 @@ export class SunsetSkin {
      */
     async loadNewSkinPage(newUrl = null) {
 
+        // need to redirect if we attempt to load index.html, the front page
+        // fails to load correctly if not loaded from Default.aspx
+        if (newUrl === 'index.html') {
+            document.location = 'index.html';
+            return;
+        }
+
+
+
         this.#loadNewSkinPageCalled = true;
 
         // determine file type of new page
