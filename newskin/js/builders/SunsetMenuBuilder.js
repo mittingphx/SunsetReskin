@@ -86,6 +86,13 @@ export class SunsetMenuBuilder {
                     $topLevelLink.classList.remove('hover');
                 })
             });
+
+            // prevent clicks on top-level menus from loading anything
+            $topLevelLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                alert('Please click on a sub-menu item, not the top-level menu.');
+                return false;
+            });
         });
     }
 
