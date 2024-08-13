@@ -1,5 +1,6 @@
 import {fixUrl} from "../UrlHelper.js";
 import {LoginStatus} from "../models/LoginStatus.js";
+import {SunsetSkin} from "../SunsetSkin.js";
 
 /**
  * Builds the HTML for the login status information in the upper right.
@@ -53,7 +54,7 @@ export class LoginStatusBuilder {
                         $aSignOut.href = 'javascript:void(0)';
                         $login.appendChild($aSignOut);
                         $aSignOut.addEventListener('click', function() {
-                            loginStatus.$btnSignOut.click();
+                            SunsetSkin.getInstance().signOut();
                         });
                     }
                     $userLogin.appendChild($login);

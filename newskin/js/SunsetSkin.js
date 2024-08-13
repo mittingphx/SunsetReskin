@@ -426,7 +426,8 @@ export class SunsetSkin {
      */
     signOut() {
         this.getLoginStatus(loginStatus => {
-            loginStatus.$btnSignOut.click()
+            //loginStatus.$btnSignOut.click()
+            this.aspNet.serverClick(loginStatus.$btnSignOut)
         });
     }
 
