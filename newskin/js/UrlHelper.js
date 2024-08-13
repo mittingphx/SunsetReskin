@@ -188,6 +188,9 @@ export class UrlHelper {
         if (url instanceof HTMLAnchorElement) {
             url = url.href;
         }
+        if (url instanceof HTMLElement) {
+            url = url.getAttribute('href');
+        }
         if (!url.startsWith('http')) return true;
         let baseUrl = UrlHelper.getBaseUrl();
         return url.startsWith(baseUrl);

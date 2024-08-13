@@ -35,7 +35,7 @@ export class LinkController extends BaseController {
 
         // how to handle links and which links to handle
         this.linkHandler = new LinkHandler(
-            async $a => { await this.skin.navigateTo($a.href);},
+            async $a => { await this.skin.navigateTo($a.getAttribute('href'));},
             $a => { return UrlHelper.urlIsOnSameDomain($a);});
         this.linkHandler.addEventListener();
 

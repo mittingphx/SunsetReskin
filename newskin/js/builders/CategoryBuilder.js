@@ -498,6 +498,12 @@ export class CategoryBuilder {
                     $divInfo.appendChild($divSpacer);
                 }
             }
+            // make product box clickable (via LinkHandler.js)
+            $div.setAttribute('href', product.link);
+            $div.addEventListener('click', (event) => {
+                console.log('testing product click');
+                console.log(event);
+            })
 
             // add to cart
             let $divAdd = document.createElement('div');

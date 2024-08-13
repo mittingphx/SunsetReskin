@@ -120,6 +120,26 @@ export class LinkHandler {
     }
 
     /**
+     * Searches for a node that has a href attribute, or is a link,
+     * up to a maximum depth of 5.
+     * @param node {HTMLElement}
+     * @param maxDepth {number}
+     * @return {HTMLElement|null}
+     */
+    #findLinkInParents(node, maxDepth = 5) {
+        if (node.tagName === 'A') {
+            return node;
+        }
+        if (node.hasAttribute('href')) {
+            return node;
+        }
+        if (node.parentElement) {
+            return this.#findLinkInParents(node.parentElement);
+        }
+        return null;
+    }
+
+    /**
      * Blocks any link clicks on a page that would normally
      * go to other pages.  If the href is javascript or a
      * hashtag, it will be ignored by this handler.
@@ -134,11 +154,15 @@ export class LinkHandler {
             return;
         }
 
-        // handle tags embedded within anchors
-        if (!target.hasAttribute('href')) {
-            if (target.tagName !== 'A') {
-                target = target.closest('a');
-            }
+        // handle tags embedded within parents anchors
+        let altTarget = this.#findLinkInParents(target)
+
+        // find nearest anchor is no target found yet
+        if (!altTarget) {
+            target = target.closest('a');
+        }
+        else {
+            target = altTarget;
         }
 
         // exit if no link found to target
