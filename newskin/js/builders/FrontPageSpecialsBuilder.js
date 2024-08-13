@@ -164,6 +164,9 @@ export class FrontPageSpecialsBuilder {
             let $productInfo = this.#buildProductInfo(product);
             $product.appendChild($productInfo);
 
+            // make entire product box a link to the product (vi LinkHandler.js)
+            $product.setAttribute('href', product.link);
+
         } // end .single-product
 
         return $product

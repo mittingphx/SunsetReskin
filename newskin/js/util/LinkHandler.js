@@ -3,6 +3,9 @@
 /**
  * Adds event handlers that intercepts link click on every link
  * on the page, including dynamically generated links.
+ *
+ * Also, any HtmlElement that has the attribute "href" will be
+ * treated as a link.
  */
 export class LinkHandler {
 
@@ -132,8 +135,10 @@ export class LinkHandler {
         }
 
         // handle tags embedded within anchors
-        if (target.tagName !== 'A') {
-            target = target.closest('a');
+        if (!target.hasAttribute('href')) {
+            if (target.tagName !== 'A') {
+                target = target.closest('a');
+            }
         }
 
         // exit if no link found to target
@@ -142,7 +147,7 @@ export class LinkHandler {
         }
 
         // intercept any link to another page
-        if (target.tagName === 'A') {
+        if (target.tagName === 'A' || target.hasAttribute('href')) {
             href = target.getAttribute('href');
             if (LinkHandler.isPageLink(href)) {
                 // if the link is not filtered out, then send it to
