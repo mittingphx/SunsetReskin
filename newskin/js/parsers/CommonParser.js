@@ -201,8 +201,6 @@ export class CommonParser {
         CommonParser.separateProductTextAndDescription(obj);
 
 
-
-
         //obj.link = $a.href; //.getAttribute('href');
         //obj.link = UrlHelper.makeRelativeUrl($a.href);
         obj.link = fixUrl($a.href);

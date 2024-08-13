@@ -13,6 +13,12 @@ export class SpecialProductItem extends IProductBase {
     text = '';
 
     /**
+     * This variable represents the optional description of this product.
+     * @type {string}
+     */
+    description = '';
+
+    /**
      * The href link for this product.
      * @type {string}
      */
