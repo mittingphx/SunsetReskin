@@ -29,7 +29,47 @@
     display: block !important;
 }
 
-/** Add to cart on category list **/
+/* block first-level menu from being clickable, you must go to the next level */
+
+.header .mega-category-menu > .sub-category > li > a {
+    cursor: context-menu;
+    color: black;
+}
+.header .mega-category-menu > .sub-category > li > a:hover,
+.header .mega-category-menu > .sub-category > li > a.hover /* have to use js when hovering over child to keep it highlighted */
+{
+    color: white;
+    background: #0167f3;
+}
+
+/* each level of menu sub-categories need to expand only the next level */
+
+
+.header .mega-category-menu .sub-category li:hover .inner-sub-1-category {
+    opacity: 1;
+    visibility: visible;
+    top: 0;
+}
+
+.header .mega-category-menu .inner-sub-1-category li:hover .inner-sub-2-category {
+    opacity: 1;
+    visibility: visible;
+    top: 0;
+}
+
+.header .mega-category-menu .inner-sub-2-category li:hover .inner-sub-3-category {
+    opacity: 1;
+    visibility: visible;
+    top: 0;
+}
+.header .mega-category-menu .inner-sub-3-category li:hover .inner-sub-4-category {
+    opacity: 1;
+    visibility: visible;
+    top: 0;
+}
+
+
+    /** Add to cart on category list **/
 .single-product {
     position: relative;
     padding: 0;
@@ -49,6 +89,7 @@
     background: #e8e8e8;
     padding: 5px;
     box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    cursor: default;
 }
 .single-product .product-add button {
     font-size: 0.9em;

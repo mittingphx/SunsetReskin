@@ -27,7 +27,7 @@ export class SunsetMenuBuilder {
      */
     #depthClasses = [
         'sub-category',
-        'inner-sub-category',
+        'inner-sub-1-category',
         'inner-sub-2-category',
         'inner-sub-3-category',
         'inner-sub-4-category'
@@ -50,7 +50,43 @@ export class SunsetMenuBuilder {
         if (!this.menu) {
             return null;
         }
-        return this.buildMenuNode(this.menu.items, 0);
+
+        // build the menu
+        let $menu = this.buildMenuNode(this.menu.items, 0);
+
+        // add event handlers to highlight top-level menus when children are hovered
+        this.#highlightTopLevelOnChildHover($menu);
+
+        // return the menu
+        return $menu;
+    }
+
+    /**
+     * Applies the hover effect to the top level menu items when the
+     * nested sub-menu is hovered.
+     * @param $menu {HTMLElement} the menu html
+     */
+    #highlightTopLevelOnChildHover($menu) {
+        // find all top-level menus items
+        $menu.querySelectorAll('li').forEach($li => {
+            if ($li.parentElement !== $menu) {
+                return;
+            }
+
+            // grab the top-level menu and the link to highlight
+            let $topLevel = $li;
+            let $topLevelLink = $topLevel.querySelector('a');
+
+            // all child lists need to highlight the top level when hovered
+            $topLevel.querySelectorAll('ul').forEach($childUl => {
+                $childUl.addEventListener('mouseover', (_) => {
+                    $topLevelLink.classList.add('hover');
+                });
+                $childUl.addEventListener('mouseout', (_) => {
+                    $topLevelLink.classList.remove('hover');
+                })
+            });
+        });
     }
 
     /**
@@ -67,6 +103,10 @@ export class SunsetMenuBuilder {
         // build the menu
         let $ul = document.createElement('ul');
         $ul.classList.add(this.#depthClasses[childDepth]);
+        if (childDepth > 0) {
+            $ul.classList.add('inner-sub-category');
+        }
+
         for (let i = 0; i < itemList.length; i++) {
             let $li = document.createElement('li');
             if (itemList[i].children.length <= 0) {
@@ -79,6 +119,8 @@ export class SunsetMenuBuilder {
             }
             $ul.appendChild($li);
         }
+
+        // return the menu
         return $ul;
     }
 

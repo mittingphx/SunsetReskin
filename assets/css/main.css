@@ -2371,13 +2371,13 @@ ol {
   display: block;
   position: relative;
 }
-
+/*
 .header .mega-category-menu .sub-category li:hover .inner-sub-category {
   opacity: 1;
   visibility: visible;
   top: 0;
 }
-
+*/
 .header .mega-category-menu .sub-category li .inner-sub-category {
   padding: 15px 0;
   position: absolute;
