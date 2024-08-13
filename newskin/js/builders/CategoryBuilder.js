@@ -474,10 +474,17 @@ export class CategoryBuilder {
                     $h4.innerHTML = product.text;
                     $divInfo.appendChild($h4);
 
+                    if (product.description) {
+                        let $p = document.createElement('p');
+                        $p.innerHTML = product.description;
+                        $divInfo.appendChild($p);
+                    }
+                    /*
                     let $a = document.createElement('a');
                     $a.href = product.link;
                     $a.innerHTML = product.text
                     $divInfo.appendChild($a);
+                    */
                 }
 
                 let $divPrice = document.createElement('div');

@@ -11,7 +11,6 @@
 import {CommonParser} from "./CommonParser.js";
 import {SunsetSkin} from "../SunsetSkin.js";
 import {UrlHelper} from "../UrlHelper.js";
-import {DomHelper} from "../util/DomHelper.js";
 import {Format} from "../util/Format.js";
 
 /**
@@ -262,19 +261,10 @@ export class ProductDetailParser {
             'MainContent_LblPalette': { field: 'pallet', type: 'text' },
             'MainContent_LblPrice': { field: 'priceString', type: 'text' },
         };
-
-        DomHelper.mapSpanContent(item, $detail, propMap);
+        CommonParser.mapSpanContent(item, $detail, propMap);
 
         // separate out text from description
-        if (item.text) {
-            let text = item.text;
-            const divider = '<br>';
-            let firstLineEnd = text.indexOf(divider);
-            if (firstLineEnd > 0) {
-                item.text = text.substring(0, firstLineEnd);
-                item.description = text.substring(firstLineEnd + divider.length);
-            }
-        }
+        CommonParser.separateProductTextAndDescription(item);
     }
 
     /**

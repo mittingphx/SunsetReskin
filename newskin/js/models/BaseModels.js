@@ -20,6 +20,12 @@ export class IProductBase {
     text = '';
 
     /**
+     * Extra information about the product
+     * @type {string}
+     */
+    description = '';
+
+    /**
      * The link to use for this product
      * @type {string}
      */

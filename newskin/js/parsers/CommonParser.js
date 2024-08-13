@@ -149,7 +149,7 @@ export class CommonParser {
      * hash to map the text labels to object properties.
      * @param $node {HTMLElement}
      * @param obj {*} reference to the object to update
-     * @param propMap {*}
+     * @param propMap {Object<string, string>}
      */
     static applySpanProductData($node, obj, propMap) {
 
@@ -194,11 +194,85 @@ export class CommonParser {
     static getProductImageAndLinkFromNode($node, obj) {
         let $a = $node.querySelector('a');
         if (!$a) return false;
-        obj.text = CommonParser.stripWhitespace($a.textContent);
+
+        //obj.text = CommonParser.stripWhitespace($a.textContent);
+
+        obj.text = $a.innerHTML;
+        CommonParser.separateProductTextAndDescription(obj);
+
+
+
+
         //obj.link = $a.href; //.getAttribute('href');
         //obj.link = UrlHelper.makeRelativeUrl($a.href);
         obj.link = fixUrl($a.href);
         obj.image = CommonParser.getImageFromStyle($a.querySelector('.divImage'));
         return true;
+    }
+
+    /**
+     * Looks for a <br> in the text property of the given item and separates out
+     * the rest into the description property.
+     * @param item {object}
+     */
+    static separateProductTextAndDescription(item) {
+        if (item.text) {
+            let text = item.text;
+            const divider = '<br>';
+            let firstLineEnd = text.indexOf(divider);
+            if (firstLineEnd > 0) {
+                item.text = text.substring(0, firstLineEnd);
+                item.description = text.substring(firstLineEnd + divider.length);
+            }
+        }
+    }
+
+
+    /**
+     * @typedef {Object} SpanMapItem
+     * One item in a SpanMap
+     * @property {string} field - The name of the field to assign in an object
+     * @property {string} type - The type of the field within a <span>
+     */
+
+    /**
+     * @typedef {Object.<string, SpanMapItem>} SpanMap
+     * Maps the DOM id of a field to an item describing the field within an
+     * object to map the value to, and what type of data is expected within
+     * the <span>.
+     */
+
+    /**
+     * Maps the content of all <span> elements within a given parent element using a mapping object.
+     *
+     * @param {object} obj - The object to map the content of the <span> elements to.
+     * @param {HTMLElement} $parent - The parent element containing the <span> elements to be mapped.
+     * @param {SpanMap} spanMap - The mapping object used to map the content of the <span> elements.
+     * @return {void}
+     */
+    static mapSpanContent(obj, $parent, spanMap) {
+
+        // find each <span> in the parent
+        let $spans = $parent.querySelectorAll('span');
+        for (let i = 0; i < $spans.length; i++) {
+
+            // determine if this span corresponds to a property
+            let key = $spans[i].getAttribute('id');
+            if (!key) continue;
+
+            // grab details by span id if defined in the map
+            if (key in spanMap) {
+                let map = spanMap[key];
+                if (map.type === 'text') {
+                    obj[map.field] = $spans[i].textContent;
+                }
+                else if (map.type === 'number') {
+                    obj[map.field] = parseFloat($spans[i].textContent);
+                }
+                else if (map.type === 'html') {
+                    obj[map.field] = $spans[i].innerHTML;
+                }
+            }
+        }
     }
 }
