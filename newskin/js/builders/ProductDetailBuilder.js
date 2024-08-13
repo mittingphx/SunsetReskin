@@ -308,6 +308,15 @@ export class ProductDetailBuilder {
                 $productInfo.appendChild($productInfoH2);
             }
 
+            // description (optional)
+            if (productItem.description) {
+                let $productInfoP = document.createElement('p');
+                {
+                    $productInfo.appendChild($productInfoP);
+                    $productInfoP.innerHTML = productItem.description;
+                }
+            }
+
             // category
             if (productItem.category) {
                 let $productInfoP = document.createElement('p');

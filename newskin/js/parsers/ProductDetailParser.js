@@ -1,4 +1,3 @@
-// noinspection JSUnusedGlobalSymbols
 
 /**
  * Project: Sunset Wholesale West Website
@@ -9,10 +8,11 @@
  *  Classes for reading product detail data from the old website.
  */
 
-import {UrlHelper} from "../UrlHelper.js";
 import {CommonParser} from "./CommonParser.js";
-import {Format} from "../util/Format.js";
 import {SunsetSkin} from "../SunsetSkin.js";
+import {UrlHelper} from "../UrlHelper.js";
+import {DomHelper} from "../util/DomHelper.js";
+import {Format} from "../util/Format.js";
 
 /**
  * Model class for parsed product detail data.
@@ -20,13 +20,15 @@ import {SunsetSkin} from "../SunsetSkin.js";
 export class ProductDetailItem {
 
     /**
-     * The display text for this product item.
+     * The display text for this product item.  This comes from the
+     * first line of LblItemDesc.  The rest is used as the description.
      * @type {string}
      */
     text = '';
 
     /**
-     * Text description for this product (not currently used).
+     * Text description for this product, which comes from the stylized
+     * text after the first line of LblItemDesc.
      * @type {string}
      */
     description = '';
@@ -56,13 +58,6 @@ export class ProductDetailItem {
      * @type {ProductCategoryBreadcrumb|null}
      */
     category = null;
-
-    /**
-     * Features of this product (not currently used).
-     *
-     * @type {[string]}
-     */
-    features = [];
 
     /**
      * Size to display for this product.
@@ -111,12 +106,6 @@ export class ProductDetailItem {
      * @type {string}
      */
     preDiscountPrice = '';
-
-    /**
-     * Shipping options (not currently used)
-     * @type {[]}
-     */
-    shippingOptions = [];
 
     /**
      * Options for the product like color or size (not currently used)
@@ -169,7 +158,6 @@ export class ProductDetailParser {
     constructor(source) {
         this.sourceDocument = source || document;
     }
-
 
     /**
      * Loads a product detail from the source document, assuming it is
@@ -266,29 +254,25 @@ export class ProductDetailParser {
 
         // span labels that map to properties
         const propMap = {
-            'ItemDesc': 'text',
-            'Size': 'size',
-            'Pack': 'pack',
-            'ItemNo': 'itemNo',
-            'UPC': 'upc',
-            'Palette': 'pallet',
-            'Price': 'priceString'
+            'MainContent_LblItemDesc': { field: 'text', type: 'html' },
+            'MainContent_LblSize': { field: 'size', type: 'text' },
+            'MainContent_LblPack': { field: 'pack', type: 'text' },
+            'MainContent_LblItemNo': { field: 'itemNo', type: 'text' },
+            'MainContent_LblUPC': { field: 'upc', type: 'text' },
+            'MainContent_LblPalette': { field: 'pallet', type: 'text' },
+            'MainContent_LblPrice': { field: 'priceString', type: 'text' },
         };
 
-        // check each span within the details area
-        let $spans = $detail.querySelectorAll('span');
-        for (let i = 0; i < $spans.length; i++) {
+        DomHelper.mapSpanContent(item, $detail, propMap);
 
-            // determine if this span corresponds to a property
-            let key = $spans[i].getAttribute('id');
-            if (!key || !key.toLowerCase().startsWith('MainContent_Lbl'.toLowerCase())) {
-                continue;
-            }
-
-            // grab details by span id
-            key = key.substring('MainContent_Lbl'.length);
-            if (key in propMap) {
-                item[propMap[key]] = $spans[i].textContent;
+        // separate out text from description
+        if (item.text) {
+            let text = item.text;
+            const divider = '<br>';
+            let firstLineEnd = text.indexOf(divider);
+            if (firstLineEnd > 0) {
+                item.text = text.substring(0, firstLineEnd);
+                item.description = text.substring(firstLineEnd + divider.length);
             }
         }
     }
