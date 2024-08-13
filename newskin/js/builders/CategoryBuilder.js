@@ -508,7 +508,7 @@ export class CategoryBuilder {
             // add to cart
             let $divAdd = document.createElement('div');
             {
-                $divAdd.classList.add('product-add');
+                $divAdd.classList.add('product-add', 'ignore-click');
                 $div.appendChild($divAdd);
                 let $label = document.createElement('label');
                 {

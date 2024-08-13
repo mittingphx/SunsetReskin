@@ -127,15 +127,23 @@ export class LinkHandler {
      * @return {HTMLElement|null}
      */
     #findLinkInParents(node, maxDepth = 5) {
+        // explicitly ignore any node set to specifically not use this handler
+        if (node.classList.contains('ignore-click')) {
+            return null;
+        }
+        // if we have a link, return it
         if (node.tagName === 'A') {
             return node;
         }
+        // if we have an href, return it
         if (node.hasAttribute('href')) {
             return node;
         }
-        if (node.parentElement) {
-            return this.#findLinkInParents(node.parentElement);
+        // otherwise search parents
+        if (node.parentElement && maxDepth > 0) {
+            return this.#findLinkInParents(node.parentElement, maxDepth - 1);
         }
+        // if we've reached max depth, return null
         return null;
     }
 
