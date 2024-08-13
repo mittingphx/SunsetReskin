@@ -12,6 +12,7 @@
 import {CommonParser} from "./CommonParser.js";
 import {SpecialProductItem} from "../models/SpecialProductItem.js";
 import {SpecialSectionItem} from "../models/SpecialSectionItem.js";
+import {CategoryParser} from "./CategoryParser.js";
 
 /**
  * Helper class for parsing specials on the front page.
@@ -64,10 +65,20 @@ export class FrontPageSpecialsParser {
 
                 let product = this.readFromDataNode($node);
                 this.currentSection.products.push(product);
-            }
-            else if (nodeType === 'qty') {
-                // Note: this is where you would implement the QTY input
-                // box if we decided to add it to the new skin
+
+                // grab the cell in the next row and make sure it's qty
+                let $qtyNode = CategoryParser.findCellOnNextRow($node);
+                if (!$qtyNode) {
+                    console.warn('could not find qty cell for product node', $node);
+                    continue;
+                }
+                if (this.getNodeType($qtyNode) !== 'qty') {
+                    console.warn('skipping qty cell of wrong type');
+                    continue;
+                }
+
+                // grab the mini-form within it
+                CategoryParser.readProductAddToCartForm($qtyNode, product);
             }
         }
         return sections;

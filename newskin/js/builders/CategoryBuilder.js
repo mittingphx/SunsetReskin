@@ -506,55 +506,69 @@ export class CategoryBuilder {
             })
 
             // add to cart
-            let $divAdd = document.createElement('div');
-            {
-                $divAdd.classList.add('product-add', 'ignore-click');
-                $div.appendChild($divAdd);
-                let $label = document.createElement('label');
-                {
-                    $label.setAttribute('for', 'qty');
-                    $label.innerText = 'Qty';
-                    $divAdd.appendChild($label);
-                }
-                let $qty = document.createElement('input');
-                {
-                    $qty.id = 'qty';
-                    $qty.size = 4;
-                    $divAdd.appendChild($qty);
-
-                    // this fixes a bug where addEventListener isn't working
-                    $qty.setAttribute('onkeyup', ClickHelper.registerFunction((e) => {
-                        product.$txtAdd.value = e.target.value;
-                    }));
-                }
-                let $btn = document.createElement('button');
-                {
-                    $btn.classList.add('btn', 'btn-primary');
-                    $btn.innerHTML = '<i class="lni lni-cart"></i> Add';
-                    $divAdd.appendChild($btn);
-
-                    // this fixes a bug where addEventListener isn't working
-                    $btn.setAttribute('onclick', ClickHelper.registerFunction((_) => {
-                        const skin = SunsetSkin.getInstance();
-                        skin.loginController.getStatus(loginStatus => {
-                            // show a warning (one time) if not logged in
-                            if (!loginStatus.loggedIn) {
-                                if (CategoryBuilder.shownLoginWarning) {
-                                    return;
-                                }
-                                CategoryBuilder.shownLoginWarning = true;
-                                alert('You must be logged in to add items to your cart');
-                                return;
-                            }
-                            // add to cart
-                            product.$btnAdd.click();
-                        });
-                    }));
-
-                }
-            }
+            let $addToCartSection = CategoryBuilder.createAddToCartSection(product);
+            $div.appendChild($addToCartSection);
         }
         return $div;
+    }
+
+    /**
+     * Adds the add to cart section for the product box.  This is
+     * a static method, so it can be called from other builders.
+     * @param product {CategoryProductItem|SpecialProductItem} the product data
+     * @returns {HTMLElement}
+     */
+    static createAddToCartSection(product) {
+
+        let $divAdd = document.createElement('div');
+        {
+            $divAdd.classList.add('product-add', 'ignore-click');
+            let $label = document.createElement('label');
+            {
+                $label.setAttribute('for', 'qty');
+                $label.innerText = 'Qty';
+                $divAdd.appendChild($label);
+            }
+            let $qty = document.createElement('input');
+            {
+                $qty.id = 'qty';
+                $qty.size = 4;
+                $divAdd.appendChild($qty);
+
+                // this fixes a bug where addEventListener isn't working
+                $qty.setAttribute('onkeyup', ClickHelper.registerFunction((e) => {
+                    product.$txtAdd.value = e.target.value;
+                }));
+            }
+            let $btn = document.createElement('button');
+            {
+                $btn.classList.add('btn', 'btn-primary');
+                $btn.innerHTML = '<i class="lni lni-cart"></i> Add';
+                $divAdd.appendChild($btn);
+
+                // this fixes a bug where addEventListener isn't working
+                $btn.setAttribute('onclick', ClickHelper.registerFunction((_) => {
+                    const skin = SunsetSkin.getInstance();
+                    skin.loginController.getStatus(loginStatus => {
+                        // show a warning (one time) if not logged in
+                        if (!loginStatus.loggedIn) {
+                            if (CategoryBuilder.shownLoginWarning) {
+                                return;
+                            }
+                            CategoryBuilder.shownLoginWarning = true;
+                            alert('You must be logged in to add items to your cart');
+                            return;
+                        }
+                        // add to cart
+                        product.$btnAdd.click();
+                    });
+                }));
+
+            }
+        }
+
+
+        return $divAdd;
     }
 
     /**

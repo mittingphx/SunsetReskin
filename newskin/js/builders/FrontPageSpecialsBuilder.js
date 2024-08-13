@@ -9,6 +9,7 @@
 
 import {ImageHelper} from "../util/ImageHelper.js";
 import {SizeHelper} from "../util/SizeHelper.js";
+import {CategoryBuilder} from "./CategoryBuilder.js";
 
 /**
  * Builds the HTML for the special offers on the front page.
@@ -167,6 +168,9 @@ export class FrontPageSpecialsBuilder {
             // make entire product box a link to the product (vi LinkHandler.js)
             $product.setAttribute('href', product.link);
 
+            // add to cart
+            let $addToCartSection = CategoryBuilder.createAddToCartSection(product);
+            $product.appendChild($addToCartSection);
         } // end .single-product
 
         return $product

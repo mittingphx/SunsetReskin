@@ -51,7 +51,7 @@ export class CategoryParser {
                 ret.items.push(product);
 
                 // grab the cell in the next row and make sure it's qty
-                let $qtyNode = this.findCellOnNextRow($node);
+                let $qtyNode = CategoryParser.findCellOnNextRow($node);
                 if (!$qtyNode) {
                     console.warn('could not find qty cell for product node', $node);
                     continue;
@@ -62,24 +62,7 @@ export class CategoryParser {
                 }
 
                 // grab the mini-form within it
-                const $qtyInputs = $qtyNode.querySelectorAll('input');
-                for (let j = 0; j < $qtyInputs.length; j++) {
-                    let type = $qtyInputs[j].type;
-                    if (type === 'text') {
-                        product.$txtAdd = $qtyInputs[j];
-                    }
-                    else if (type === 'submit') {
-                        product.$btnAdd = $qtyInputs[j];
-                    }
-                }
-
-                // check that we found the fields in the old page
-                if (!product.$txtAdd) {
-                    console.warn('could not find add to cart text box', $qtyNode);
-                }
-                if (!product.$btnAdd) {
-                    console.warn('could not find add to cart button', $qtyNode);
-                }
+                CategoryParser.readProductAddToCartForm($qtyNode, product);
             }
         }
 
@@ -87,11 +70,40 @@ export class CategoryParser {
     }
 
     /**
+     * Fills the product.$txtAdd and product.$btnAdd fields from the
+     * inputs within a given node.
+     * @param $node {HTMLTableCellElement} cell with form elements to find
+     * @param product {CategoryProductItem|SpecialProductItem}
+     */
+    static readProductAddToCartForm($node, product) {
+
+        // grab the mini-form within it
+        const $qtyInputs = $node.querySelectorAll('input');
+        for (let j = 0; j < $qtyInputs.length; j++) {
+            let type = $qtyInputs[j].type;
+            if (type === 'text') {
+                product.$txtAdd = $qtyInputs[j];
+            }
+            else if (type === 'submit') {
+                product.$btnAdd = $qtyInputs[j];
+            }
+        }
+
+        // check that we found the fields in the old page
+        if (!product.$txtAdd) {
+            console.warn('could not find add to cart text box', $node);
+        }
+        if (!product.$btnAdd) {
+            console.warn('could not find add to cart button', $node);
+        }
+    }
+
+    /**
      * Returns the <td> directly underneath a given <td> in a table.
      * @param $td {HTMLTableCellElement}
      * @return {HTMLTableCellElement|null} the cell or null if not found
      */
-    findCellOnNextRow($td) {
+    static findCellOnNextRow($td) {
 
         // get parent row
         const $tr = $td.parentElement;
