@@ -218,8 +218,17 @@ export class SunsetSkin {
             // if the state is null, then we need to reload the initial page
             let url = event.state === null ? document.location + '' : event.state.url;
             this.navigateTo(url).then(_ => {
-                //console.log('navigate finished: ' + url);
+                // hide preloader
                 this.preloader.ready();
+
+                // restore scroll position
+                if (event.state && event.state.scroll) {
+                    console.log('restoring scroll to ' + event.state.scroll);
+                    window.scrollTo(0, event.state.scroll);
+                }
+                else {
+                    console.log('no scroll to restore in history state');
+                }
             });
         });
     }
@@ -310,8 +319,11 @@ export class SunsetSkin {
             return;
         }
 
-        // update history api
-        history.pushState({ url: url }, '', url);
+        // update history api, storing the url and scroll position
+        let scroll = document.documentElement.scrollTop;
+        let state = { url: url, scroll: scroll };
+        history.pushState(state, '', url);
+        console.log('history state: ' + JSON.stringify(state));
 
         // let progress bar finish and show new page
         const NEW_SKIN_DELAY = 100;

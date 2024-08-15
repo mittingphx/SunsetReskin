@@ -226,6 +226,7 @@ export class CategoryBuilder {
                                 $pagerUl.classList.add('pagination-list');
                                 $pager.appendChild($pagerUl);
 
+                                /*
                                 let tempActivePage = 2;
                                 for (let page = 1; page < 4; page++) {
                                     let $pagerLi = document.createElement('li');
@@ -243,6 +244,8 @@ export class CategoryBuilder {
                                     }
 
                                 }
+
+                                 */
 
                                 let $pagerLiRight = document.createElement('li');
                                 {
@@ -339,34 +342,36 @@ export class CategoryBuilder {
         let $div = document.createElement('div');
         {
             $div.classList.add('pagination', 'left');
-            let $ul = document.createElement('ul');
-            {
-                $ul.classList.add('pagination-list');
-                $div.appendChild($ul);
-                for (let i = 0; i < pageControls.pages.length; i++) {
-                    let page = pageControls.pages[i];
-                    let $li = document.createElement('li');
-                    {
-                        $ul.appendChild($li);
-                        let $a = document.createElement('a');
+            if (pageControls.pages.length > 1) { // prevent just showing the number 1 as a page
+                let $ul = document.createElement('ul');
+                {
+                    $ul.classList.add('pagination-list');
+                    $div.appendChild($ul);
+                    for (let i = 0; i < pageControls.pages.length; i++) {
+                        let page = pageControls.pages[i];
+                        let $li = document.createElement('li');
                         {
-                            $li.appendChild($a);
-                            $a.href = 'javascript:void(0)';
-                            if (page.type === 'current') {
-                                $a.innerHTML = page.text;
-                                $li.classList.add('active');
-                            } else if (page.type === 'next') {
-                                $a.innerHTML = '<i class="lni lni-chevron-right"></i>';
-                            } else if (page.type === 'prev') {
-                                $a.innerHTML = '<i class="lni lni-chevron-left"></i>';
-                            } else if (page.type === 'page') {
-                                $a.innerHTML = page.text;
-                            } else {
-                                console.error('unknown page type: ' + page.type);
+                            $ul.appendChild($li);
+                            let $a = document.createElement('a');
+                            {
+                                $li.appendChild($a);
+                                $a.href = 'javascript:void(0)';
+                                if (page.type === 'current') {
+                                    $a.innerHTML = page.text;
+                                    $li.classList.add('active');
+                                } else if (page.type === 'next') {
+                                    $a.innerHTML = '<i class="lni lni-chevron-right"></i>';
+                                } else if (page.type === 'prev') {
+                                    $a.innerHTML = '<i class="lni lni-chevron-left"></i>';
+                                } else if (page.type === 'page') {
+                                    $a.innerHTML = page.text;
+                                } else {
+                                    console.error('unknown page type: ' + page.type);
+                                }
+                                $a.addEventListener('click', () => {
+                                    this.controller.pageButtonHandler(page);
+                                });
                             }
-                            $a.addEventListener('click', () => {
-                                this.controller.pageButtonHandler(page);
-                            });
                         }
                     }
                 }
@@ -566,8 +571,53 @@ export class CategoryBuilder {
                             alert('You must be logged in to add items to your cart');
                             return;
                         }
-                        // add to cart
-                        product.$btnAdd.click();
+
+                        // --- add to cart in background post ---
+
+                        // block repeated calls
+                        if (window.addToCartCallRunning === true) {
+                            return;
+                        }
+                        window.addToCartCallRunning = true;
+
+
+                        // checks that the server response says the item was added
+                        function checkServerResponse(iframeDoc) {
+                            if (!iframeDoc) {
+                                throw new Error('no iframeDoc');
+                            }
+                            let $panelAdded = iframeDoc.querySelector('#MainContent_LblError');
+                            if (!$panelAdded) {
+                                throw new Error('no panel');
+                            }
+                            let content = $panelAdded.textContent;
+                            if (!content) {
+                                throw new Error('no textContent');
+                            }
+                            if (content.indexOf('Item Added to Cart') === -1) {
+                                throw new Error('no server confirmation received');
+                            }
+                        }
+
+                        // process the add to cart button in the background
+                        skin.aspNet.backgroundPostback(product.$btnAdd, (iframeDoc) => {
+
+                            window.addToCartCallRunning = false;
+                            try {
+                                // check for "Item Added to Cart"
+                                checkServerResponse(iframeDoc);
+
+                                // reload the cart and show success
+                                SunsetSkin.getInstance().forceReloadCartDropdown();
+                                alert('Item added to cart'); // TODO: custom notification would be better
+                            }
+                            catch (error) {
+                                alert('Add to cart failed.  Please try again. (' + error + ')');
+                            }
+                        });
+
+                        // reload cart
+                        skin.forceReloadCartDropdown();
                     });
                 }));
 

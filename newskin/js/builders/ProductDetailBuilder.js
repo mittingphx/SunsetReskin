@@ -1,3 +1,4 @@
+
 /**
  * Project: Sunset Wholesale West Website
  * File:    ProductDetailBuilder.js
@@ -9,6 +10,7 @@
 
 import {UrlHelper} from "../UrlHelper.js";
 import {ImageHelper} from "../util/ImageHelper.js";
+import {SunsetSkin} from "../SunsetSkin.js";
 
 /**
  * Builds the breadcrumb area above the product details.
@@ -434,7 +436,6 @@ export class ProductDetailBuilder {
                 $row.classList.add('row', 'align-items-end');
                 $bottom.appendChild($row);
 
-
                 // add to cart button
                 let $cell1 = document.createElement('div');
                 {
@@ -459,34 +460,44 @@ export class ProductDetailBuilder {
                                     document.location = '' + document.location;
                                 }
                                 else {
-                                    productItem.$btnAddToCart.click();
+                                    // checks that the server response says the item was added
+                                    function checkServerResponse(iframeDoc) {
+                                        if (!iframeDoc) {
+                                            throw new Error('no iframeDoc');
+                                        }
+                                        let $panelAdded = iframeDoc.querySelector('#MainContent_PanelAdded');
+                                        if (!$panelAdded) {
+                                            throw new Error('no panel');
+                                        }
+                                        let content = $panelAdded.textContent;
+                                        if (!content) {
+                                            throw new Error('no textContent');
+                                        }
+                                        if (content.indexOf('Item Added to Cart') === -1) {
+                                            throw new Error('no server confirmation received');
+                                        }
+                                    }
+
+                                    // process the add to cart button in the background
+                                    let skin = SunsetSkin.getInstance();
+                                    skin.aspNet.backgroundPostback(productItem.$btnAddToCart, (iframeDoc) => {
+                                        try {
+                                            // check for "Item Added to Cart"
+                                            checkServerResponse(iframeDoc);
+
+                                            // reload the cart and show success
+                                            SunsetSkin.getInstance().forceReloadCartDropdown();
+                                            alert('Item added to cart'); // TODO: custom notification would be better
+                                        }
+                                        catch (error) {
+                                            alert('Add to cart failed.  Please try again. (' + error + ')');
+                                        }
+                                    });
                                 }
                             });
                         }
                     }
                 }
-
-                /*
-                // compare button
-                let $cell2 = document.createElement('div');
-                {
-                    $cell2.classList.add('col-lg-4', 'col-md-4', 'col-12');
-                    $row.appendChild($cell2);
-
-                    let $compareButton = document.createElement('div');
-                    {
-                        $compareButton.classList.add('wish-button');
-                        let $btn = document.createElement('button');
-                        {
-                            $btn.classList.add('btn');
-                            $btn.innerHTML = '<i class="lni lni-reload"></i> Compare';
-                            $compareButton.appendChild($btn);
-                        }
-                        $cell2.appendChild($compareButton);
-                    }
-                }
-                */
-
 
                 // wish button
                 let $cell3 = document.createElement('div');

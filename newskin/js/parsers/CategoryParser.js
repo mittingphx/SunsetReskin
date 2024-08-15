@@ -99,17 +99,53 @@ export class CategoryParser {
     }
 
     /**
+     * @typedef {Object} FindCellOptions
+     * @property {string} thisRowClass class name on the current row to count toward cell index
+     * @property {string} nextRowClass class name on the next row to count toward cell index.
+     *
+     * This is needed because in some situations there are extra cells at the start and end of
+     * each row that aren't in the rows we want to search in.
+     */
+
+    /**
      * Returns the <td> directly underneath a given <td> in a table.
      * @param $td {HTMLTableCellElement}
+     * @param options {FindCellOptions|null} optional settings for finding the cell
      * @return {HTMLTableCellElement|null} the cell or null if not found
      */
-    static findCellOnNextRow($td) {
+    static findCellOnNextRow($td, options = null) {
+
+        // default options
+        options = options || {
+            thisRowClass: null,
+            nextRowClass: null
+        };
 
         // get parent row
         const $tr = $td.parentElement;
         if (!$tr || $tr.tagName !== 'TR') {
             console.warn('Parent of TD was expected to be a TR', $td, $tr);
             return null;
+        }
+
+        // determine cell index
+        let cellIndex;
+        if (options.thisRowClass) {
+            // if using a class name manually count the cell index
+            cellIndex = 0;
+            for (let i = 0; i < $tr.children.length; i++) {
+                let $siblingTD = $tr.children[i];
+                if ($siblingTD === $td) {
+                    break;
+                }
+                if ($siblingTD.classList.contains(options.thisRowClass)) {
+                    cellIndex++;
+                }
+            }
+        }
+        else {
+            // otherwise, use the cellIndex of the current cell
+            cellIndex = $td.cellIndex;
         }
 
         // grab the next row
@@ -120,16 +156,28 @@ export class CategoryParser {
         }
 
         // find the cell in the next row with the same cellIndex
-        const $nextRowCells = $nextRow.querySelectorAll('td');
-        for (let i = 0; i < $nextRowCells.length; i++) {
-            let $cell = $nextRowCells[i];
-            if ($cell.cellIndex === $td.cellIndex) {
-                return $cell;
+        let nextRowCellIndex = 0;
+        for (let i = 0; i < $nextRow.children.length; i++) {
+            let $nextRowTD = $nextRow.children[i];
+
+            // skip if class doesn't match (if specified)
+            if (options.nextRowClass) {
+                if (!$nextRowTD.classList.contains(options.nextRowClass)) {
+                    continue;
+                }
             }
+
+            // return if we found the cell
+            if (nextRowCellIndex === cellIndex) {
+                return $nextRowTD;
+            }
+
+            // otherwise increment cell index
+            nextRowCellIndex++;
         }
 
         // we didn't find the cell
-        console.warn('Could not find a cell in the next row with cellIndex=' + $td.cellIndex);
+        console.warn('Could not find a cell in the next row with cellIndex=' + cellIndex);
         return null;
     }
 
@@ -238,43 +286,88 @@ export class CategoryParser {
         if ($ddlPerPage) {
             itemsPerPage = Number($ddlPerPage.value);
         }
-        // console.log('itemsPerPage=' + itemsPerPage);
 
         // set the value on the visible page
         const $itemsPerPage = document.querySelector('#itemsPerPage');
         $itemsPerPage.value = itemsPerPage;
 
         // create event to trigger a postback when the value changes
-        $itemsPerPage.addEventListener('change', (event) => {
+        $itemsPerPage.addEventListener('change', CategoryParser.onItemsPerPageChanged);
 
-            // start showing a progress bar, this might take a while
-            let progress = new ProgressBar()
-            progress.anim(20, 2);
-            progress.setVisible(true);
+        // check if user has a saved default items per page in local storage.  otherwise use 108.
+        const savedItemsPerPageString = localStorage.getItem('itemsPerPage');
+        let savedItemsPerPage;
+        if (savedItemsPerPageString !== null) {
+            savedItemsPerPage = Number(savedItemsPerPageString);
+        }
+        else {
+            savedItemsPerPage = 108;
+        }
 
-            // get url to send postback on
-            const url = new URL('' + document.location);
-            url.searchParams.set('reskin', 'no');
+        // change the value of the dropdown if needed to match
+        if (savedItemsPerPage !== itemsPerPage) {
+            CategoryParser.onItemsPerPageChanged(null, savedItemsPerPage);
+        }
+    }
 
-            // setup postback target parameters
-            const target = {elementQuery: '#MainContent_DropPerPage', value:  event.target.value};
-            // console.log('AspNetPostback target', target);
+    /**
+     * Called when the dropdown for items per page changes, or can be called directly
+     * with the new number to set (but it must match a value within the dropdown).
+     * @param event {Event|null} the change event
+     * @param itemsPerPage {number|null} the optional value to force the value to (only valid when event is null)
+     */
+    static onItemsPerPageChanged(event, itemsPerPage = null) {
 
-            // send postback, reloading the page once sent
-            AspNetPostback.runInBackground(url.toString(), target,
-                (_, __) => {
-                    //alert('post back sent... reloading page');
-                    progress.anim(100, 15);
-                    // reload page to see the change
-                    setTimeout(() => {
-                        document.location = '' + document.location;
-                    }, 10);
-                }, (html) => {
-                    //console.log('post back html', html);
-                    //alert('got post back html');
-                    progress.anim(50, 2);
-                    return html;
-                });
+        // check input
+        if (!event) {
+            if (!itemsPerPage) {
+                console.error('onItemsPerPageChanged called with no event and no itemsPerPage');
+                return;
+            }
+        }
+        else {
+            if (!event.target) {
+                console.error('onItemsPerPageChanged called with event but no event.target');
+                return;
+            }
+            itemsPerPage = Number(event.target.value);
+        }
+
+        if (itemsPerPage === 0) {
+            console.error('onItemsPerPageChanged called with 0 items per page');
+            return;
+        }
+
+        // store that the user changed it from the default of 108 to save for later
+        localStorage.setItem('itemsPerPage', itemsPerPage.toString());
+
+        // start showing a progress bar, this might take a while
+        let progress = new ProgressBar()
+        progress.anim(20, 2);
+        progress.setVisible(true);
+
+        // get url old page url to send postback on
+        const url = new URL('' + document.location);
+        url.searchParams.set('reskin', 'no');
+
+        // setup postback target parameters
+        const target = {
+            elementQuery: '#MainContent_DropPerPage',
+            value: itemsPerPage
+        };
+
+        // send postback, reloading the page once sent
+        AspNetPostback.runInBackground( {
+            url: url.toString(),
+            target: target,
+            onPreWriteHtml: (html) => {
+                progress.anim(50, 2);
+                return html;
+            },
+            onPostbackComplete: (_, __) => {
+                progress.anim(100, 15);
+                setTimeout(() => { document.location = '' + document.location;}, 10);
+            },
         });
     }
 }

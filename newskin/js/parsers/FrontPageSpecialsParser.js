@@ -67,7 +67,8 @@ export class FrontPageSpecialsParser {
                 this.currentSection.products.push(product);
 
                 // grab the cell in the next row and make sure it's qty
-                let $qtyNode = CategoryParser.findCellOnNextRow($node);
+                const searchOptions = { thisRowClass: 'Center', nextRowClass: 'CenterQty' };
+                let $qtyNode = CategoryParser.findCellOnNextRow($node, searchOptions);
                 if (!$qtyNode) {
                     console.warn('could not find qty cell for product node', $node);
                     continue;

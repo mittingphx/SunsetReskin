@@ -30,6 +30,13 @@ export class AspNetPostback {
      * with the intention of triggering a postback on that element.
      */
 
+    /** @typedef IBackgroundArgs
+     *  @property url {string} url that has the postback to run
+     *  @property target {HTMLAnchorElement|HTMLButtonElement|HTMLInputElement|ILinkTarget|IElementTarget} the link we want to .net ServerClick on a page in the background (optional)
+     *  @property onPostbackComplete {WindowProxy, HTMLIFrameElement, function(*)} called when the postback is done
+     *  @property onPreWriteHtml {function(string)} optional function to modify the html before it is written (optional)
+     */
+
     /**
      * Loads a page from the old site into a hidden iframe in the
      * background and searches for the <a> link we passed in then does
@@ -39,12 +46,19 @@ export class AspNetPostback {
      *
      * If no link is passed in, then the initial page load is sent to the callback
      *
-     * @param url {string} url that has the postback to run
-     * @param $link {HTMLAnchorElement|HTMLButtonElement|HTMLInputElement|ILinkTarget|IElementTarget} the link we want to .net ServerClick on a page in the background (optional)
-     * @param callback {WindowProxy, HTMLIFrameElement, function(*)} called when the postback is done
-     * @param preWriteHtml {function(string)} optional function to modify the html before it is written (optional)
+     * @param url {string|IBackgroundArgs} url that has the postback to run (optionally can be an IBackgroundArgs containing all arguments)
+     * @param $link {HTMLAnchorElement|HTMLButtonElement|HTMLInputElement|ILinkTarget|IElementTarget|null} the link we want to .net ServerClick on a page in the background (optional)
+     * @param callback {WindowProxy, HTMLIFrameElement, function(*)|null} called when the postback is done
+     * @param preWriteHtml {function(string)|null} optional function to modify the html before it is written (optional)
      */
-    static runInBackground(url, $link, callback, preWriteHtml = null) {
+    static runInBackground(url, $link= null, callback= null, preWriteHtml = null) {
+
+        // handle IBackgroundArgs as first argument, which can be cleaner in the caller.
+        if (url && url.hasOwnProperty('url')) {
+            let args = url;
+            AspNetPostback.runInBackground(args.url, args.target, args.onPostbackComplete, args.onPreWriteHtml);
+            return;
+        }
 
         // get postback call
         let jsPostback = null;
