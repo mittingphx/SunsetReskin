@@ -215,10 +215,12 @@ export class ProductDetailParser {
         if ($btnKeepShopping) {
 
             // start reloading the cart dropdown
-            SunsetSkin.getInstance().forceReloadCartDropdown();
+            let skin = SunsetSkin.getInstance();
+            skin.forceReloadCartDropdown();
 
             // we need to display the last copy of this product when this happens.
-            alert('Item added to cart');
+            //alert('Item added to cart');
+            skin.alertNotification('Shopping Cart', 'Item added to your shopping cart successfully.');
 
             // we need to press the button to keep shopping
             $btnKeepShopping.click();

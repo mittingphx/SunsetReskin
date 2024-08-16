@@ -189,7 +189,6 @@ export class ViewCartBuilder {
                 $a.appendChild($image);
             }
 
-
             // product text and link
             let $cell1 = document.createElement('div');
             {

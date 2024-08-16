@@ -205,6 +205,7 @@ export class SunsetSkin {
                 //console.log('load webpage completed');
                 this.preloader.ready();
             });
+
         });
 
         // monitor history
@@ -231,6 +232,9 @@ export class SunsetSkin {
                 }
             });
         });
+
+
+
     }
 
     /**
@@ -440,6 +444,55 @@ export class SunsetSkin {
             this.getLoginStatus(resolve);
         });
         return await promise;
+    }
+
+    /**
+     * Shows an alert notification that disappears automatically after a few seconds.
+     * @param title {string} the main message of the alert
+     * @param message {string} the smaller details of the alert
+     */
+    alertNotification(title, message) {
+
+        console.log('alertNotification:', title, message);
+
+        // create the notification
+        let $notification = document.createElement('div');
+        $notification.className = 'popup-notification';
+        $notification.innerHTML = `
+            <h1>${title}</h1>
+            <p>${message}</p>
+            <button class="btn">Closing in 5...</button>
+        `;
+
+        // handle closing animation
+        let closed = false;
+        const fnClose = _ => {
+            closed = true;
+            $notification.style.animation = 'slideOut 0.5s';
+            setTimeout(_ => $notification.remove(), 500);
+        };
+
+        // close on button click
+        let $btn = $notification.querySelector('.btn');
+        $btn.addEventListener('click', _ => {
+            fnClose();
+        });
+
+        // add it to the body
+        document.body.appendChild($notification);
+
+        // do the countdown
+        let secondsLeft = 5;
+        const timer = setInterval(_ => {
+            $btn.innerHTML = `Closing in ${secondsLeft}...`;
+            secondsLeft -= 1;
+            if (closed || secondsLeft < 0) {
+                clearInterval(timer);
+                if (!closed) {
+                    fnClose();
+                }
+            }
+        }, 1000);
     }
 
     /**

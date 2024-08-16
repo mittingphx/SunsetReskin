@@ -568,7 +568,8 @@ export class CategoryBuilder {
                                 return;
                             }
                             CategoryBuilder.shownLoginWarning = true;
-                            alert('You must be logged in to add items to your cart');
+
+                            skin.alertNotification('Not Logged In', 'You must be logged in to add items to your cart');
                             return;
                         }
 
@@ -608,8 +609,10 @@ export class CategoryBuilder {
                                 checkServerResponse(iframeDoc);
 
                                 // reload the cart and show success
-                                SunsetSkin.getInstance().forceReloadCartDropdown();
-                                alert('Item added to cart'); // TODO: custom notification would be better
+                                let skin = SunsetSkin.getInstance();
+                                skin.forceReloadCartDropdown();
+                                //alert('Item added to cart');
+                                skin.alertNotification('Shopping Cart', 'Item added to your shopping cart successfully.');
                             }
                             catch (error) {
                                 alert('Add to cart failed.  Please try again. (' + error + ')');

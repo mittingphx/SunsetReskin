@@ -486,8 +486,11 @@ export class ProductDetailBuilder {
                                             checkServerResponse(iframeDoc);
 
                                             // reload the cart and show success
-                                            SunsetSkin.getInstance().forceReloadCartDropdown();
-                                            alert('Item added to cart'); // TODO: custom notification would be better
+                                            let skin = SunsetSkin.getInstance();
+                                            skin.forceReloadCartDropdown();
+
+                                            skin.alertNotification('Shopping Cart', 'Item added to your shopping cart successfully.');
+//                                            alert('Item added to cart'); // TODO: custom notification would be better
                                         }
                                         catch (error) {
                                             alert('Add to cart failed.  Please try again. (' + error + ')');

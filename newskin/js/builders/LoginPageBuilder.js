@@ -148,9 +148,13 @@ export class LoginPageBuilder {
 
             // fix for "Form submission canceled because the form is not connected"
             let skin = SunsetSkin.getInstance();
+            if (!data.$regBtnSubmit) {
+                data.$regBtnSubmit = document.querySelector('#MainContent_BtnContinue');
+            }
+
             skin.aspNet.backgroundPostback(data.$regBtnSubmit, (iframeDoc) => {
 
-                alert('got to page 2 of registration');
+                console.log('got to page 2 of registration');
                 console.log(iframeDoc);
 
             });
