@@ -76,8 +76,10 @@ export class ViewCartParser {
                 $oldPO: 'input#MainContent_TxtPONumber',
                 $oldMessage: 'input#MainContent_TxtMessage',
                 //$btnSubmit: 'input#MainContent_BtnCheckOut',
-                $submitError: '#MainContent_lblErrorBottom'
-            })
+                $submitError: '#MainContent_lblErrorBottom',
+                $oldShippingAddress: 'select#MainContent_DropShipAddress',
+                $btnNewShippingAddress: 'input#MainContent_BtnAddShipAddress',
+            });
 
             cart.$btnSubmit = dom.$tableSummary.querySelector('input#MainContent_BtnCheckOut');
         }

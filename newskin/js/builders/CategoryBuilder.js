@@ -668,7 +668,7 @@ export class CategoryBuilder {
                             {
                                 $buttonA.classList.add('btn');
                                 $buttonA.href = product.link;
-                                $buttonA.innerHTML = '<i class="lni lni-cart"></i> Add to Cart';
+                                $buttonA.innerHTML = '<i class="lni lni-delivery"></i> Details';
                                 $button.appendChild($buttonA);
                             }
                         }
@@ -710,6 +710,10 @@ export class CategoryBuilder {
                     }
                 }
             }
+
+            // add to cart
+            let $addToCartSection = CategoryBuilder.createAddToCartSection(product);
+            $div.appendChild($addToCartSection);
         }
         return $div;
     }

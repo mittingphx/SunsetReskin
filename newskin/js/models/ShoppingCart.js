@@ -55,6 +55,18 @@ export class ShoppingCart {
     $btnSubmit = null;
 
     /**
+     * The dropdown with available addresses to ship to.
+     * @type {HTMLSelectElement|null}
+     */
+    $oldShippingAddress = null;
+
+    /**
+     * Button to add a new shipping address to the list.
+     * @type {HTMLInputElement|null}
+     */
+    $btnNewShippingAddress = null;
+
+    /**
      * The update cart button in the shopping cart.
      * @type {HTMLInputElement}
      */
@@ -83,6 +95,12 @@ export class ShoppingCart {
      * @type {HTMLSelectElement}
      */
     $newShipping = null;
+
+    /**
+     * The <select> for selecting the address to ship to.
+     * @type {HTMLSelectElement|null}
+     */
+    $newShippingAddress = null;
 
     /**
      * The <input> for PO number in the shopping cart.

@@ -389,6 +389,8 @@ export class ViewCartBuilder {
                                         $li1.innerHTML = 'Total Price: <span class="total-price">' + Format.money(cart.total) + '</span>';
                                     }
 
+                                    // shopping options
+                                    let $addressLine = null;
                                     let $li2 = document.createElement('li');
                                     {
                                         $ul.appendChild($li2);
@@ -401,7 +403,7 @@ export class ViewCartBuilder {
 
                                         let $selectShip = document.createElement('select');
                                         {
-                                            $selectShip.style.width = '150px';
+                                            $selectShip.style.width = '200px';
                                             $span.appendChild($selectShip);
                                             cart.$newShipping = $selectShip
 
@@ -440,27 +442,79 @@ export class ViewCartBuilder {
                                                 case '1':
                                                     //cart.$oldShipping.value = 'Delivery';
                                                     cart.$oldShipping.selectedIndex = 0;
+                                                    if ($addressLine) {
+                                                        $addressLine.style.display = 'block';
+                                                    }
 
                                                     break;
                                                 case '2':
                                                     //cart.$oldShipping.value = 'Pick-Up';
                                                     cart.$oldShipping.selectedIndex = 1;
+                                                    $addressLine.style.display = 'none';
                                                     break;
                                             }
-                                        })
+                                        });
                                     } // end line 2
+
+                                    // shopping address options
+                                    if (cart.$oldShippingAddress) {
+                                        let $liAddress = document.createElement('li');
+                                        {
+                                            $addressLine = $liAddress;
+                                            $ul.appendChild($liAddress);
+                                            $liAddress.innerHTML = 'Ship To: ';
+
+                                            let $span = document.createElement('span');
+                                            {
+                                                $liAddress.appendChild($span);
+                                            }
+
+                                            let $selectShipAddress = document.createElement('select');
+                                            {
+                                                $selectShipAddress.style.width = '150px';
+                                                $span.appendChild($selectShipAddress);
+                                                cart.$newShippingAddress = $selectShipAddress
+
+                                                // copy values from old address
+                                                cart.$oldShippingAddress.querySelectorAll('option').forEach((option) => {
+                                                    let $option = document.createElement('option');
+                                                    {
+                                                        $option.value = option.value;
+                                                        $option.innerHTML = option.innerHTML;
+                                                        $selectShipAddress.appendChild($option);
+                                                    }
+                                                });
+
+                                                // on value change
+                                                $selectShipAddress.addEventListener('change', () => {
+                                                    cart.$oldShippingAddress.selectedValue = $selectShipAddress.value;
+                                                });
+
+                                                // add button click event (redirects to my account)
+                                                let $a = document.createElement('button');
+                                                {
+                                                    $a.classList.add('btn', 'btn-add-address', 'btn-primary');
+                                                    $a.innerHTML = 'Add';
+                                                    $span.appendChild($a);
+                                                    $a.addEventListener('click', () => {
+                                                        cart.$btnNewShippingAddress.click();
+                                                    });
+                                                }
+                                            }
+                                        } // end ship to address
+                                    }
 
                                     let $li3 = document.createElement('li');
                                     {
                                         $ul.appendChild($li3);
-                                        $li3.innerHTML = 'PO Number: ';
+                                        $li3.innerHTML = 'PO #: ';
                                         let $span = document.createElement('span');
                                         {
                                             $li3.appendChild($span);
 
                                             let $input = document.createElement('input');
                                             {
-                                                $input.style.width = '150px';
+                                                $input.style.width = '200px';
                                                 $input.type = 'text';
                                                 $input.placeholder = 'Enter PO Number';
                                                 $input.value = cart.$oldPO.value;
@@ -483,7 +537,7 @@ export class ViewCartBuilder {
 
                                             let $input = document.createElement('input');
                                             {
-                                                $input.style.width = '150px';
+                                                $input.style.width = '200px';
                                                 $input.type = 'text';
                                                 $input.placeholder = 'Enter Message';
                                                 $input.value = cart.$oldMessage.value;
