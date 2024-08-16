@@ -707,6 +707,14 @@ export class CategoryBuilder {
                             $price.innerHTML = product.price;
                             $divPrice.appendChild($price);
                         }
+
+                        // spacer to keep margin above add to cart
+                        // (because add-to-cart is absolute positioned relative to single-product)
+                        let $divSpacer = document.createElement('div');
+                        {
+                            $divSpacer.classList.add('product-spacer');
+                            $productInfo.appendChild($divSpacer);
+                        }
                     }
                 }
             }
