@@ -77,6 +77,9 @@ export class ViewCartParser {
                 $oldMessage: 'input#MainContent_TxtMessage',
                 //$btnSubmit: 'input#MainContent_BtnCheckOut',
                 $submitError: '#MainContent_lblErrorBottom',
+                $cartMessage: 'span#MainContent_LblCartMessage',
+                $tobaccoMessage: 'span#MainContent_LblTobaccoMessage',
+                $creditProcessing: 'span#MainContent_LblCreditProcessing',
                 $oldShippingAddress: 'select#MainContent_DropShipAddress',
                 $btnNewShippingAddress: 'input#MainContent_BtnAddShipAddress',
             });

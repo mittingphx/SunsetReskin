@@ -450,8 +450,9 @@ export class SunsetSkin {
      * Shows an alert notification that disappears automatically after a few seconds.
      * @param title {string} the main message of the alert
      * @param message {string} the smaller details of the alert
+     * @param seconds {number} the number of seconds to show the alert before auto-closing
      */
-    alertNotification(title, message) {
+    alertNotification(title, message, seconds = 5) {
 
         console.log('alertNotification:', title, message);
 
@@ -482,7 +483,7 @@ export class SunsetSkin {
         document.body.appendChild($notification);
 
         // do the countdown
-        let secondsLeft = 5;
+        let secondsLeft = seconds || 5;
         const timer = setInterval(_ => {
             $btn.innerHTML = `Closing in ${secondsLeft}...`;
             secondsLeft -= 1;

@@ -2,6 +2,7 @@ import {UrlHelper} from "../UrlHelper.js";
 import {ViewCartParser} from "../parsers/ViewCartParser.js";
 import {CartProductItem} from "./CartProductItem.js";
 import {SunsetSkin} from "../SunsetSkin.js";
+import {AspNetPostback} from "../util/AspNetPostback.js";
 
 /**
  * The contents of the customer's shopping cart.
@@ -121,6 +122,24 @@ export class ShoppingCart {
     $submitError = null;
 
     /**
+     * The <span> containing large error messages about the cart.
+     * @type {HTMLSpanElement|null}
+     */
+    $cartMessage = null;
+
+    /**
+     * The <span> containing errors about tobacco.
+     * @type {HTMLSpanElement|null}
+     */
+    $tobaccoMessage = null;
+
+    /**
+     * The <span> containing errors about credit processing
+     * @type {HTMLSpanElement|null}
+     */
+    $creditProcessing = null;
+
+    /**
      * Returns all the items in the shopping cart
      */
     get total() {
@@ -209,6 +228,17 @@ export class ShoppingCart {
     }
 
     /**
+     * Returns true if any of the many error fields have a message that
+     * needs to be displayed to the user.
+     */
+    hasErrorMessage() {
+        return (this.$submitError && this.$submitError.innerHTML)
+            || (this.$cartMessage && this.$cartMessage.innerHTML)
+            || (this.$tobaccoMessage && this.$tobaccoMessage.innerHTML)
+            || (this.$creditProcessing && this.$creditProcessing.innerHTML);
+    }
+
+    /**
      * Sets the DOM elements from the shopping cart in the old page
      * and presses submit button.
      */
@@ -290,8 +320,9 @@ export class ShoppingCart {
      * If it is missing from the cart, it is ignored as well.
      *
      * @param itemNo {number} the item number to remove
+     * @package autoConfirm {boolean} if true the confirmation prompt is skipped
      */
-    confirmRemove(itemNo) {
+    confirmRemove(itemNo, autoConfirm = false) {
 
         //console.log('ShoppingCart.remove(' + itemNo + ')');
 
@@ -306,7 +337,7 @@ export class ShoppingCart {
         // ask user for confirmation and click the update cart button, if we found the button
         let $btnUpdateCart = document.querySelector('.btn-update-cart');
         if ($btnUpdateCart) {
-            if (confirm('Are you sure you want to remove item #' + itemNo + ' (' + productDesc + ') from your cart?')) {
+            if (autoConfirm || confirm('Are you sure you want to remove item #' + itemNo + ' (' + productDesc + ') from your cart?')) {
                 $btnUpdateCart.click();
             }
         } else {
@@ -322,11 +353,19 @@ export class ShoppingCart {
      */
     remove(item) {
 
+        // url to remove from cart
+        let url = 'ViewCart.aspx?remove=' + item.itemNo;
+
         // go to the cart with a remove parameter to ask the user if they want to remove the item
         let skin = SunsetSkin.getInstance();
-        skin.navigateTo('ViewCart.aspx?remove=' + item.itemNo).then(() => {
-            //console.log('navigateTo(ViewCart.aspx) completed');
+        AspNetPostback.runInBackground(url, null, (iframeDoc) => {
+           skin.alertNotification('Shopping Cart', 'Item removed from cart.');
+           skin.forceReloadCartDropdown();
         });
+
+        // skin.navigateTo('ViewCart.aspx?remove=' + item.itemNo).then(() => {
+            //console.log('navigateTo(ViewCart.aspx) completed');
+        // });
     }
 
     /**

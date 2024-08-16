@@ -549,14 +549,36 @@ export class ViewCartBuilder {
                                         }
                                     } // end of line 4
 
-                                    if (cart.$submitError && cart.$submitError.innerHTML) {
-                                        let $li5 = document.createElement('li');
-                                        {
-                                            $ul.appendChild($li5);
-                                            $li5.innerHTML = '<span class="cart-error">' + cart.$submitError.innerHTML + '</span>';
+                                    if (cart.hasErrorMessage()) {
+
+                                        let errorAlert = '';
+                                        if (cart.$submitError && cart.$submitError.textContent) {
+                                            errorAlert += cart.$submitError.textContent + '<br>';
+                                        }
+                                        if (cart.$cartMessage && cart.$cartMessage.textContent) {
+                                            errorAlert += cart.$cartMessage.textContent + '<br>';
+                                        }
+                                        if (cart.$tobaccoMessage && cart.$tobaccoMessage.textContent) {
+                                            errorAlert += cart.$tobaccoMessage.textContent + '<br>';
+                                        }
+                                        if (cart.$creditProcessing && cart.$creditProcessing.textContent) {
+                                            errorAlert += cart.$creditProcessing.textContent + '<br>';
+                                        }
+
+                                        if (cart.$submitError && cart.$submitError.innerHTML) {
+                                            let $li5 = document.createElement('li');
+                                            {
+                                                $ul.appendChild($li5);
+                                                $li5.innerHTML = '<span class="cart-error">' + cart.$submitError.innerHTML + '</span>';
+                                            }
+                                        }
+
+                                        if (errorAlert) {
+                                            // also show a notification when an error is displayed to help users understand what's going on
+                                            let skin = SunsetSkin.getInstance();
+                                            skin.alertNotification('Checkout Message', errorAlert, 30);
                                         }
                                     } // end of line 5
-
 
                                 } // end subtotal lines
 
@@ -788,6 +810,7 @@ export class ViewCartBuilder {
 
         let $li = document.createElement('li');
         {
+            /*
             let $removeA = document.createElement('a');
             {
                 $removeA.classList.add('remove');
@@ -800,6 +823,8 @@ export class ViewCartBuilder {
 
                 $li.appendChild($removeA);
             }
+            */
+
 
             let $divImg = document.createElement('div');
             {

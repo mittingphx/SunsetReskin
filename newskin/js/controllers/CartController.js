@@ -138,8 +138,9 @@ export class CartController extends PageControllerBase {
                     }
 
                     // confirm remove process
+                    const SKIP_CONFIRMATION = true;
                     clearInterval(waitInterval);
-                    this.cart.confirmRemove(itemId);
+                    this.cart.confirmRemove(itemId, SKIP_CONFIRMATION);
                 }, 250);
             }
         }
