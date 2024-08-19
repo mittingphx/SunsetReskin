@@ -440,7 +440,7 @@ export class LoginPageBuilder {
         ]);
 
         // Register button click - submit step 2
-        newSkin.$btnRegister.addEventListener('click', (event) => {
+        newSkin.$btnSubmit.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();
             this.#submitRegistrationFormStep2(skin, oldSkin, newSkin);
