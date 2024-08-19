@@ -398,9 +398,6 @@ export class LoginPageBuilder {
 
         // TODO: is there an error message we should show here???
 
-        // set focus to first editable field
-        newSkin.$regFirstName.focus();
-
         // populate dropdowns
         if (oldSkin.$dropState) {
             newSkin.$dropState.innerHTML = oldSkin.$dropState.innerHTML;
@@ -420,24 +417,39 @@ export class LoginPageBuilder {
         // bind input elements on new skin to original form fields
         DomHelper.bindAllFormInputs([
             // registration page 2
-            {from: oldSkin.$txtFirstName, to: newSkin.$regFirstName},
-            {from: oldSkin.$txtLastName, to: newSkin.$regLastName},
-            {from: oldSkin.$txtCompany, to: newSkin.$regCompany},
-            {from: oldSkin.$txtAddress, to: newSkin.$regAddress},
-            {from: oldSkin.$txtApartment, to: newSkin.$regUnit},
-            {from: oldSkin.$txtZipCode, to: newSkin.$regZipCode},
-            {from: oldSkin.$txtCity, to: newSkin.$regCity},
-            {from: oldSkin.$dropState, to: newSkin.$dropState},
-            {from: oldSkin.$txtCounty, to: newSkin.$regCounty},
-            {from: oldSkin.$txtPhone, to: newSkin.$regPhone},
-            {from: oldSkin.$txtCell, to: newSkin.$regCell},
-            {from: oldSkin.$txtFax, to: newSkin.$regFax},
-            {from: oldSkin.$txtTaxID, to: newSkin.$regTaxID},
-            {from: oldSkin.$txtDun, to: newSkin.$regDbn},
-            {from: oldSkin.$dropPromoFlag, to: newSkin.$regSpam},
-            {from: oldSkin.$btnRegister, to: newSkin.$btnSubmit},
-            {from: oldSkin.$btnBack, to: newSkin.$btnBack}
+            {from: newSkin.$regFirstName, to: oldSkin.$txtFirstName},
+            {from: newSkin.$regLastName, to: oldSkin.$txtLastName},
+            {from: newSkin.$regCompany, to: oldSkin.$txtCompany},
+            {from: newSkin.$regAddress, to: oldSkin.$txtAddress},
+            {from: newSkin.$regUnit, to: oldSkin.$txtApartment},
+            {from: newSkin.$regZipCode, to: oldSkin.$txtZipCode},
+            {from: newSkin.$regCity, to: oldSkin.$txtCity},
+            {from: newSkin.$dropState, to: oldSkin.$dropState},
+            {from: newSkin.$regCounty, to: oldSkin.$txtCounty},
+            {from: newSkin.$regPhone, to: oldSkin.$txtPhone},
+            {from: newSkin.$regCell, to: oldSkin.$txtCell},
+            {from: newSkin.$regFax, to: oldSkin.$txtFax},
+            {from: newSkin.$regTaxID, to: oldSkin.$txtTaxID},
+            {from: newSkin.$regDbn, to: oldSkin.$txtDun},
+            {from: newSkin.$regSpam, to: oldSkin.$dropPromoFlag}
         ]);
+
+        // set focus to first editable field that isn't empty
+        newSkin.$regFirstName.focus();
+
+        // manually copy over the name and company name, since bind isn't doing it (but should be)
+        if (oldSkin.$txtFirstName) {
+            newSkin.$regFirstName.value = oldSkin.$txtFirstName.value;
+            newSkin.$regLastName.focus();
+        }
+        if (oldSkin.$txtLastName) {
+            newSkin.$regLastName.value = oldSkin.$txtLastName.value;
+            newSkin.$regCompany.focus();
+        }
+        if (oldSkin.$txtCompany) {
+            newSkin.$regCompany.value = oldSkin.$txtCompany.value;
+            newSkin.$regAddress.focus();
+        }
 
         // Register button click - submit step 2
         newSkin.$btnSubmit.addEventListener('click', (event) => {
@@ -489,25 +501,25 @@ export class LoginPageBuilder {
         }
 
         // perform the button postback action in the background
-        skin.aspNet.backgroundPostback(data.$regBtnSubmit, (iframeDoc) => {
+        skin.aspNet.backgroundPostback(oldSkin.$btnRegister, (iframeDoc) => {
 
-            // show an error if we got one
-            let $submitError = null; // TODO: get errors
-            if ($submitError) {
-                // remove newlines, tabs, and spaces from string
-                $submitError.innerHTML = $submitError.innerHTML.replace(/[\r\n\t\s]+/g, '');
-            }
-            if ($submitError && $submitError.innerHTML) {
-                // show as notification
-                skin.alertNotification('Registration Error', $submitError.innerHTML, 10);
-                // show in form
-                // TODO: show errors.
+            // get result message
+            let $result = iframeDoc.querySelector('#MainContent_LblMessage');
+            if (!$result) {
+                alert('New account registration submitted, but no confirmation was received.  Please try again later.');
                 return;
             }
 
-            // TODO: show success
+            let success = $result.innerHTML.indexOf('Thank you') !== -1;
 
-            alert('Submission complete.  TODO: show success');
+            // show the result to the user
+            if (success) {
+                skin.alertNotification('Registration Submitted Successfully', $result.innerHTML, 99);
+                this.#showLoginForm();
+            }
+            else {
+                skin.alertNotification('Registration Submission Failed', $result.innerHTML, 99);
+            }
         });
 
     }
