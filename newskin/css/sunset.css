@@ -837,3 +837,11 @@ table.admin-table a:hover i {
     font-weight: bold;
     border: none !important;
 }
+
+/** TO DEBUG HIDDEN IFRAMES - add this class **/
+.debug-frame {
+    display: block;
+    position: fixed;
+    z-index: 9999999;
+    top:0;left:0;width:800px;height:600px;
+}
