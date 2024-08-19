@@ -151,18 +151,26 @@ export class LoginPageBuilder {
             if (!data.$regBtnSubmit) {
                 data.$regBtnSubmit = document.querySelector('#MainContent_BtnContinue');
             }
+            data.$regBtnSubmit.removeAttribute('disabled');
 
             // perform the button postback action in the background
             skin.aspNet.backgroundPostback(data.$regBtnSubmit, (iframeDoc) => {
 
                 // show an error if we got one
-                let $submitError = iframeDoc.querySelector('.failureNotification');
+                let $submitError = iframeDoc.querySelector('#MainContent_ValSumNewCustomer');
                 if ($submitError) {
-                    // show in form
-                    data.$regMessage.innerHTML = $submitError.innerHTML;
-                    data.$regMessage.style.display = 'block';
+                    // remove newlines, tabs, and spaces from string
+                    $submitError.innerHTML = $submitError.innerHTML.replace(/[\r\n\t\s]+/g, ' ');
+                }
+                if ($submitError && $submitError.innerHTML) {
                     // show as notification
                     skin.alertNotification('Registration Error', $submitError.innerHTML, 10);
+                    // show in form
+                    if (!data.$regMessage) {
+                        data.$regMessage = document.querySelector('#reg-message');
+                    }
+                    data.$regMessage.innerHTML = $submitError.innerHTML;
+                    data.$regMessage.style.display = 'block';
                     return;
                 }
 
