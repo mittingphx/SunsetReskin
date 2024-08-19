@@ -146,13 +146,29 @@ export class LoginPageBuilder {
             // submits and then show the 2nd page of the form.
 
 
-            // fix for "Form submission canceled because the form is not connected"
+            // make sure we have a link to the registration submit button
             let skin = SunsetSkin.getInstance();
             if (!data.$regBtnSubmit) {
                 data.$regBtnSubmit = document.querySelector('#MainContent_BtnContinue');
             }
 
+            // perform the button postback action in the background
             skin.aspNet.backgroundPostback(data.$regBtnSubmit, (iframeDoc) => {
+
+                // show an error if we got one
+                let $submitError = iframeDoc.querySelector('.failureNotification');
+                if ($submitError) {
+                    // show in form
+                    data.$regMessage.innerHTML = $submitError.innerHTML;
+                    data.$regMessage.style.display = 'block';
+                    // show as notification
+                    skin.alertNotification('Registration Error', $submitError.innerHTML, 10);
+                    return;
+                }
+
+                // show the 2nd page
+                alert('TODO: show page 2 of registration here');
+
 
                 console.log('got to page 2 of registration');
                 console.log(iframeDoc);
