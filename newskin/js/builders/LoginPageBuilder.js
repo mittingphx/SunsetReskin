@@ -398,12 +398,28 @@ export class LoginPageBuilder {
 
         // TODO: is there an error message we should show here???
 
+        // set focus to first editable field
+        newSkin.$regFirstName.focus();
+
+        // populate dropdowns
+        if (oldSkin.$dropState) {
+            newSkin.$dropState.innerHTML = oldSkin.$dropState.innerHTML;
+        }
+        if (oldSkin.$dropPromoFlag) {
+            newSkin.$regSpam.innerHTML = oldSkin.$dropPromoFlag.innerHTML;
+        }
+
+        // populate fixed fields
+        if (oldSkin.$lblEmail) {
+            newSkin.$regEmail.value = oldSkin.$lblEmail.innerHTML;
+        }
+        if (oldSkin.$lblAcctNo) {
+            newSkin.$regAcctNo.value = oldSkin.$lblAcctNo.innerHTML;
+        }
 
         // bind input elements on new skin to original form fields
         DomHelper.bindAllFormInputs([
             // registration page 2
-            {from: oldSkin.$lblEmail, to: newSkin.$regEmail},
-            {from: oldSkin.$lblAcctNo, to: newSkin.$regAcctNo},
             {from: oldSkin.$txtFirstName, to: newSkin.$regFirstName},
             {from: oldSkin.$txtLastName, to: newSkin.$regLastName},
             {from: oldSkin.$txtCompany, to: newSkin.$regCompany},

@@ -830,3 +830,10 @@ table.admin-table a:hover i {
 .alert-white {
     color: white;
 }
+
+
+.form-group .form-disabled {
+    color: darkgray;
+    font-weight: bold;
+    border: none !important;
+}
