@@ -26,6 +26,7 @@ import {SkinToggleController} from "./controllers/SkinToggleController.js";
 import {SiteSearchController} from "./controllers/SiteSearchController.js";
 import {UrlHelper} from "./UrlHelper.js";
 import {ShoppingCart} from "./models/ShoppingCart.js";
+import {SessionHistory} from "./util/SessionHistory.js";
 
 /**
  * Analyzes the original HTML to figure out the contents of the menu
@@ -149,6 +150,9 @@ export class SunsetSkin {
         // create preloader
         this.preloader = new SunsetPreload();
 
+        // reload session history
+        SessionHistory.restore();
+
         // create component controllers
         this.loginController = new LoginController(this);
         this.cartController = new CartController(this);
@@ -209,7 +213,8 @@ export class SunsetSkin {
         });
 
         // monitor history
-        window.addEventListener('popstate', (event) => {
+        SessionHistory.addListener((event) => {
+        //window.addEventListener('popstate', (event) => {
 
             // warn if calling navigateTo() before calling loadNewSkinPage()
             if (this.#loadNewSkinPageCalled === false) {
@@ -326,8 +331,9 @@ export class SunsetSkin {
         // update history api, storing the url and scroll position
         let scroll = document.documentElement.scrollTop;
         let state = { url: url, scroll: scroll };
-        history.pushState(state, '', url);
-        console.log('history state: ' + JSON.stringify(state));
+        //history.pushState(state, '', url);
+        SessionHistory.push(state);
+        //console.log('history state: ' + JSON.stringify(state));
 
         // let progress bar finish and show new page
         const NEW_SKIN_DELAY = 100;
