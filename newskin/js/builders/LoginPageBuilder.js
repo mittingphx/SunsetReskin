@@ -314,7 +314,7 @@ export class LoginPageBuilder {
                 return;
             }
 
-            this.#buildRegistrationPage2(data, skin, iframeDoc)
+            this.#buildRegistrationPage2( skin, iframeDoc)
 
         });
 
@@ -322,11 +322,10 @@ export class LoginPageBuilder {
 
     /**
      * Shows Page 2 of the registration form.
-     * @param data {*} data object containing registration form elements
      * @param skin {SunsetSkin} the main application object for the skin
-     * @param iframeDoc {HTMLIFrameElement} the iframe document loaded in the hidden iframe
+     * @param iframeDoc {Document} the iframe document loaded in the hidden iframe
      */
-    #buildRegistrationPage2(data, skin, iframeDoc) {
+    #buildRegistrationPage2(skin, iframeDoc) {
 
         // check input
         if (!iframeDoc) {
@@ -394,9 +393,6 @@ export class LoginPageBuilder {
             $btnSubmit: '#btn-page2-register',
             $btnBack: '#btn-page2-back',
         })) {}
-
-
-        // TODO: is there an error message we should show here???
 
         // populate dropdowns
         if (oldSkin.$dropState) {
@@ -518,7 +514,15 @@ export class LoginPageBuilder {
                 this.#showLoginForm();
             }
             else {
-                skin.alertNotification('Registration Submission Failed', $result.innerHTML, 99);
+                let error = $result.innerHTML;
+                let $problem = iframeDoc.querySelector('#MainContent_ValSumNewCustomer');
+                if ($problem) {
+                    error += '\n\n' + $problem.innerHTML;
+                }
+                skin.alertNotification('Registration Submission Failed', error, 99);
+
+                // have to rebind the form to the new hidden iframe page
+                this.#buildRegistrationPage2(skin, iframeDoc);
             }
         });
 
