@@ -25,7 +25,7 @@ export class SessionHistory {
     static push(state) {
 
         // detect if this is a popstate event and ignore if so
-        let elapsed = Date.now() - SessionHistory.#lastPopStateTime;
+        // let elapsed = Date.now() - SessionHistory.#lastPopStateTime;
         if (SessionHistory.#isHistoryEvent()) {
             // alert('ignoring push call because this page is loaded because of a browser back/forward.  elapsed: ' + elapsed);
             return;
