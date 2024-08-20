@@ -13,11 +13,18 @@
  */
 export class IProductBase {
 
+
     /**
-     * The text to display for this product
+     * The display text for this product item.  (can have html)
      * @type {string}
      */
     text = '';
+
+    /**
+     * The display text for the image for this product. (cannot have html)
+     * @type {string}
+     */
+    altText = '';
 
     /**
      * Extra information about the product

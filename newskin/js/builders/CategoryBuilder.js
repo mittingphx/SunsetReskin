@@ -455,7 +455,7 @@ export class CategoryBuilder {
 
                 let $img = document.createElement('img');
                 $img.src = product.image;
-                $img.alt = product.text;
+                $img.alt = product.altText;
                 $divImage.appendChild($img);
 
                 ImageHelper.addMissingImageHandler($img);
@@ -657,7 +657,7 @@ export class CategoryBuilder {
 
                         let $img = document.createElement('img');
                         $img.src = product.image;
-                        $img.alt = product.text;
+                        $img.alt = product.altText;
                         $productImage.appendChild($img);
 
                         ImageHelper.addMissingImageHandler($img);

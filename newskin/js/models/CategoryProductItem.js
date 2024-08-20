@@ -10,10 +10,16 @@ export class CategoryProductItem extends IProductBase {
     // extends Classes([IHasPrices, IHasLinkAndImage])
 
     /**
-     * The display text for this product item.
+     * The display text for this product item.  (can have html)
      * @type {string}
      */
     text = '';
+
+    /**
+     * The display text for the image for this product. (cannot have html)
+     * @type {string}
+     */
+    altText = '';
 
     /**
      * The href link for this product.

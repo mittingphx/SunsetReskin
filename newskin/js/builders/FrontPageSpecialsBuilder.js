@@ -198,7 +198,7 @@ export class FrontPageSpecialsBuilder {
                 product.image = product.image.replace('0thn', '0');
 
                 $productImageImg.src = product.image;
-                $productImageImg.alt = product.text;
+                $productImageImg.alt = product.altText || product.text;
                 $productImage.appendChild($productImageImg);
 
                 ImageHelper.addMissingImageHandler($productImageImg);

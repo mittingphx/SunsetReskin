@@ -198,6 +198,7 @@ export class CommonParser {
         //obj.text = CommonParser.stripWhitespace($a.textContent);
 
         obj.text = $a.innerHTML;
+        obj.altText = CommonParser.stripWhitespace($a.textContent);
         CommonParser.separateProductTextAndDescription(obj);
 
 
