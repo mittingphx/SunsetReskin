@@ -35,8 +35,10 @@ export class CategoryController extends PageControllerBase {
 
     /**
      * Builds the category or search results.
+     *
+     * @param targetFrame {HTMLIFrameElement} the frame to run paging postbacks on (optional)
      */
-    build() {
+    build(targetFrame = null) {
 
         let $oldBody = this.skin.html.oldHtmlBody;
         if (!$oldBody) {
@@ -50,7 +52,6 @@ export class CategoryController extends PageControllerBase {
             console.error('Could not find table with class "Items"');
             return;
         }
-
 
         // parse from the old to build the category grid
         let parser = new CategoryParser($oldBody);
@@ -115,7 +116,7 @@ export class CategoryController extends PageControllerBase {
         }
 
         if ($pagingInsert) {
-            $pagingInsert.replaceWith(this.pageBuilder.buildPagingControls(paging));
+            $pagingInsert.replaceWith(this.pageBuilder.buildPagingControls(paging, targetFrame));
         }
 
         // build the breadcrumbs in the header
@@ -136,6 +137,11 @@ export class CategoryController extends PageControllerBase {
         document.title = `${category.name} - Sunset Wholesale West`;
     }
 
+    /**
+     * Removes references to the new skin from the html
+     * @param html {string} the html to strip references from
+     * @return {*|string} cleaned up html code
+     */
     #stripOutNewSkin(html) {
 
         // search for the filename
@@ -166,58 +172,55 @@ export class CategoryController extends PageControllerBase {
     }
 
     /**
-     * Handles the click event of a paging button, causing the page to reload.
+     * Handles the click event of a paging button, causing the page to
+     * reload.  Optionally accepts a frame to run the postback on, in
+     * the event that the paging button came from another postback result.
+     *
      * @param page {PageControlLink}
+     * @param targetFrame {HTMLIFrameElement} the frame to run the postback on (optional)
      */
-    pageButtonHandler(page) {
-
+    pageButtonHandler(page, targetFrame = null) {
 
         let url = new URL(document.location + '')
         url.searchParams.set('reskin', 'no');
 
-
         const onPreWrite = (html) => {
             // make sure the new skin doesn't run.
             html = this.#stripOutNewSkin(html);
-
-            //console.log('onPreWrite', html);
-            //alert('onPreWrite');
-
             return html;
         };
-        const onDocumentLoaded = (loadedDocument) => {
+        const onDocumentLoaded = (loadedDocument, loadedDocumentFrame) => {
             //console.log('onDocumentLoaded', loadedDocument);
             //alert('onDocumentLoaded');
 
             // reprocess the current page with the new old page data set
             this.skin.html.replaceOldDocument(loadedDocument.document);
-            this.build();
+            this.build(loadedDocumentFrame);
         }
 
-        AspNetPostback.runInBackground(url.href, page.$dom, onDocumentLoaded, onPreWrite);
+        // TODO: fix this paging bug
+        // selecting the page button seems to always run against the buttons on
+        // page 1 of the old skin, but we need to run it against the page we read
+        // the available buttons from... otherwise the button we want to press
+        // may be missing
 
-        /*
-        // we have to reconnect the original form to make this work
-        let oldBody = this.skin.html.oldHtmlBody;
-        if (!oldBody.parentElement) {
-            document.body.appendChild(oldBody);
+        // if this link came from the result of a postback, run it within those results
+        if (targetFrame) {
+            AspNetPostback.dynamicAnchorPostbackInLoadedFrame(
+                targetFrame,
+                page.$dom,
+                onDocumentLoaded
+            );
         }
-
-
-
-        // clicks the button in question and then the build html
-        // process for just the items data is re-triggered, replacing
-        // that portion of the document.
-        this.skin.aspNet.backgroundPostback(page.$dom, (loadedDocument) => {
-            this.skin.html.replaceOldDocument(loadedDocument);
-            this.build();
-
-            //this.skin.html.replaceDocument(loadedDocument);
-
-        })
-
-            */
-
+        // otherwise run it against the current page
+        else {
+            AspNetPostback.runInBackground(
+                url.href,
+                page.$dom,
+                onDocumentLoaded,
+                onPreWrite
+            );
+        }
     }
 
     /**

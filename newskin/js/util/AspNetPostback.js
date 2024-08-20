@@ -38,6 +38,30 @@ export class AspNetPostback {
      */
 
     /**
+     * Determines the postback link for a given link or button.
+     * @param $link {HTMLAnchorElement|HTMLButtonElement|HTMLInputElement|ILinkTarget} element connected to a postback
+     * @return {string|null} either the postback string or null if not found
+     */
+    static getPostback($link) {
+        let jsPostback = null;
+        if ($link) {
+            if ($link instanceof HTMLAnchorElement) {
+                jsPostback = $link.href;
+            } else if ($link instanceof HTMLButtonElement) {
+                jsPostback = $link.getAttribute('onclick');
+            } else if ($link instanceof HTMLInputElement) {
+                jsPostback = $link.getAttribute('onclick');
+            } else if ($link.elementQuery) {
+                jsPostback = $link.elementQuery;
+            } else {
+                console.error('Could not determine jsPostback for $link: ' + $link);
+                return null;
+            }
+        }
+        return jsPostback;
+    }
+
+    /**
      * Loads a page from the old site into a hidden iframe in the
      * background and searches for the <a> link we passed in then does
      * an ASP.net ServerClick on it, sending the callback references
@@ -61,21 +85,8 @@ export class AspNetPostback {
         }
 
         // get postback call
-        let jsPostback = null;
-        if ($link) {
-            if ($link instanceof HTMLAnchorElement) {
-                jsPostback = $link.href;
-            } else if ($link instanceof HTMLButtonElement) {
-                jsPostback = $link.getAttribute('onclick');
-            } else if ($link instanceof HTMLInputElement) {
-                jsPostback = $link.getAttribute('onclick');
-            } else if ($link.elementQuery) {
-                jsPostback = $link.elementQuery;
-            } else {
-                console.error('Could not determine jsPostback for $link: ' + $link);
-                return;
-            }
-        }
+        let jsPostback = AspNetPostback.getPostback($link);
+        if (!jsPostback) return;
 
         // use old site's form for editing shipping addresses
         PageLoadHelper.fetchIntoHiddenIframe(url,
@@ -138,8 +149,9 @@ export class AspNetPostback {
         newScript.innerHTML =` // click the link that has the postback we want to run
                 let aList = document.querySelectorAll('a');
                 let found = false;
+                let search = '${jsPostback}';
                 for (let a of aList) {
-                    if (a.href === '${jsPostback}') {
+                    if (a.href === search) {
                         try {
                             found = true;
                             a.click();
@@ -150,10 +162,59 @@ export class AspNetPostback {
                     }
                 }
                 if (!found) {
-                    console.error("could not find the link from the inner hidden iframe!!!");
+                    console.error("could not find the link '" + search + "' from the inner hidden iframe!!!");
+                    console.log(document.body);
                 }
             `;
         return newScript;
+    }
+
+    /**
+     * This searches against an iframe that is already loaded for a
+     * button to click on to generate a postback.  This is used for
+     * clicking buttons that generated server-side postbacks that
+     * were returned from another server-side postback.
+     * @param $iframe {HTMLIFrameElement} the iframe to run the postback on
+     * @param $link {HTMLAnchorElement|HTMLButtonElement|HTMLInputElement|ILinkTarget|IElementTarget|null} the link we want to .net ServerClick on a page in the background (optional)
+     * @param callback {WindowProxy, HTMLIFrameElement, function(*)|null} called when the postback is done
+     */
+    static dynamicAnchorPostbackInLoadedFrame($iframe, $link, callback) {
+
+        // get postback call
+        let jsPostback = AspNetPostback.getPostback($link);
+        if (!jsPostback) return;
+
+        // run the script we would normally inject into the iframe
+        let iframeBody = $iframe.contentWindow.document.body;
+        let wnd = $iframe.contentWindow;
+        let aList = iframeBody.querySelectorAll('a');
+        let found = false;
+        for (let a of aList) {
+            if (a.href === jsPostback) {
+                try {
+                    found = true;
+                    a.click();
+                }
+                catch (ex) {
+                    console.error(ex);
+                }
+            }
+        }
+        if (!found) {
+            console.error("dynamicAnchorPostback error: could not find the link '" + jsPostback + "' from the inner hidden iframe!!!");
+        }
+
+        // wait until page loads after postback
+        let onPostbackLoaded = () => {
+            // inputs we want are missing if we don't wait long enough
+            setTimeout(() => { callback(wnd, $iframe); }, 250);
+            // only listen for the first page load in this iframe
+            $iframe.removeEventListener('load', onPostbackLoaded);
+        };
+        $iframe.addEventListener('load', onPostbackLoaded, false);
+
+        // we can't use waitUntilPageChange because the url stays the same
+        // PageLoadHelper.waitUntilPageChange(wnd, async _ => { onPostbackLoaded(); });
     }
 
     /**

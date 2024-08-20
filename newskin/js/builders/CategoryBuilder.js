@@ -333,12 +333,14 @@ export class CategoryBuilder {
 
     /**
      * Builds the paging on the bottom of a category page from the
-     * PageControls object.
+     * PageControls object.  Accepts an optional frame to run postbacks on
+     * when the paging postbacks came from another postback result.
      *
      * @param pageControls {PageControls}
+     * @param targetFrame {HTMLIFrameElement} optional frame to run postbacks on
      * @returns {HTMLElement}
      */
-    buildPagingControls(pageControls) {
+    buildPagingControls(pageControls, targetFrame = null) {
         let $div = document.createElement('div');
         {
             $div.classList.add('pagination', 'left');
@@ -369,7 +371,7 @@ export class CategoryBuilder {
                                     console.error('unknown page type: ' + page.type);
                                 }
                                 $a.addEventListener('click', () => {
-                                    this.controller.pageButtonHandler(page);
+                                    this.controller.pageButtonHandler(page, targetFrame);
                                 });
                             }
                         }
