@@ -84,6 +84,9 @@ export class FileDetector {
                 url = currentUrl;
             }
         }
+        if (url.indexOf('?') > -1) {
+            url = url.substring(0, url.indexOf('?'));
+        }
         if (url.indexOf('/') > -1) {
             let lastSlash = url.lastIndexOf('/');
             return lastSlash === -1 ? '' : url.substring(lastSlash + 1);
