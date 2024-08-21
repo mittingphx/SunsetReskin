@@ -130,7 +130,7 @@ export class AspNetPostback {
                 }
 
                 // wait until page loads after postback
-                PageLoadHelper.waitUntilPageChange(wnd, async _ => {
+                PageLoadHelper.waitUntilPageChange(iframe, async _ => {
                     // inputs we want are missing if we don't wait long enough
                     setTimeout(() => { callback(wnd, iframe); }, 250);
                 });
@@ -208,13 +208,11 @@ export class AspNetPostback {
         let onPostbackLoaded = () => {
             // inputs we want are missing if we don't wait long enough
             setTimeout(() => { callback(wnd, $iframe); }, 250);
-            // only listen for the first page load in this iframe
-            $iframe.removeEventListener('load', onPostbackLoaded);
         };
-        $iframe.addEventListener('load', onPostbackLoaded, false);
+        //$iframe.addEventListener('load', onPostbackLoaded, false);
 
         // we can't use waitUntilPageChange because the url stays the same
-        // PageLoadHelper.waitUntilPageChange(wnd, async _ => { onPostbackLoaded(); });
+        PageLoadHelper.waitUntilPageChange($iframe, async _ => { onPostbackLoaded(); });
     }
 
     /**

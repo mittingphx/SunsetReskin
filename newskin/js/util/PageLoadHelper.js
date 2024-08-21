@@ -81,35 +81,51 @@ export class PageLoadHelper {
     };
 
     /**
-     * Waits until the page changes and calls a callback when it does.
-     * @param wnd {Window} window to wait for
+     * Waits until the page changes and calls a callback when it does.  If an iframe is passed in,
+     * then both the iframe load event and the url change event will be listened for.
+     * @param wnd {Window|HTMLIFrameElement} window or iframe to wait for
      * @param callback {function} callback to call once the page is ready
      */
     static waitUntilPageChange(wnd, callback) {
 
-        let oldUrl = wnd.location.href;
-        //let oldTitle = wnd.document.title;
+        // handle argument overloads
+        let $iframe = null;
+        if (wnd instanceof HTMLIFrameElement) {
+            $iframe = wnd;
+            wnd = $iframe.contentWindow;
+        }
 
-        let interval = setInterval(async _ => {
-            if (wnd.location.href === oldUrl) {
-                return;
+        // objects to clean up once monitoring is finished
+        let interval = null;
+        let onLoadHandler = null;
+
+        // performs callback and cleanup
+        function performCallback() {
+            // remove load listener
+            if (onLoadHandler) {
+                wnd.removeEventListener('load', onLoadHandler);
+                onLoadHandler = null;
             }
-            //console.log('window title = ' + wnd.document.title
-            //    + ' location=' + wnd.location.href
-            //    + ' old=' + oldUrl
-            //    + ' oldTitle=' + oldTitle
-            //);
-            clearInterval(interval);
-
-            // close the temporary window
-            if (wnd) {
-                wnd.close();
+            // clear interval
+            if (interval) {
+                clearInterval(interval);
+                interval = null;
             }
-
             // do callback
             callback(wnd);
+        }
 
+        // monitor iframe load event
+        if ($iframe) {
+            onLoadHandler = performCallback;
+            $iframe.addEventListener('load', onLoadHandler);
+        }
+
+        // monitor url change
+        let oldUrl = wnd.location.href;
+        interval = setInterval(async _ => {
+            if (wnd.location.href === oldUrl) return;
+            performCallback();
         });
-
     }
 }

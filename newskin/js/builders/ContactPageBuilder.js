@@ -1,5 +1,6 @@
 import {AspNetPostback} from "../util/AspNetPostback.js";
 import {HtmlHelper} from "../util/HtmlHelper.js";
+import {SunsetSkin} from "../SunsetSkin.js";
 
 /**
  * Builds the HTML for the contact us page.
@@ -16,11 +17,15 @@ export class ContactPageBuilder {
         // tie form to the postback on the old page
         let $submit = $contactForm.querySelector('button')
         if ($submit) {
-            $submit.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.doSubmitMessagePostback($contactForm);
-            });
+            // make sure it's not already set
+            if ($submit.getAttribute('click-set') !== 'true') {
+                $submit.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.doSubmitMessagePostback($contactForm);
+                });
+                $submit.setAttribute('click-set', 'true');
+            }
         }
         else {
             console.error('could not find submit button');
@@ -56,7 +61,8 @@ export class ContactPageBuilder {
         // notify user the message was sent
         const onPostbackComplete = function(html, $iframe) {
             $iframe.remove();
-            alert('Message sent!')
+            let skin = SunsetSkin.getInstance();
+            skin.alertNotification('Contact Us', 'Message sent to us. Thank you!', 30);
         }
 
         // need to add data to HTML before it is written to hidden iframe
