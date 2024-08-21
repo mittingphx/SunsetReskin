@@ -273,6 +273,14 @@ body.popup-mode .breadcrumbs {
     margin: 10px 0 !important;
 }
 
+.btn-update-cart-qty {
+    font-weight: bold;
+    padding: 4px;
+    height: 26px;
+    margin-left: 3px;
+    margin-top: -3px;
+}
+
 .right {
     margin-top: 10px !important;
 }

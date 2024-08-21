@@ -247,6 +247,16 @@ export class ViewCartBuilder {
                     let $span = document.createElement('span');
                     $span.innerHTML = item.quantity.toString();
                     $countDiv.appendChild($span);
+
+                    // add update button for convenience
+                    let $updateButton = document.createElement('a');
+                    $updateButton.classList.add('btn', 'btn-primary', 'btn-update-cart-qty');
+                    $updateButton.innerHTML = '<i class="lni lni-reload"></i>';
+                    $countDiv.appendChild($updateButton);
+
+                    $updateButton.addEventListener('click', () => {
+                        cart.updateCart();
+                    });
                 }
                 else {
                     // show quantity as editable field in normal mode
@@ -300,6 +310,8 @@ export class ViewCartBuilder {
                         }
                     });
                 }
+
+
                 $row.appendChild($cell5);
             }
         }
@@ -354,7 +366,7 @@ export class ViewCartBuilder {
                                         let $a1 = document.createElement('a');
                                         {
                                             $a1.classList.add('btn', 'btn-update-cart');
-                                            $a1.innerHTML = 'Update Cart';
+                                            $a1.innerHTML = '<i class="lni lni-reload"></i> Update Cart';
                                             $divButtonUpdate.appendChild($a1);
 
                                             $a1.addEventListener('click', () => {
