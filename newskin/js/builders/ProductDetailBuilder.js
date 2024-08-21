@@ -302,6 +302,22 @@ export class ProductDetailBuilder {
         {
             $productInfo.classList.add('product-info');
 
+            // detect errors in the product item
+            if (productItem.errorMessage) {
+                let $productErrorH2 = document.createElement('h2');
+                {
+                    $productErrorH2.classList.add('title');
+                    $productErrorH2.innerHTML = '<span style="color: red;">' + productItem.errorMessage +'</span>';
+                    $productInfo.appendChild($productErrorH2);
+                }
+
+                // show alert
+                let skin = SunsetSkin.getInstance();
+                skin.alertNotification('Product Error', productItem.errorMessage, 30);
+
+                return $productInfo
+            }
+
             // title
             let $productInfoH2 = document.createElement('h2');
             {

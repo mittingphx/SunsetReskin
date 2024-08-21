@@ -33,6 +33,12 @@ export class ProductDetailItem {
     description = '';
 
     /**
+     * Text of any error message associated with this product.
+     * @type {string}
+     */
+    errorMessage = '';
+
+    /**
      * Image to display for this product.
      * @type {string}
      */
@@ -172,6 +178,12 @@ export class ProductDetailParser {
         if (!$table) {
             console.error('could not find product detail using selector: #MainContent_Table1');
             return null;
+        }
+
+        // grab any error messages
+        let $error = this.sourceDocument.querySelector('#MainContent_LblError');
+        if ($error) {
+            ret.errorMessage = $error.textContent;
         }
 
         // grab the image
