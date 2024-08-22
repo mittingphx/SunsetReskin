@@ -33,7 +33,7 @@ export class SizeHelper {
      * How often to resize elements
      * @type {number}
      */
-    static MONITOR_INTERVAL = 15000; // 15 seconds
+    static MONITOR_INTERVAL = 5000; // 15 seconds
 
     /**
      * How often to resize elements for a period of time when we first
@@ -46,7 +46,7 @@ export class SizeHelper {
      * Number of times to use the short interval before going to the long interval
      * @type {number}
      */
-    static MONITOR_SHORT_COUNT = 5;
+    static MONITOR_SHORT_COUNT = 15;
 
     /**
      * When set, the short interval is used this many times before going to the long interval
@@ -68,6 +68,9 @@ export class SizeHelper {
      * @param childQuery {string|string[]} the query selector for the child elements, when array each element is handled one after the other
      */
     static makeChildrenSameHeight($parent, childQuery= '.product-image') {
+
+        // make sure background thread stays active
+        SizeHelper.#checkUpdateThread();
 
         // if childQuery is an array, handle each element independently
         if (Array.isArray(childQuery)) {
@@ -92,7 +95,6 @@ export class SizeHelper {
         }
 
         // makes sure this continues to be monitored for size in the background
-        SizeHelper.#checkUpdateThread();
         SizeHelper.#addToMonitorList($parent, childQuery);
 
         // pass arguments to method that performs actual work
@@ -222,6 +224,7 @@ export class SizeHelper {
     static #checkUpdateThread() {
         if (!SizeHelper.#updateThreadRunning) {
             SizeHelper.#updateThreadRunning = true;
+            SizeHelper.#shortIntervalLeft = SizeHelper.MONITOR_SHORT_COUNT;
             SizeHelper.#updateThread();
         }
     }
