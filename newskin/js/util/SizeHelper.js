@@ -10,23 +10,55 @@ export class SizeHelper {
     static minHeight = 100;
 
     /**
-     * Clears all heights set by makeChildrenSameHeight()
-     * @param $parent {HTMLElement} the parent element
-     * @param childQuery {string|string[]} the query selector for the child elements
+     * @typedef {Object} ElementMonitoredForSize
+     * @property {HTMLElement} $parent the parent of the elements to monitor
+     * @property {string|string[]} childQuery the query selector for the child elements to make the same size
      */
-    static clearHeight($parent, childQuery) {
-        if (Array.isArray(childQuery)) {
-            childQuery.forEach((query) => {
-                $parent.querySelectorAll(query).forEach((element) => {
-                    element.style.height = '';
-                });
-            });
-        }
-        else {
-            $parent.querySelectorAll(childQuery).forEach((element) => {
-                element.style.height = '';
-            });
-        }
+
+    /**
+     * Set of elements that are monitored and resized every few
+     * seconds.  These are maintained together so the list can
+     * be cleared whenever the page is reloaded.
+     * @type {ElementMonitoredForSize[]}
+     */
+    static #monitorList = [];
+
+    /**
+     * Keeps track of if the background thread is running.
+     * @type {boolean}
+     */
+    static #updateThreadRunning = false;
+
+    /**
+     * How often to resize elements
+     * @type {number}
+     */
+    static MONITOR_INTERVAL = 15000; // 15 seconds
+
+    /**
+     * How often to resize elements for a period of time when we first
+     * start monitoring a new element.
+     * @type {number}
+     */
+    static MONITOR_SHORT_INTERVAL = 1000; // 1 second
+
+    /**
+     * Number of times to use the short interval before going to the long interval
+     * @type {number}
+     */
+    static MONITOR_SHORT_COUNT = 5;
+
+    /**
+     * When set, the short interval is used this many times before going to the long interval
+     * @type {number}
+     */
+    static #shortIntervalLeft = 0;
+
+    /**
+     * Removes all elements from the monitor list.
+     */
+    static clearMonitorList() {
+        this.#monitorList = [];
     }
 
     /**
@@ -34,29 +66,15 @@ export class SizeHelper {
      * within the parent.
      * @param $parent {HTMLElement} the parent element
      * @param childQuery {string|string[]} the query selector for the child elements, when array each element is handled one after the other
-     * @param callback {function} called after the heights are calculated successfully (may take a few retries)
-     * @param retriesLeft {number} number of retries before giving up (default 5)
      */
-    static makeChildrenSameHeight($parent, childQuery= '.product-image', callback = null, retriesLeft = 5) {
-
-        // clear out previous heights to get a clean measurement
-        SizeHelper.clearHeight($parent, childQuery);
+    static makeChildrenSameHeight($parent, childQuery= '.product-image') {
 
         // if childQuery is an array, handle each element independently
         if (Array.isArray(childQuery)) {
-            let childIndex = 0;
-            function processNextQuery() {
-                if (childIndex >= childQuery.length) {
-                    if (callback) {
-                        callback();
-                    }
-                    return;
-                }
-                let query = childQuery[childIndex];
-                childIndex++;
-                SizeHelper.makeChildrenSameHeight($parent, query, processNextQuery, retriesLeft);
+            for (let i = 0; i < childQuery.length; i++) {
+                let query = childQuery[i];
+                SizeHelper.makeChildrenSameHeight($parent, query);
             }
-            processNextQuery();
             return;
         }
 
@@ -66,10 +84,35 @@ export class SizeHelper {
             return;
         }
 
-        // grab all product images
+        // make sure we have product images
         let $productImages = $parent.querySelectorAll(childQuery);
         if ($productImages.length === 0) {
             console.warn('No product images found for query: ' + childQuery);
+            return;
+        }
+
+        // makes sure this continues to be monitored for size in the background
+        SizeHelper.#checkUpdateThread();
+        SizeHelper.#addToMonitorList($parent, childQuery);
+
+        // pass arguments to method that performs actual work
+        SizeHelper.#performChildHeightUpdate($parent, childQuery);
+    }
+
+    /**
+     * Does the actual work for makeChildrenSameHeight() after the input
+     * has been validated.
+     * @param $parent {HTMLElement} the parent element
+     * @param childQuery {string|string[]} the query selector for the child elements, when array each element is handled one after the other
+     */
+    static #performChildHeightUpdate($parent, childQuery= '.product-image') {
+
+        // clear out previous heights to get a clean measurement
+        SizeHelper.#clearHeight($parent, childQuery);
+
+        // grab all product images, give up if none are found
+        let $productImages = $parent.querySelectorAll(childQuery);
+        if ($productImages.length === 0) {
             return;
         }
 
@@ -100,15 +143,9 @@ export class SizeHelper {
             }
         });
 
-        // make sure we were able to detect the heights, if we call this
-        // before the elements are added to the DOM they'll all be 0
+        // don't set the height if we can't read it from DOM correctly,
+        // background thread will pick this up later
         if (maxHeight <= SizeHelper.minHeight) {
-            if (retriesLeft < 0) {
-                return;
-            }
-            setTimeout(() => {
-                SizeHelper.makeChildrenSameHeight($parent, childQuery, callback, retriesLeft - 1);
-            }, 1000);
             return;
         }
 
@@ -133,10 +170,85 @@ export class SizeHelper {
                 $productImage.style.height = foundHeight + 'px';
             }
         });
+    }
 
-        // notify callback
-        if (typeof callback === 'function' && callback) {
-            callback();
+
+    /**
+     * Clears all heights set by makeChildrenSameHeight()
+     * @param $parent {HTMLElement} the parent element
+     * @param childQuery {string|string[]} the query selector for the child elements
+     */
+    static #clearHeight($parent, childQuery) {
+        if (Array.isArray(childQuery)) {
+            childQuery.forEach((query) => {
+                $parent.querySelectorAll(query).forEach((element) => {
+                    element.style.height = '';
+                });
+            });
+        }
+        else {
+            $parent.querySelectorAll(childQuery).forEach((element) => {
+                element.style.height = '';
+            });
+        }
+    }
+
+    /**
+     * Adds new items to the list of elements to monitor for size on
+     * a regular interval.
+     * @param $parent {HTMLElement} parent scope of the childQuery argument
+     * @param childQuery {string|string[]} the query selector for the child elements
+     */
+    static #addToMonitorList($parent, childQuery) {
+
+        // make sure element doesn't already exist
+        for (let i = 0; i < SizeHelper.#monitorList.length; i++) {
+            if (SizeHelper.#monitorList[i].$parent === $parent &&
+                SizeHelper.#monitorList[i].childQuery === childQuery) {
+                return;
+            }
+        }
+
+        // otherwise add to the list
+        SizeHelper.#monitorList.push({$parent:$parent, childQuery:childQuery});
+
+        // since we added something new, monitor more frequently for a moment
+        SizeHelper.#shortIntervalLeft = SizeHelper.MONITOR_SHORT_COUNT;
+    }
+
+    /**
+     * Starts running the updateThread if needed.
+     */
+    static #checkUpdateThread() {
+        if (!SizeHelper.#updateThreadRunning) {
+            SizeHelper.#updateThreadRunning = true;
+            SizeHelper.#updateThread();
+        }
+    }
+
+    /**
+     * Code run at regular intervals to keeps elements within the monitorList
+     * at the correct size.
+     */
+    static #updateThread() {
+        try {
+            // run the update function for each element
+            for (let i = 0; i < SizeHelper.#monitorList.length; i++) {
+                SizeHelper.makeChildrenSameHeight(SizeHelper.#monitorList[i].$parent, SizeHelper.#monitorList[i].childQuery);
+            }
+
+            // schedule the next pass
+            if (SizeHelper.#shortIntervalLeft > 0) {
+                SizeHelper.#shortIntervalLeft--;
+                setTimeout(SizeHelper.#updateThread, SizeHelper.MONITOR_SHORT_INTERVAL);
+            }
+            else {
+                setTimeout(SizeHelper.#updateThread, SizeHelper.MONITOR_INTERVAL);
+            }
+        }
+        catch (e) {
+            console.error('Error in updateThread: ' + e);
+            SizeHelper.#updateThreadRunning = false;
         }
     }
 }

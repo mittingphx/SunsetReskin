@@ -27,6 +27,7 @@ import {SiteSearchController} from "./controllers/SiteSearchController.js";
 import {UrlHelper} from "./UrlHelper.js";
 import {ShoppingCart} from "./models/ShoppingCart.js";
 import {SessionHistory} from "./util/SessionHistory.js";
+import {SizeHelper} from "./util/SizeHelper.js";
 
 /**
  * Analyzes the original HTML to figure out the contents of the menu
@@ -310,14 +311,17 @@ export class SunsetSkin {
             if (url === baseUrl + alias[i].old) url = baseUrl + alias[i].new;
         }
 
-        // log call and start showing progress
+        // log call
         console.log('navigateTo: ' + url);
         this.usingDynamicLoading = true;
 
+        // start showing progress bar
         let progress = new ProgressBar()
         progress.anim(70, 5);
         progress.setVisible(true);
 
+        // clear out background thread monitoring sizes
+        SizeHelper.clearMonitorList()
 
         // load both old and new page
         let loaded = await this.html.loadOld(url)
