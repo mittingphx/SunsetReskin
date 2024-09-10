@@ -172,7 +172,28 @@ export class SunsetSkin {
                 this.cartController.buildCartDropdown(loginStatus);
                 this.loginController.buildStatusInfo();
             }
-        })
+        });
+
+        // if the restricted popup box's parent isn't the page's body, move it.
+        // otherwise it won't be visible to the user
+        this.#moveRestrictedPopup();
+    }
+
+    /**
+     * Moves the restricted search popup to the body, if it's not already there.
+     */
+    #moveRestrictedPopup() {
+        function forceToBody($element) {
+            if (!$element) {
+                return;
+            }
+            if ($element.parentElement.nodeName.toLowerCase() !== 'body') {
+                $element.parentElement.removeChild($element);
+                document.body.appendChild($element);
+            }
+        }
+        forceToBody(document.querySelector('.restricted-search'));
+        forceToBody(document.querySelector('.restricted-search-wrapper'));
     }
 
     /**
