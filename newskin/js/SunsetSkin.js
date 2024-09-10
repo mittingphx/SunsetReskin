@@ -174,26 +174,45 @@ export class SunsetSkin {
             }
         });
 
-        // if the restricted popup box's parent isn't the page's body, move it.
-        // otherwise it won't be visible to the user
-        this.#moveRestrictedPopup();
     }
 
     /**
-     * Moves the restricted search popup to the body, if it's not already there.
+     * Shows a popup suggesting the user to call into support when they
+     * are getting empty search results.
      */
-    #moveRestrictedPopup() {
-        function forceToBody($element) {
-            if (!$element) {
-                return;
+    static showRestrictedSearchPopupIfNeeded() {
+
+        // copied from the old website's master-page to show a popup whenever
+        // the search results are empty
+        (function(){
+            // shows popup if the search has no results
+            let $popup = document.querySelector('.restricted-search');
+            let $wrapper = document.querySelector('.restricted-search-wrapper');
+            let $searchError = document.querySelector('#MainContent_LblError');
+            function showSearchPopup(show) {
+                if (show) {
+                    $popup.style.display = 'block';
+                    $wrapper.style.display = 'block';
+                } else {
+                    $popup.style.display = 'none';
+                    $wrapper.style.display = 'none';
+                }
             }
-            if ($element.parentElement.nodeName.toLowerCase() !== 'body') {
-                $element.parentElement.removeChild($element);
-                document.body.appendChild($element);
+            if ($searchError) {
+                let errorText = $searchError.innerText.toLowerCase();
+                if (errorText.indexOf('no items found') !== -1) {
+                    showSearchPopup(true);
+                }
             }
-        }
-        forceToBody(document.querySelector('.restricted-search'));
-        forceToBody(document.querySelector('.restricted-search-wrapper'));
+            $popup.addEventListener('click', (e) => {
+                if (e.target.tagName.toLowerCase() === 'button') {
+                    showSearchPopup(false);
+                }
+            });
+            $wrapper.addEventListener('click', (e) => {
+                showSearchPopup(false);
+            });
+        })();
     }
 
     /**

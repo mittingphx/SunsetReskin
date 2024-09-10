@@ -5,6 +5,7 @@ import {ProductCategoryBreadcrumb} from "../parsers/CommonParser.js";
 import {CategoryBuilder} from "../builders/CategoryBuilder.js";
 import {ProductBreadcrumbBuilder} from "../builders/ProductDetailBuilder.js";
 import {AspNetPostback} from "../util/AspNetPostback.js";
+import {SunsetSkin} from "../SunsetSkin.js";
 
 /**
  * Implements the product category page and the search results page.
@@ -72,6 +73,9 @@ export class CategoryController extends PageControllerBase {
         if ($error && $error.innerHTML) {
             let $divError = this.pageBuilder.buildError($error.innerHTML);
             $insertionPoint.before($divError);
+
+            // show popup if needed
+            SunsetSkin.showRestrictedSearchPopupIfNeeded();
             return;
         }
 
