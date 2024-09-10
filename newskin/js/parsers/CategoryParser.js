@@ -31,8 +31,6 @@ export class CategoryParser {
      */
     readNodesFromTable($table) {
 
-        // make sure the items per page is set to its maximum value
-        this.#initItemsPerPage();
 
         // grab category hierarchy which contains the name
         let ret = new ProductCategoryItem()
@@ -64,6 +62,11 @@ export class CategoryParser {
                 // grab the mini-form within it
                 CategoryParser.readProductAddToCartForm($qtyNode, product);
             }
+        }
+
+        // make sure the items per page is set to its maximum value
+        if (ret.items.length > 0) {
+            this.#initItemsPerPage();
         }
 
         return ret;

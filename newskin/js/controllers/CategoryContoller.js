@@ -124,8 +124,21 @@ export class CategoryController extends PageControllerBase {
         document.querySelector('.breadcrumbs').replaceWith($breadcrumbs);
 
         // show item count
-        document.querySelector('.total-show-product span').innerText
-            = '1 - ' + category.items.length + ' items';
+        document.querySelector('.total-show-product span').innerText = category.items.length + ' items';
+        this.getTotalCount(category, paging, (count) => {
+
+            let current = paging.getCurrentPageLink()
+            let currentPage = current ? current.pageNumber : 1;
+            let itemsPerPage = paging.getItemsPerPage();
+
+            let firstItem = (currentPage - 1) * itemsPerPage + 1;
+            let lastItem = currentPage * itemsPerPage;
+            if (lastItem > count) {
+                lastItem = count;
+            }
+
+            document.querySelector('.total-show-product span').innerText = 'items ' + firstItem + ' to ' + lastItem + ' (out of ' + count + ')';
+        });
 
         // slider for custom size
         this.pageBuilder.initSizeSlider();
@@ -198,12 +211,6 @@ export class CategoryController extends PageControllerBase {
             this.build(loadedDocumentFrame);
         }
 
-        // TODO: fix this paging bug
-        // selecting the page button seems to always run against the buttons on
-        // page 1 of the old skin, but we need to run it against the page we read
-        // the available buttons from... otherwise the button we want to press
-        // may be missing
-
         // if this link came from the result of a postback, run it within those results
         if (targetFrame) {
             AspNetPostback.dynamicAnchorPostbackInLoadedFrame(
@@ -252,4 +259,88 @@ export class CategoryController extends PageControllerBase {
         });
     }
 
+
+    /**
+     * Returns the total number of items in this category from cache.
+     * If not cached, the last page is loaded and the count is computed
+     * by pages * items per page + last page count.
+     *
+     * @param category {ProductCategoryItem} category to get total count for
+     * @param pageControls {PageControls} buttons for changing page
+     * @param callback {function(number)} function to send the number to
+     */
+    getTotalCount(category, pageControls, callback) {
+        let cacheKey = 'totalCount_' + category.name;
+
+        // attempt to load from cache
+        if (sessionStorage.getItem(cacheKey)) {
+            let cachedValue = sessionStorage.getItem(cacheKey);
+            if (cachedValue) {
+                callback(parseInt(cachedValue));
+                return;
+            }
+        }
+
+        // load the last page
+        let lastPage = pageControls.getLastPageLink();
+        if (!lastPage) {
+            console.warn('Could not find last page');
+            return;
+        }
+
+        // make sure the new skin doesn't run.
+        const onPreWrite = (html) => {
+            html = this.#stripOutNewSkin(html);
+            return html;
+        };
+
+        // grab the total count from the loaded last page
+        const onDocumentLoaded = (loadedDocument, _) => {
+
+            // grab the body of the last page
+            let $lastPageBody = loadedDocument.document.body;
+            if (!$lastPageBody) {
+                console.error('Could not find body from last category page');
+                return;
+            }
+
+            // grab product items from last page
+            let $table = $lastPageBody.querySelector('.Items');
+            if (!$table) {
+                console.error('Could not find table with class "Items"');
+                return;
+            }
+
+            // parse the number of products on the last page
+            let parser = new CategoryParser($lastPageBody);
+            let category = parser.readNodesFromTable($table);
+
+            // calculate the total item count
+            let itemsPerPage = pageControls.getItemsPerPage();
+            let lastPageNumber = lastPage.pageNumber;
+            let totalItems = (lastPageNumber - 1) * itemsPerPage + category.items.length;
+
+            console.log(
+                'Total items for category "' + category.name + '": ' + totalItems + '\n'
+                + 'items per page (a): ' + itemsPerPage + '\n'
+                + 'last page number (b): ' + lastPageNumber + '\n'
+                + 'last page count (c): ' + category.items.length
+                + 'Total = a * (b - 1) + c'
+            );
+
+            // report results to callback
+            sessionStorage.setItem(cacheKey, totalItems.toString());
+            callback(totalItems);
+        }
+
+        // run last page against the current page in a hidden iframe
+        let url = new URL(document.location + '')
+        url.searchParams.set('reskin', 'no');
+        AspNetPostback.runInBackground(
+            url.href,
+            lastPage.$dom,
+            onDocumentLoaded,
+            onPreWrite
+        );
+    }
 }

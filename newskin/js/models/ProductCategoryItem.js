@@ -25,4 +25,5 @@ export class ProductCategoryItem {
      * @type {ProductCategoryBreadcrumb|null}
      */
     breadcrumbs = null;
+
 }

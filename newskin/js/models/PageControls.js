@@ -27,6 +27,42 @@ export class PageControls {
      * @type {PageControlLink[]}
      */
     pages = [];
+
+    /**
+     * Returns the last link of type page.
+     * @return {PageControlLink|null}
+     */
+    getLastPageLink() {
+        let ret = null;
+        for (let i = 0; i < this.pages.length; i++) {
+            if (this.pages[i].type === 'page') {
+                ret = this.pages[i];
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Returns the link of type current
+     * @return {PageControlLink|null}
+     */
+    getCurrentPageLink() {
+        for (let i = 0; i < this.pages.length; i++) {
+            if (this.pages[i].type === 'current') {
+                return this.pages[i];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the current items per page setting.
+     * @return {number}
+     */
+    getItemsPerPage() {
+        let $ddl = document.querySelector('#itemsPerPage');
+        return $ddl ? parseInt($ddl.value) : 108;
+    }
 }
 
 /**
