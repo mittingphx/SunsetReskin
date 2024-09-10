@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<!-- START OF CODE TO INSERT INTO OLD SITE TO ENABLE NEW SITE POPUP -->
+
+<div class="new-site-popup">
+  <h1>New Website Design Available</h1>
+  <p>Sunset West has a new website design to make it easier to shop with us on both your desktop
+    and mobile devices!  </p><p>All functionality is the same, but there are many cosmetic improvements
+  desired to make shopping easier than ever.  Would you like to try the new website?
+  You can switch back at any time.
+</p>
+  <div>
+    <button class="btn-new-site">Try New Website (Strongly Recommended)</button>
+    <button class="btn-old-site">Stick with Existing Website</button>
+  </div>
+</div>
+<style>
+  .new-site-popup {
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    margin-left: -200px;
+    width: 400px;
+    height: auto;
+    z-index: 10000;
+    background: darkorange;
+    padding: 10px;
+    color: black;
+    text-align: justify;
+    border-radius: 15px;
+    border: 2px solid black;
+    box-shadow: 2px 2px 25px rgba(0,0,0,0.8);
+    font: 12pt sans-serif;
+    display: none;
+  }
+  .new-site-popup h1 {
+    text-align: left;
+    font-size: 2em;
+  }
+  .new-site-popup p {
+    text-align: justify;
+  }
+  .new-site-popup div {
+    text-align: center;
+  }
+  .new-site-popup button {
+    text-align: center;
+    margin: 10px;
+  }
+</style>
+<script>
+  let newSitePopup = (function(forcePopup) {
+    function bypassSiteCheck() {
+      let search = new URL(document.location.toString()).searchParams;
+      switch (search.get("reskin")) {
+        case "off":
+        case "0":
+        case "no":
+        case "false":
+          return true;
+      }
+      return false;
+    }
+    function setCookie(cname, cvalue, exdays) {
+      const d = new Date();
+      d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+      let expires = "expires="+d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+    function getCookie(cname) {
+      let name = cname + "=";
+      let ca = document.cookie.split(';');
+      for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) === 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return "";
+    }
+    function clearCookie() {
+      setCookie("new_site_popup", "", 365);
+    }
+    function redirect() {
+      let url = URL.parse(document.location);
+      if (url.pathname.indexOf('/reskin') !== 0) {
+        url.pathname = '/reskin' + url.pathname;
+      }
+      if (confirm('You will be redirected to the new site.  Are you sure you want to continue?')) {
+        document.location = url.toString();
+      }
+    }
+    let cookie = getCookie("new_site_popup");
+    if (bypassSiteCheck()) {
+      clearCookie();
+    }
+    else if (forcePopup || cookie === "" ) {
+      if (forcePopup) {
+        clearCookie();
+      }
+      document.querySelector(".new-site-popup").style.display = "block";
+      document.querySelector('.btn-new-site').addEventListener('click', function() {
+        setCookie("new_site_popup", "true", 365);
+        document.querySelector(".new-site-popup").style.display = "none";
+        redirect();
+      });
+      document.querySelector('.btn-old-site').addEventListener('click', function() {
+        setCookie("new_site_popup", "false", 365);
+        document.querySelector(".new-site-popup").style.display = "none";
+      });
+    }
+    else if (cookie === "true") {
+      redirect();
+    }
+    else if (cookie === "false") {
+      document.querySelector(".new-site-popup").style.display = "none";
+    }
+  });
+  // show popup if no site choice is saved
+  newSitePopup(false);
+  // show popup if escape is pressed 3 times
+  document.onkeydown = function(evt) {
+    let escapePressed = (evt.key === "Escape" || evt.key === "Esc");
+    if (escapePressed) {
+      window.escapeCount ||= 0;
+      window.escapeCount++;
+      console.log('escape pressed ' + window.escapeCount + ' times');
+    }
+    else {
+      window.escapeCount = 0;
+    }
+    if (window.escapeCount >= 3) {
+      newSitePopup(true);
+      window.escapeCount = 0;
+    }
+  };
+
+</script>
+
+
+<!-- END NEW SITE POPUP -->
+
+
+</body>
+</html>

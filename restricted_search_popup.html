@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Example Restricted Search Popup</title>
+    <link rel="stylesheet" href="assets/css/LineIcons.3.0.css">
+    <style>
+        body {
+            background: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+
+<span id="MainContent_LblError" style="color:Red;font-size: 16pt;">No Items Found. Please Try Searching Again.</span>
+
+<div class="restricted-search-wrapper"></div>
+<div class="restricted-search">
+    <h1><i class="lni lni-support"></i> Need Help Finding an Item?</h1>
+    <p>
+    <span style="color:red">We are unable to find the item you are looking for.</span>
+        <br><br>
+    Give us a call at <a href="tel:602-354-3870">(602) 354-3870</a>.
+    <br><br>
+        Our friendly and knowledgeable staff can provide additional assistance
+    finding and adding items to your order, including those that may not
+    be available from our website.
+    </p>
+    <div class="buttons">
+        <button><i class="lni lni-close"></i> Close</button>
+    </div>
+</div>
+<style>
+    .restricted-search-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 999;
+        display: none;
+        background: rgba(0,0,0,0.7);
+    }
+    .restricted-search {
+        position: fixed;
+        top: 50px;
+        left: 50%;
+        margin-left: -200px;
+        width: 600px;
+        height: auto;
+        text-align: center;
+        padding: 0px;
+        font-size: 18px;
+        background: #fff;
+        border-radius: 15px;
+        z-index: 1000;
+        box-shadow: 2px 2px 10px #000;
+        display: none;
+    }
+    .restricted-search h1 {
+        font: 1.5em bold sans-serif;
+        text-align: left;
+        background: #0a53be;
+        color: white;
+        padding: 10px 20px;
+        margin: 0;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+    .restricted-search p {
+        text-align: justify;
+        padding: 10px;
+        font: 1em arial;
+    }
+    .restricted-search .buttons {
+        text-align: center;
+        margin: 10px;
+    }
+    .restricted-search .buttons button {
+        cursor: pointer;
+    }
+</style>
+<script>
+    (function(){
+        // shows popup if the search has no results
+        let $popup = document.querySelector('.restricted-search');
+        let $wrapper = document.querySelector('.restricted-search-wrapper');
+        let $searchError = document.querySelector('#MainContent_LblError');
+        function showSearchPopup(show) {
+            if (show) {
+                $popup.style.display = 'block';
+                $wrapper.style.display = 'block';
+            } else {
+                $popup.style.display = 'none';
+                $wrapper.style.display = 'none';
+            }
+        }
+        if ($searchError) {
+            let errorText = $searchError.innerText.toLowerCase();
+            if (errorText.indexOf('no items found') !== -1) {
+                showSearchPopup(true);
+            }
+        }
+        $popup.addEventListener('click', (e) => {
+            if (e.target.tagName.toLowerCase() === 'button') {
+                showSearchPopup(false);
+            }
+        });
+        $wrapper.addEventListener('click', (e) => {
+            showSearchPopup(false);
+        });
+    })();
+</script>
+
+</body>
+</html>
