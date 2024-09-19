@@ -13,7 +13,7 @@
   <p>Sunset West has a new website design to make it easier to shop with us on both your desktop
     and mobile devices!  </p><p>All functionality is the same, but there are many cosmetic improvements
   desired to make shopping easier than ever.  Would you like to try the new website?
-  You can switch back at any time.
+  You can switch back at any time by toggling the "New Skin Enabled" yellow box in the lower-left corner.
 </p>
   <div>
     <button class="btn-new-site">Try New Website (Strongly Recommended)</button>
@@ -102,8 +102,9 @@
     let cookie = getCookie("new_site_popup");
     if (bypassSiteCheck()) {
       clearCookie();
+      forcePopup = true;
     }
-    else if (forcePopup || cookie === "" ) {
+    if (forcePopup || cookie === "" ) {
       if (forcePopup) {
         clearCookie();
       }

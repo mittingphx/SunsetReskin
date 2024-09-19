@@ -1,0 +1,53 @@
+<html>
+<head>
+    <title>Sunset Wholesale West - Redirecting</title>
+</head>
+<body>f you are not redirected to th
+<a href="Default.aspx">Click here</a> ie classic website.
+<script>
+    function bypassSiteCheck() {
+        let search = new URL(document.location.toString()).searchParams;
+        switch (search.get("reskin")) {
+            case "off":
+            case "0":
+            case "no":
+            case "false":
+                return true;
+        }
+        return false;
+    }
+    function setCookie(cname, cvalue, exdays) {
+        const d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        let expires = "expires="+d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+    function getCookie(cname) {
+        let name = cname + "=";
+        let ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+    function clearCookie() {
+        setCookie("new_site_popup", "", 365);
+    }
+    // remove cookie if bypassSiteCheck returns true
+    if (bypassSiteCheck()) {
+        clearCookie();
+    }
+
+    // redirect to classic site
+    setTimeout(function() {
+        document.location='Default.aspx';
+    });
+</script>
+</body>
+</html>

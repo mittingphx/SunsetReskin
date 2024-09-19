@@ -27,8 +27,7 @@ export class SkinToggleController extends ComponentControllerBase {
         `;
         document.body.append($newSkinPanel);
 
-        // toggle new skin
-        $newSkinPanel.addEventListener('click', () => {
+        function returnToOldSkin() {
 
             // parse current location as a URL object
             let url = new URL(document.location);
@@ -37,7 +36,33 @@ export class SkinToggleController extends ComponentControllerBase {
             url.searchParams.set('reskin', url.searchParams.get('reskin') === 'no' ? 'yes' : 'no');
 
             // update the url
-            document.location = url.toString();
+            let newUrl = url.toString();
+
+            newUrl = newUrl.replace('swwest.com/reskin/', 'swwest.com/');
+            document.location = newUrl;
+        }
+
+        // toggle new skin
+        $newSkinPanel.addEventListener('click', () => {
+            returnToOldSkin();
         });
+
+        // go back to old skin if you click your heels... ahem... press escape three times
+        // show popup if escape is pressed 3 times
+        document.onkeydown = function(evt) {
+            let escapePressed = (evt.key === "Escape" || evt.key === "Esc");
+            if (escapePressed) {
+                window.escapeCount ||= 0;
+                window.escapeCount++;
+                console.log('escape pressed ' + window.escapeCount + ' times');
+            }
+            else {
+                window.escapeCount = 0;
+            }
+            if (window.escapeCount >= 3) {
+                window.escapeCount = 0;
+                returnToOldSkin();
+            }
+        };
     }
 }
