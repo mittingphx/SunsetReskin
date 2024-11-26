@@ -1,5 +1,9 @@
 import {UrlHelper} from "../UrlHelper.js";
 
+// when the next line is true, we do not keep the page history between page loads
+// which can cause some difficult to debug problems
+let DISABLE_HISTORY = true;
+
 /**
  * Stores the history API calls in the sessionStorage to allow the
  * history to persist across page loads.
@@ -73,6 +77,12 @@ export class SessionHistory {
      */
     static restore() {
         let changed = false;
+
+        // do not restore if history is disabled
+        if (DISABLE_HISTORY) {
+            return;
+        }
+
 
         // grab current state
         let fullState = [];

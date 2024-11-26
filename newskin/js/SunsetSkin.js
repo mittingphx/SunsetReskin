@@ -209,7 +209,7 @@ export class SunsetSkin {
                     showSearchPopup(false);
                 }
             });
-            $wrapper.addEventListener('click', (e) => {
+            $wrapper.addEventListener('click', (_) => {
                 showSearchPopup(false);
             });
         })();
@@ -394,6 +394,8 @@ export class SunsetSkin {
      * @returns {Promise<void>}
      */
     async loadNewSkinPage(newUrl = null) {
+
+        // NOTE: newUrl is null if we're coming from SunsetSkin:248 call to DOM_CONTENT_LOADED
 
         // need to redirect if we attempt to load index.html, the front page
         // fails to load correctly if not loaded from Default.aspx

@@ -68,6 +68,12 @@ export class MyAccountParser {
 
             $acctNo: '#MainContent_LblAcctNo'
         });
+        if (!ret.$acctNo) {
+            // the user isn't logged in
+            return ret;
+        }
+
+
         ret.acctNo = ret.$acctNo.innerHTML;
 
         // grab paging buttons

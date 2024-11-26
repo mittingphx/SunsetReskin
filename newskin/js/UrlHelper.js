@@ -64,6 +64,7 @@ export class SplitUrl {
         // list of known deployments
         let deployments = [
             'https://swwest.com/reskin/',
+            'https://swwest.com/dev/',
             'https://swwest.com/',
             'http://localhost/sunset/',
         ];

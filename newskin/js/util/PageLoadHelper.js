@@ -47,6 +47,7 @@ export class PageLoadHelper {
      */
     static removeNewSkinScripts(html) {
         html = html.replace('<script type="module" src="/reskin/NewSkin.js"></script>', '');
+        html = html.replace('<script type="module" src="/dev/NewSkin.js"></script>', '');
         html = html.replace('<script type="module" src="NewSkin.js"></script>', '');
         return html;
     }
