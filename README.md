@@ -20,6 +20,13 @@ https://swwest.com
 ### New Site
 https://swwest.com/reskin/
 
+### Dev Site
+https://swwest.com/dev/
+
+### Permanent Location of Old Site
+https://swwest.com/legacy/
+Note: this will come online once the main website is converted to the new website, making the /reskin/ in the url unnecessary.
+
 ### Slab Documentation
 https://sunsetwest.slab.com/posts/website-reskin-db5t2kux (requires login)
 
