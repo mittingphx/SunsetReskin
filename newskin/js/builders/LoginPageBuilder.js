@@ -6,6 +6,20 @@ import {SunsetSkin} from "../SunsetSkin.js";
 import {PageLoadHelper} from "../util/PageLoadHelper.js";
 import {LoginPageForm} from "../models/LoginPageForm.js";
 
+
+
+// version of replace that doesn't message up $ in replacement values
+function replaceTextInString(str, oldText, newText) {
+    let indexOf = str.indexOf(oldText);
+    while (indexOf > -1) {
+        str = str.substring(0, indexOf) + newText + str.substring(indexOf + oldText.length);
+        indexOf = str.indexOf(oldText, indexOf + newText.length);
+    }
+    return str;
+
+    //return str.replace(new RegExp(oldText, 'g'), newText);
+}
+
 /**
  * Connects the new skin's login page to the old skin's functionality.
  */
@@ -149,29 +163,13 @@ export class LoginPageBuilder {
         document.querySelector('#panel-register').style.display = 'block';
         document.querySelector('#panel-register-page2').style.display = 'none';
         document.querySelector('#panel-login').style.display = 'none';
-    }
+    }qS
 
     /**
-     * Displays page 2 of the registration form.
-     * @returns {HTMLElement} the parent of the page 2 form
-     */
-    #showRegistrationPage2() {
-        document.querySelector('.page-title').innerHTML = 'Register (Step 2 of 2)';
-        document.querySelector('#panel-register').style.display = 'none';
-        document.querySelector('#panel-register-page2').style.display = 'block';
-        document.querySelector('#panel-login').style.display = 'none';
-        return document.querySelector('#panel-register-page2');
-    }
-
-    /**
-     * Displays the user login form.
-     */
-    #showLoginForm() {
-        document.querySelector('.page-title').innerHTML = 'Login';
-        document.querySelector('#panel-register').style.display = 'none';
+     * E
         document.querySelector('#panel-register-page2').style.display = 'none';
-        document.querySelector('#panel-login').style.display = 'block';
-    }
+        docuRTmRTent.querySelector('#panel-login').style.display = 'block';
+    }DFDRF
 
     /**
      * Attempts to open the login page in a hidden iframe in the background.
@@ -182,22 +180,55 @@ export class LoginPageBuilder {
         let user = data.$newUsername.value;
         let pass = data.$newPassword.value;
 
-        PageLoadHelper.fetchIntoHiddenIframe('Login/Login.aspx?reskin=0', (wnd, html) => {
+        // note: both the old website and the new website should get
+        // logged into simultaneously so it shouldn't take any extra
+        // time to log into both sites
 
-            let newScript = this.#getLoginInjectionScript(user, pass);
-            html = html.replace('</body>', newScript.outerHTML + "</body>");
-            html = PageLoadHelper.removeNewSkinScripts(html);
+        let builder = this;
 
-            // write to the new window
-            wnd.document.open();
-            wnd.document.write(html);
-            wnd.document.close();
+        // log into the old website at the same time so we can use the same session
+        function loginOldSite() {
+            PageLoadHelper.fetchIntoHiddenIframe('/Login/Login.aspx?reskin=0', (wnd, html) => {
 
-            // close hidden page and redirect once login is complete
-            PageLoadHelper.waitUntilPageChange(wnd, async _ => {
-                await SunsetSkin.navigateToAsync('Login/MyAccount.aspx');
+                let newScript = builder.#getLoginInjectionScript(user, pass);
+                html = replaceTextInString(html, '</body>', newScript.outerHTML + "</body>");
+                html = PageLoadHelper.removeNewSkinScripts(html);
+
+                // write to the new window
+                wnd.document.open();
+                wnd.document.write(html);
+                wnd.document.close();
+
+                // close finished login page on old site
+                PageLoadHelper.waitUntilPageChange(wnd, async _ => {
+                    loginNewSite();
+                });
             });
-        });
+        }
+
+        // do the login for the new skin
+        function loginNewSite() {
+            PageLoadHelper.fetchIntoHiddenIframe('Login/Login.aspx?reskin=0', (wnd, html) => {
+
+                let newScript = builder.#getLoginInjectionScript(user, pass);
+                html = replaceTextInString(html, '</body>', newScript.outerHTML + "</body>");
+                html = PageLoadHelper.removeNewSkinScripts(html);
+
+                // write to the new window
+                wnd.document.open();
+                wnd.document.write(html);
+                wnd.document.close();
+
+                // close hidden page and redirect once login is complete
+                PageLoadHelper.waitUntilPageChange(wnd, async _ => {
+                    await SunsetSkin.navigateToAsync('Login/MyAccount.aspx');
+                });
+            });
+        }
+
+
+        // start the process
+        loginOldSite();
 
     }
 
@@ -248,11 +279,14 @@ export class LoginPageBuilder {
             }
         }
 
+
         // inject code into new window
         let newScript = document.createElement('script');
         let js = injectScript.toString();
-        js = js.replace('%%USERNAME%%', username);
-        js = js.replace('%%PASSWORD%%', password);
+        js = replaceTextInString(js, '%%USERNAME%%', username);
+        js = replaceTextInString(js, '%%PASSWORD%%', password);
+        //js = js.replace('%%USERNAME%%', username);
+        //js = js.replace('%%PASSWORD%%', password);
         newScript.innerHTML = js + ' injectScript();';
 
         return newScript;

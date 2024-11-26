@@ -1,6 +1,5 @@
 import {MyAccountForm} from "../models/MyAccountForm.js";
 import {SunsetSkin} from "../SunsetSkin.js";
-import {SplitUrl} from "../UrlHelper.js";
 import {MyAccountController} from "../controllers/MyAccountController.js";
 import {PageLoadHelper} from "../util/PageLoadHelper.js";
 import {DomHelper} from "../util/DomHelper.js";
@@ -211,7 +210,11 @@ export class MyAccountBuilder {
                     $view.addEventListener('click', (event) => {
                         event.preventDefault();
                         // order.$link.click();
-                        document.location = SplitUrl.findDeployment(null) + 'ViewOrder.aspx?OrderNo=' + order.orderNo;
+
+                        // hardcoding to root website since using /reskin/ folder is always blank
+                        //let baseUrl = SplitUrl.findDeployment(null);
+                        let baseUrl = '/';
+                        document.location = baseUrl + 'ViewOrder.aspx?OrderNo=' + order.orderNo;
                     });
                 }
                 $tdLink.appendChild($view);
