@@ -95,6 +95,10 @@
       if (url.pathname.indexOf('/reskin') !== 0) {
         url.pathname = '/reskin' + url.pathname;
       }
+      if (url.pathname.indexOf('ViewOrder.aspx') !== -1) {
+        // if on view order, don't auto-redirect to new site
+        return;
+      }
       if (confirm('You will be redirected to the new site.  Are you sure you want to continue?')) {
         document.location = url.toString();
       }
