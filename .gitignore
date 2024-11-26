@@ -15,3 +15,4 @@
 /swwest_cart_files/
 /.idea/inspectionProfiles/Project_Default.xml
 .aider*
+.DS_Store*
