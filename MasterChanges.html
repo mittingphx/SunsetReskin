@@ -38,6 +38,7 @@
 <script type="text/javascript">
     document.querySelector('.newskin-toggle').addEventListener('click', function() {
         let url = '' + document.location;
+        url = url.replace('swwest.com/legacy/', 'swwest.com/');
         url = url.replace('swwest.com/','swwest.com/reskin/');
         url = url.replace('reskin/reskin/','reskin/');
         let qIndex = url.indexOf('?');
