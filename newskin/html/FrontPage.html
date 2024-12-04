@@ -78,8 +78,8 @@
 <!-- End Hero Area -->
 
 
-<div style="text-align: center;" onclick="
-		//document.location='ContactUs.aspx';
+<div class="suggestion-box" >
+    <img src="suggestion-box-transparent.png" onclick="
 		skin.navigateTo('ContactUs.aspx')
 			.then(() => {
 			setTimeout(() => {
@@ -90,13 +90,31 @@
 				console.log('scrolling contact form into view');
 				},500);
 		});
-	">
-    <img src="suggestion-box-transparent.png" alt="Suggestion Box" style="
-			width: 350px;
-			margin: 30px;
-			cursor: pointer;
-		">
+	" alt="Suggestion Box">
 </div>
+<style>
+    .suggestion-box {
+        text-align: center;
+    }
+    .suggestion-box img {
+        width: 350px;
+        margin: 30px;
+        cursor: pointer;
+        padding: 25px;
+        border-radius: 25px;
+        transition: 0.4s;
+    }
+
+    .suggestion-box img:hover {
+        transition: 0.4s;
+        box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+        border: 1px solid rgba(0,0,0,0.5);
+        margin-top:25px;
+        margin-left: 25px;
+        margin-right: 35px;
+        margin-bottom: 35px;
+    }
+</style>
 
 <!-- Product Insertion Point -->
 <div class="insert-products"></div>
