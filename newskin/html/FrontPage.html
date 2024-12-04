@@ -77,6 +77,27 @@
 </section>
 <!-- End Hero Area -->
 
+
+<div style="text-align: center;" onclick="
+		//document.location='ContactUs.aspx';
+		skin.navigateTo('ContactUs.aspx')
+			.then(() => {
+			setTimeout(() => {
+				let $form = document.querySelector('#contactForm')
+				let $field = $form && $form.querySelector('input');
+				console.log({ form: $form, field: $field });
+				$field.scrollIntoView();
+				console.log('scrolling contact form into view');
+				},500);
+		});
+	">
+    <img src="suggestion-box-transparent.png" alt="Suggestion Box" style="
+			width: 350px;
+			margin: 30px;
+			cursor: pointer;
+		">
+</div>
+
 <!-- Product Insertion Point -->
 <div class="insert-products"></div>
 

@@ -43,6 +43,7 @@ if (options.showSkin) {
     else {
         let skin = new SunsetSkin();
         skin.apply();
+        window.skin = skin;
     }
 }
 
