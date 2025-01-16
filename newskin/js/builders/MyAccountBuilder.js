@@ -43,7 +43,8 @@ export class MyAccountBuilder {
         //console.log('build(myAccountForm)', $myAccountForm);
 
         // my account section (right sidebar)
-        document.querySelector('#txtName').innerHTML = $myAccountForm.$spanName.innerHTML;
+        document.querySelector('#txtName').innerHTML = `${$myAccountForm.$spanName.innerHTML} (${$myAccountForm.acctNo})`;
+//        document.querySelector('#txtName').innerHTML = $myAccountForm.$spanName.innerHTML;
         document.querySelector('#txtCompany').innerHTML = $myAccountForm.$spanCompany.innerHTML;
         document.querySelector('#txtAcctNo').innerHTML = $myAccountForm.acctNo;
 
@@ -190,7 +191,7 @@ export class MyAccountBuilder {
         return $thead;
     }
 
-    /**
+    /**er
      * Builds a single row for the order history table.
      * @param order {OrderHistoryRow}
      * @returns {HTMLTableRowElement}

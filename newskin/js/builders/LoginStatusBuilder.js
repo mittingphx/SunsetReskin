@@ -30,7 +30,7 @@ export class LoginStatusBuilder {
             $user.innerHTML = '<i class="lni lni-user"></i>';
 
             if (loginStatus.loggedIn) {
-                $user.innerHTML += ` ${loginStatus.email}`;
+                $user.innerHTML += ` ${loginStatus.email} #{loginStatus.acctNo}`;
             }
             else {
                 $user.innerHTML += ' Not Logged In';
