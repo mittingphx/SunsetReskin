@@ -163,13 +163,29 @@ export class LoginPageBuilder {
         document.querySelector('#panel-register').style.display = 'block';
         document.querySelector('#panel-register-page2').style.display = 'none';
         document.querySelector('#panel-login').style.display = 'none';
-    }qS
+    }
 
     /**
-     * E
+     * Displays page 2 of the registration form.
+     * @returns {HTMLElement} the parent of the page 2 form
+     */
+    #showRegistrationPage2() {
+        document.querySelector('.page-title').innerHTML = 'Register (Step 2 of 2)';
+        document.querySelector('#panel-register').style.display = 'none';
+        document.querySelector('#panel-register-page2').style.display = 'block';
+        document.querySelector('#panel-login').style.display = 'none';
+        return document.querySelector('#panel-register-page2');
+    }
+
+    /**
+     * Displays the user login form.
+     */
+    #showLoginForm() {
+        document.querySelector('.page-title').innerHTML = 'Login';
+        document.querySelector('#panel-register').style.display = 'none';
         document.querySelector('#panel-register-page2').style.display = 'none';
-        docuRTmRTent.querySelector('#panel-login').style.display = 'block';
-    }DFDRF
+        document.querySelector('#panel-login').style.display = 'block';
+    }
 
     /**
      * Attempts to open the login page in a hidden iframe in the background.
